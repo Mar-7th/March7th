@@ -1,0 +1,33 @@
+[tool.nonebot]
+adapters = [
+    { name = "OneBot V11", module_name = "nonebot.adapters.onebot.v11" },
+    { name = "OneBot V12", module_name = "nonebot.adapters.onebot.v12" }
+]
+plugins = []
+plugin_dirs = ["march7th"]
+builtin_plugins = []
+
+[tool.poetry]
+name = "march7th"
+version = "0.1.0"
+description = "March7th – Honkai Star Rail bot based on Nonebot2."
+authors = ["mobyw <mobyw66@gmail.com>"]
+readme = "README.md"
+homepage = "https://github.com/Mar-7th/March7th"
+repository = "https://github.com/Mar-7th/March7th"
+documentation = "https://github.com/Mar-7th/March7th#readme"
+
+[tool.poetry.dependencies]
+python = ">=3.8, <4.0"
+nonebot2 = {extras = ["fastapi"], version = "^2.0.0rc4"}
+nonebot-adapter-onebot = "^2.2.2"
+nonebot-plugin-apscheduler = "^0.2.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.3.0"
+nonemoji = "^0.1.4"
+pre-commit = "^3.2.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
