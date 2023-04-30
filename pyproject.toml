@@ -21,12 +21,21 @@ documentation = "https://github.com/Mar-7th/March7th#readme"
 python = ">=3.8, <4.0"
 nonebot2 = {extras = ["fastapi"], version = "^2.0.0rc4"}
 nonebot-adapter-onebot = "^2.2.2"
+nonebot-plugin-datastore = "^0.6.3"
 nonebot-plugin-apscheduler = "^0.2.0"
+nonebot-plugin-send-anything-anywhere = {git = "https://github.com/felinae98/nonebot-plugin-send-anything-anywhere.git"}
+nonebot-plugin-sentry = "^0.3.0"
+httpx = "^0.24.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.3.0"
 nonemoji = "^0.1.4"
 pre-commit = "^3.2.2"
+
+
+[tool.poetry.group.test.dependencies]
+nonebug = "^0.3.3"
+pytest-asyncio = "^0.21.0"
 
 [build-system]
 requires = ["poetry-core"]
