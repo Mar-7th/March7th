@@ -45,32 +45,33 @@ async def _(regex_dict: dict = RegexDict()):
     if not wiki_name or not wiki_type:
         await wiki_search.finish()
     if "角色" in wiki_type:
-        if "材料" in wiki_type:
-            wiki_type = "character_material"
-        else:
-            wiki_type = "character_overview"
+        wiki_type_1 = "character"
     elif "光锥" in wiki_type:
-        wiki_type = "light_cone"
+        wiki_type_1 = "light_cone"
     else:
-        wiki_type = "all"
+        wiki_type_1 = "all"
+    if "材料" in wiki_type:
+        wiki_type_2 = "material"
+    else:
+        wiki_type_2 = "overview"
     pic_content = ""
-    if wiki_type in {"all", "character_overview"}:
+    if wiki_type_1 in {"all", "character"} and wiki_type_2 == "overview":
         if wiki_name in mapping_cn["character"]:
-            wiki_name = mapping_cn[wiki_name]
-            character_overview = list(character[wiki_name]["character_overview"])
+            name_en = mapping_cn["character"][wiki_name]
+            character_overview = list(character[name_en]["character_overview"])
             pic_content = character_overview[0] if character_overview else ""
-    if pic_content == "" and wiki_type in {"all", "character_material"}:
+    if pic_content == "" and wiki_type_1 in {"all", "character"} and wiki_type_2 == "material":
         if wiki_name in mapping_cn["character"]:
-            wiki_name = mapping_cn[wiki_name]
-            pic_content = character[wiki_name]["character_material"] or ""
-    if pic_content == "" and wiki_type in {"all", "light_cone"}:
+            name_en = mapping_cn["character"][wiki_name]
+            pic_content = character[name_en]["character_material"] or ""
+    if pic_content == "" and wiki_type_1 in {"all", "light_cone"}:
         if wiki_name in mapping_cn["light_cone"]:
-            wiki_name = mapping_cn[wiki_name]
-            light_cone_overview = list(light_cone[wiki_name]["light_cone_overview"])
+            name_en = mapping_cn["light_cone"][wiki_name]
+            light_cone_overview = list(light_cone[name_en]["light_cone_overview"])
             pic_content = light_cone_overview[0] if light_cone_overview else ""
     if pic_content == "":
         msg_builder = MessageFactory([Text(f"暂无『{regex_dict['name']}』的查找结果")])
     else:
-        msg_builder = MessageFactory([Image(pic_content)])
+        msg_builder = MessageFactory([Image(f"{plugin_config.github_proxy}/{plugin_config.sr_wiki_url}/{pic_content}")])
     await msg_builder.send(at_sender=True)
     await wiki_search.finish()
