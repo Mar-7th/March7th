@@ -1,3 +1,5 @@
+import random
+
 from nonebot import get_driver, on_regex, require
 from nonebot.params import RegexDict
 from nonebot.plugin import PluginMetadata
@@ -45,7 +47,7 @@ async def _(regex_dict: dict = RegexDict()):
     wiki_name: str = regex_dict["name"] or ""
     wiki_type: str = regex_dict.get("type") or ""
     res: str = regex_dict.get("res") or ""
-    if res != "" and wiki_name != "":
+    if wiki_name and res != "":
         await wiki_search.finish()
     if not wiki_name or not wiki_type:
         await wiki_search.finish()
@@ -64,7 +66,9 @@ async def _(regex_dict: dict = RegexDict()):
         if wiki_name in mapping_cn["character"]:
             name_en = mapping_cn["character"][wiki_name]
             character_overview = list(character[name_en]["character_overview"])
-            pic_content = character_overview[0] if character_overview else ""
+            pic_content = (
+                random.choice(character_overview) if character_overview else ""
+            )
     if (
         pic_content == ""
         and wiki_type_1 in {"all", "character"}
@@ -77,9 +81,11 @@ async def _(regex_dict: dict = RegexDict()):
         if wiki_name in mapping_cn["light_cone"]:
             name_en = mapping_cn["light_cone"][wiki_name]
             light_cone_overview = list(light_cone[name_en]["light_cone_overview"])
-            pic_content = light_cone_overview[0] if light_cone_overview else ""
+            pic_content = (
+                random.choice(light_cone_overview) if light_cone_overview else ""
+            )
     if pic_content == "":
-        msg_builder = MessageFactory([Text(f"暂无『{regex_dict['name']}』的查找结果")])
+        msg_builder = MessageFactory([Text(f"未找到『{regex_dict['name']}』的攻略")])
     else:
         msg_builder = MessageFactory(
             [
