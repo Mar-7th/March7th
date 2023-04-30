@@ -198,5 +198,7 @@ pyrightconfig.json
 ### Nonebot2 ###
 # Data folder of plugins
 accounts
+cache
+config
 data
 resources
