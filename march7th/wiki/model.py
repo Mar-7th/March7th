@@ -6,15 +6,15 @@ import httpx
 from nonebot import require
 from nonebot.log import logger
 
-require("nonebot_plugin_datastore")
-from nonebot_plugin_datastore import get_plugin_data
-
 from .config import (
     CHARACTER_FILE_NAME,
     LIGHT_CONE_FILE_NAME,
     MAPPING_CN_FILE_NAME,
     plugin_config,
 )
+
+require("nonebot_plugin_datastore")
+from nonebot_plugin_datastore import get_plugin_data  # noqa
 
 plugin_data_dir: Path = get_plugin_data().data_dir
 
