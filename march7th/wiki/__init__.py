@@ -33,7 +33,9 @@ BASE_TYPE_RE = "(" + "|".join(BASE_TYPE) + ")"
 WIKI_TYPE = ["图鉴", "攻略", "材料"]
 WIKI_TYPE_RE = "(" + "|".join(WIKI_TYPE) + ")"
 
-WIKI_RE = rf"(?P<name>\w{{0,7}}?)(?P<type>{BASE_TYPE_RE}?{WIKI_TYPE_RE})(?P<res>\w{{0,7}})"
+WIKI_RE = (
+    rf"(?P<name>\w{{0,7}}?)(?P<type>{BASE_TYPE_RE}?{WIKI_TYPE_RE})(?P<res>\w{{0,7}})"
+)
 
 wiki_search = on_regex(WIKI_RE, priority=9, block=True)
 
