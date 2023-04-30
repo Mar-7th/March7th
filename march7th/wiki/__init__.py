@@ -33,7 +33,7 @@ BASE_TYPE_RE = "(" + "|".join(BASE_TYPE) + ")"
 WIKI_TYPE = ["图鉴", "攻略", "材料"]
 WIKI_TYPE_RE = "(" + "|".join(WIKI_TYPE) + ")"
 
-WIKI_RE = rf"(?P<name>\w{{0,7}}?)(?P<type>{BASE_TYPE_RE}?{WIKI_TYPE_RE})"
+WIKI_RE = rf"(?P<name>\w{{0,7}}?)(?P<type>{BASE_TYPE_RE}?{WIKI_TYPE_RE})(?P<res>\w{{0,7}})"
 
 wiki_search = on_regex(WIKI_RE, priority=9, block=True)
 
@@ -42,6 +42,9 @@ wiki_search = on_regex(WIKI_RE, priority=9, block=True)
 async def _(regex_dict: dict = RegexDict()):
     wiki_name: str = regex_dict["name"] or ""
     wiki_type: str = regex_dict.get("type") or ""
+    res: str = regex_dict.get("res") or ""
+    if res != "" and wiki_name != "":
+        await wiki_search.finish()
     if not wiki_name or not wiki_type:
         await wiki_search.finish()
     if "角色" in wiki_type:
