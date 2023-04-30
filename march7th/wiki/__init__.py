@@ -60,7 +60,11 @@ async def _(regex_dict: dict = RegexDict()):
             name_en = mapping_cn["character"][wiki_name]
             character_overview = list(character[name_en]["character_overview"])
             pic_content = character_overview[0] if character_overview else ""
-    if pic_content == "" and wiki_type_1 in {"all", "character"} and wiki_type_2 == "material":
+    if (
+        pic_content == ""
+        and wiki_type_1 in {"all", "character"}
+        and wiki_type_2 == "material"
+    ):
         if wiki_name in mapping_cn["character"]:
             name_en = mapping_cn["character"][wiki_name]
             pic_content = character[name_en]["character_material"] or ""
@@ -72,6 +76,12 @@ async def _(regex_dict: dict = RegexDict()):
     if pic_content == "":
         msg_builder = MessageFactory([Text(f"暂无『{regex_dict['name']}』的查找结果")])
     else:
-        msg_builder = MessageFactory([Image(f"{plugin_config.github_proxy}/{plugin_config.sr_wiki_url}/{pic_content}")])
+        msg_builder = MessageFactory(
+            [
+                Image(
+                    f"{plugin_config.github_proxy}/{plugin_config.sr_wiki_url}/{pic_content}"
+                )
+            ]
+        )
     await msg_builder.send(at_sender=True)
     await wiki_search.finish()
