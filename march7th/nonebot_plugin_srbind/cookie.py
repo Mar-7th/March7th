@@ -1,3 +1,4 @@
+import random
 from typing import Optional
 
 from .models import get_user_srbind
@@ -16,3 +17,11 @@ async def get_user_cookie(
     else:
         user = select_user[0]
         return user.cookie
+
+
+async def get_public_cookie(bot_id: str) -> Optional[str]:
+    select_user = await get_user_srbind(bot_id, "0")
+    if not select_user:
+        return None
+    user = random.choice(select_user)
+    return user.cookie
