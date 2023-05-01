@@ -3,8 +3,8 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 import httpx
-from nonebot import require
 from nonebot.log import logger
+from nonebot_plugin_datastore import get_plugin_data
 
 from .config import (
     CHARACTER_FILE_NAME,
@@ -12,9 +12,6 @@ from .config import (
     MAPPING_CN_FILE_NAME,
     plugin_config,
 )
-
-require("nonebot_plugin_datastore")
-from nonebot_plugin_datastore import get_plugin_data  # noqa
 
 plugin_data_dir: Path = get_plugin_data().data_dir
 

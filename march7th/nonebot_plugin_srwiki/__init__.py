@@ -5,10 +5,12 @@ from nonebot.params import RegexDict
 from nonebot.plugin import PluginMetadata
 
 require("nonebot_plugin_datastore")
+require("nonebot_plugin_saa")
+
 from nonebot_plugin_saa import Image, MessageFactory, Text
 
 from .config import plugin_config
-from .model import character, light_cone, mapping_cn, update_resources
+from .models import character, light_cone, mapping_cn, update_resources
 
 __plugin_meta__ = PluginMetadata(
     name="StarRailWiki",
