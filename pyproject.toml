@@ -26,6 +26,7 @@ nonebot-plugin-apscheduler = "^0.2.0"
 nonebot-plugin-send-anything-anywhere = {git = "https://github.com/felinae98/nonebot-plugin-send-anything-anywhere.git"}
 nonebot-plugin-sentry = "^0.3.0"
 httpx = "^0.24.0"
+pillow = "^9.5.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.3.0"
