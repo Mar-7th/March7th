@@ -190,8 +190,15 @@ async def call_mihoyo_api(
         if avatar_id is None:
             raise ValueError("avatar_id is required for sr_avatar_info api")
         server_id = RECOGNIZE_SERVER.get(role_uid[0])
-        params = {"id": avatar_id, "need_wiki": "false", "role_id": role_uid, "server": server_id}
-        params_str = f"id={avatar_id}&need_wiki=false&role_id={role_uid}&server={server_id}"
+        params = {
+            "id": avatar_id,
+            "need_wiki": "false",
+            "role_id": role_uid,
+            "server": server_id,
+        }
+        params_str = (
+            f"id={avatar_id}&need_wiki=false&role_id={role_uid}&server={server_id}"
+        )
     else:  # api not found
         url = None
     if url is not None:  # send request

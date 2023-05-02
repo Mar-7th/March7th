@@ -79,7 +79,7 @@ async def get_srinfo_img(
 
     avatars = sr_index["avatar_list"]  # 角色信息 list
     equips: Dict[int, Optional[str]] = {}  # 装备信息 dict
-    
+
     details = sr_avatar_info["avatar_list"]
     for detail in details:
         equip = detail["equip"]
