@@ -1,46 +1,42 @@
-from base64 import b64encode
 from io import BytesIO
 from pathlib import Path
 from typing import Dict, Generator, List, Optional, TypeVar
 
 import httpx
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
+from pil_utils import BuildImage
 
 IMG_PATH = Path(__file__).parent / "images"
-FONT_PATH = Path(__file__).parent / "fonts"
-FONT_FILE_PATH = FONT_PATH / "SDK_SC_Web.ttf"
 
-bg1 = Image.open(IMG_PATH / "bg1.png")
-bg2 = Image.open(IMG_PATH / "bg2.png")
-bg3 = Image.open(IMG_PATH / "bg3.png")
-user_avatar = Image.open(IMG_PATH / "200101.png").resize((220, 220)).convert("RGBA")
-char_bg_4 = Image.open(IMG_PATH / "rarity4_bg.png").convert("RGBA")
-char_bg_5 = Image.open(IMG_PATH / "rarity5_bg.png").convert("RGBA")
-circle = Image.open(IMG_PATH / "char_weapon_bg.png").convert("RGBA")
+rarity_4_bg = Image.open(IMG_PATH / "rarity_4_bg.png").convert("RGBA")
+rarity_5_bg = Image.open(IMG_PATH / "rarity_5_bg.png").convert("RGBA")
+item_bg = Image.open(IMG_PATH / "item_bg.png").convert("RGBA")
 
-bg_color = (248, 248, 248)
-white_color = (255, 255, 255)
-color_color = (40, 18, 7)
-first_color = (22, 8, 31)
+BACKGROUND = (248, 248, 248)
+GRAY1 = (200, 200, 200)
+GRAY2 = (100, 100, 100)
+GRAY3 = (75, 75, 75)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
 
-elements = {
-    "ice": Image.open(IMG_PATH / "IconNatureColorIce.png").convert("RGBA"),
-    "fire": Image.open(IMG_PATH / "IconNatureColorFire.png").convert("RGBA"),
-    "imaginary": Image.open(IMG_PATH / "IconNatureColorImaginary.png").convert("RGBA"),
-    "quantum": Image.open(IMG_PATH / "IconNatureColorQuantum.png").convert("RGBA"),
-    "lightning": Image.open(IMG_PATH / "IconNatureColorThunder.png").convert("RGBA"),
-    "wind": Image.open(IMG_PATH / "IconNatureColorWind.png").convert("RGBA"),
-    "physical": Image.open(IMG_PATH / "IconNaturePhysical.png").convert("RGBA"),
+fontname = "Sarasa Mono SC"
+fallback_fonts = [
+    "Source Han Sans SC",
+    "Microsoft YaHei",
+    "Noto Sans SC",
+    "Noto Sans CJK JP",
+    "WenQuanYi Micro Hei",
+]
+
+element_icons = {
+    "ice": Image.open(IMG_PATH / "icon_ice.png").convert("RGBA"),
+    "fire": Image.open(IMG_PATH / "icon_fire.png").convert("RGBA"),
+    "imaginary": Image.open(IMG_PATH / "icon_imaginary.png").convert("RGBA"),
+    "quantum": Image.open(IMG_PATH / "icon_quantum.png").convert("RGBA"),
+    "lightning": Image.open(IMG_PATH / "icon_thunder.png").convert("RGBA"),
+    "wind": Image.open(IMG_PATH / "icon_wind.png").convert("RGBA"),
+    "physical": Image.open(IMG_PATH / "icon_physical.png").convert("RGBA"),
 }
-
-
-def font(size: int) -> ImageFont.FreeTypeFont:
-    return ImageFont.truetype(str(FONT_FILE_PATH), size=size)
-
-
-def level_fmt(level: int) -> str:
-    return f"Lv.0{level}" if level < 10 else f"Lv.{level}"
-
 
 T = TypeVar("T")
 
@@ -50,23 +46,19 @@ def wrap_list(lst: List[T], n: int) -> Generator[List[T], None, None]:
         yield lst[i : i + n]
 
 
+def level_fmt(level: int) -> str:
+    return f"Lv.0{level}" if level < 10 else f"Lv.{level}"
+
+
 async def get_icon(url: str) -> Image.Image:
     async with httpx.AsyncClient() as client:
         resp = await client.get(url)
         return Image.open(BytesIO(resp.content)).convert("RGBA")
 
 
-def img2b64(img) -> str:
-    """图片转 base64"""
-    buf = BytesIO()
-    img.save(buf, format="PNG")
-    base64_str = "base64://" + b64encode(buf.getvalue()).decode()
-    return base64_str
-
-
 async def get_srinfo_img(
     sr_uid, sr_basic_info, sr_index, sr_avatar_info
-) -> Optional[str]:
+) -> Optional[BytesIO]:
     nickname = sr_basic_info["nickname"]  # 昵称
     level = sr_basic_info["level"]  # 等级
 
@@ -86,104 +78,102 @@ async def get_srinfo_img(
         equips[detail["id"]] = equip["icon"] if equip is not None else None  # type: ignore
 
     # 绘制图片
-    img_bg1 = bg1.copy()
-    bg1_draw = ImageDraw.Draw(img_bg1)
+    image_bg = BuildImage.new("RGBA", (800, 360), BACKGROUND)
+
+    big_text_font_args = {
+        "fontsize": 48,
+        "fill": GRAY3,
+        "fontname": fontname,
+        "weight": "bold",
+        "fallback_fonts": fallback_fonts,
+    }
+    text_font_args = {
+        "fontsize": 30,
+        "fill": GRAY2,
+        "fontname": fontname,
+        "weight": "bold",
+        "fallback_fonts": fallback_fonts,
+    }
+    small_text_font_args = {
+        "fontsize": 24,
+        "fill": GRAY2,
+        "fontname": fontname,
+        "weight": "bold",
+        "fallback_fonts": fallback_fonts,
+    }
+    num_font_args = {
+        "fontsize": 36,
+        "fill": GRAY3,
+        "fontname": fontname,
+        "weight": "bold",
+        "fallback_fonts": fallback_fonts,
+    }
+    small_num_font_args = {
+        "fontsize": 24,
+        "fill": WHITE,
+        "fontname": fontname,
+        "weight": "bold",
+        "fallback_fonts": fallback_fonts,
+    }
 
     # 写Nickname
-    bg1_draw.text((400, 85), nickname, font=font(36), fill=white_color, anchor="mm")
+    image_bg.draw_text((100, 30), nickname, **big_text_font_args)
     # 写UID
-    bg1_draw.text(
-        (400, 165),
-        f"UID {sr_uid}",
-        font=font(30),
-        fill=white_color,
-        anchor="mm",
-    )
-    # 贴头像
-    img_bg1.paste(user_avatar, (286, 213), mask=user_avatar)
-
+    image_bg.draw_text((100, 100), f"UID {sr_uid}", **text_font_args)
     # 写基本信息
-    bg1_draw.text(
-        (143, 590),
-        str(active_days),
-        font=font(36),
-        fill=white_color,
-        anchor="mm",
-    )  # 活跃天数
-    bg1_draw.text(
-        (270, 590),
-        str(avater_num),
-        font=font(36),
-        fill=white_color,
-        anchor="mm",
-    )  # 解锁角色
-    bg1_draw.text(
-        (398, 590),
-        str(achievement_num),
-        font=font(36),
-        fill=white_color,
-        anchor="mm",
-    )  # 达成成就
-    bg1_draw.text(
-        (525, 590),
-        str(chest_num),
-        font=font(36),
-        fill=white_color,
-        anchor="mm",
-    )  # 战利品开启
-    bg1_draw.text(
-        (666, 590), str(level), font=font(36), fill=white_color, anchor="mm"
-    )  # 开拓等级
-
-    # 画忘却之庭
-    bg1_draw.text(
-        (471, 722),
-        abyss_process,
-        font=font(30),
-        fill=first_color,
-        anchor="mm",
-    )
+    image_bg.draw_line((50, 150, 750, 150), fill=GRAY1, width=2)
+    image_bg.draw_text((100, 180), "活跃天数", **small_text_font_args)  # 活跃天数
+    image_bg.draw_text((250, 170), str(active_days), **num_font_args)  # 活跃天数
+    image_bg.draw_text((100, 230), "解锁角色", **small_text_font_args)  # 解锁角色
+    image_bg.draw_text((250, 220), str(avater_num), **num_font_args)  # 解锁角色
+    image_bg.draw_text((100, 280), "达成成就", **small_text_font_args)  # 达成成就
+    image_bg.draw_text((250, 270), str(achievement_num), **num_font_args)  # 达成成就
+    image_bg.draw_text((400, 180), "宝箱开启", **small_text_font_args)  # 宝箱开启
+    image_bg.draw_text((550, 170), str(chest_num), **num_font_args)  # 宝箱开启
+    image_bg.draw_text((400, 230), "开拓等级", **small_text_font_args)  # 开拓等级
+    image_bg.draw_text((550, 220), str(level), **num_font_args)  # 开拓等级
+    image_bg.draw_text((400, 280), "忘却之庭", **small_text_font_args)  # 忘却之庭
+    image_bg.draw_text((550, 280), str(abyss_process), **small_text_font_args)  # 忘却之庭
+    image_bg.draw_line((50, 325, 750, 325), fill=GRAY1, width=2)
 
     # 角色部分 每五个一组
     lines = []
     for five_avatars in wrap_list(avatars, 5):
-        line = bg2.copy()
-        x = 70
+        line = BuildImage.new("RGBA", (800, 200), BACKGROUND)
+        x_index = 70
         for avatar in five_avatars:
-            char_bg = (char_bg_4 if avatar["rarity"] == 4 else char_bg_5).copy()
-            char_draw = ImageDraw.Draw(char_bg)
-            char_icon = await get_icon(avatar["icon"])
-            element_icon = elements[avatar["element"]]
-
-            char_bg.paste(char_icon, (4, 8), mask=char_icon)
-            char_bg.paste(element_icon, (81, 10), mask=element_icon)
-
-            if equip := equips[avatar["id"]]:
-                char_bg.paste(circle, (0, 0), mask=circle)
-                equip_icon = (await get_icon(equip)).resize((48, 48))
-                char_bg.paste(equip_icon, (9, 80), mask=equip_icon)
-
-            char_draw.text(
-                (60, 146),
-                level_fmt(avatar["level"]),
-                font=font(24),
-                fill=color_color,
-                anchor="mm",
+            item_image = BuildImage(
+                (rarity_4_bg if avatar["rarity"] == 4 else rarity_5_bg).copy()
             )
-
-            line.paste(char_bg, (x, 0))
-            x += 135
+            char_icon = await get_icon(avatar["icon"])
+            element_icon = element_icons[avatar["element"]]
+            item_image.paste(char_icon, (4, 8), alpha=True)
+            item_image.paste(element_icon, (81, 10), alpha=True)
+            if equip := equips[avatar["id"]]:
+                equip_icon = (await get_icon(equip)).resize((48, 48))
+                item_image.paste(item_bg.copy(), alpha=True)
+                item_image.paste(equip_icon, (9, 80), alpha=True)
+            item_image.draw_text(
+                (30, 130), level_fmt(avatar["level"]), **small_num_font_args
+            )
+            line.paste(item_image, (x_index, 0))
+            x_index += 135
         lines.append(line)
 
     # 绘制总图
-    img = Image.new("RGBA", (800, 880 + len(lines) * 200), bg_color)
-    img.paste(img_bg1, (0, 0))
+    image_res = BuildImage.new("RGBA", (800, 360 + len(lines) * 200), BACKGROUND)
+    image_res.paste(image_bg, (0, 0))
 
-    y = 810
+    y_index = 360
     for line in lines:
-        img.paste(line, (0, y), mask=line)
-        y += 200
+        image_res.paste(line, (0, y_index), alpha=True)
+        y_index += 200
 
-    img.paste(bg3, (0, len(lines) * 200 + 810))
+    image_res.draw_rectangle(
+        (10, 10, 800 - 10, 360 + len(lines) * 200 - 10), outline=GRAY1, width=3
+    )
+    image_res.draw_rectangle(
+        (20, 20, 800 - 20, 360 + len(lines) * 200 - 20), outline=GRAY1
+    )
 
-    return img2b64(img)
+    return image_res.save_png()
