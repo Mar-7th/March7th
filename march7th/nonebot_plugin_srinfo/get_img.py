@@ -1,7 +1,7 @@
 from base64 import b64encode
 from io import BytesIO
 from pathlib import Path
-from typing import Generator, List, Optional, TypeVar
+from typing import Dict, Generator, List, Optional, TypeVar
 
 import httpx
 from PIL import Image, ImageDraw, ImageFont
@@ -64,10 +64,9 @@ def img2b64(img) -> str:
     return base64_str
 
 
-async def get_srinfo_img(sr_uid, sr_basic_info, sr_index) -> Optional[str]:
-    sr_basic_info = sr_basic_info["data"]
-    sr_index = sr_index["data"]
-
+async def get_srinfo_img(
+    sr_uid, sr_basic_info, sr_index, sr_avatar_info
+) -> Optional[str]:
     nickname = sr_basic_info["nickname"]  # 昵称
     level = sr_basic_info["level"]  # 等级
 
@@ -79,6 +78,12 @@ async def get_srinfo_img(sr_uid, sr_basic_info, sr_index) -> Optional[str]:
     abyss_process = stats["abyss_process"]  # 深渊进度
 
     avatars = sr_index["avatar_list"]  # 角色信息 list
+    equips: Dict[int, Optional[str]] = {}  # 装备信息 dict
+    
+    details = sr_avatar_info["avatar_list"]
+    for detail in details:
+        equip = detail["equip"]
+        equips[detail["id"]] = equip["icon"] if equip is not None else None  # type: ignore
 
     # 绘制图片
     img_bg1 = bg1.copy()
@@ -152,6 +157,11 @@ async def get_srinfo_img(sr_uid, sr_basic_info, sr_index) -> Optional[str]:
 
             char_bg.paste(char_icon, (4, 8), mask=char_icon)
             char_bg.paste(element_icon, (81, 10), mask=element_icon)
+
+            if equip := equips[avatar["id"]]:
+                char_bg.paste(circle, (0, 0), mask=circle)
+                equip_icon = (await get_icon(equip)).resize((48, 48))
+                char_bg.paste(equip_icon, (9, 80), mask=equip_icon)
 
             char_draw.text(
                 (60, 146),

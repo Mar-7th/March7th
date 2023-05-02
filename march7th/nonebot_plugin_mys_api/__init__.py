@@ -4,26 +4,43 @@ import json
 import random
 import string
 import time
-from typing import Literal, Optional
+from typing import Any, Dict, Literal, Optional
 
 import httpx
 from nonebot import logger
 
 RECOGNIZE_SERVER = {
     "1": "prod_gf_cn",
+    "2": "cn_gf01",
+    "5": "cn_qd01",
+    # '6': 'os_usa',
+    # '7': 'os_euro',
+    # '8': 'os_asia',
+    # '9': 'os_cht',
 }
 
 OLD_URL = "https://api-takumi.mihoyo.com"
 NEW_URL = "https://api-takumi-record.mihoyo.com"
 
-GAME_RECORD_API = f"{NEW_URL}/game_record/card/wapi/getGameRecordCard"  # 游戏记录卡片接口
-STOKEN_API = f"{OLD_URL}/auth/api/getMultiTokenByLoginTicket"  # stoken接口
-COOKIE_TOKEN_API = f"{OLD_URL}/auth/api/getCookieAccountInfoBySToken"  # cookie_token接口
-
-STAR_RAIL_ROLE_BASIC_INFO_URL = (
-    f"{NEW_URL}/game_record/app/hkrpg/api/role/basicInfo"  # 角色基础信息接口
+# AuthKey
+GET_TOKENS_BY_LT_API = (
+    f"{OLD_URL}/auth/api/getMultiTokenByLoginTicket"  # 通过login_ticket获取tokens
 )
-STAR_RAIL_INDEX_URL = f"{NEW_URL}/game_record/app/hkrpg/api/index"  # 角色橱窗信息接口
+GET_COOKIE_BY_STOKEN_API = (
+    f"{OLD_URL}/auth/api/getCookieAccountInfoBySToken"  # 通过stoken获取cookie
+)
+
+# 米游社
+GAME_RECORD_API = f"{NEW_URL}/game_record/card/wapi/getGameRecordCard"  # 游戏记录
+
+# 崩坏：星穹铁道
+STAR_RAIL_ROLE_BASIC_INFO_API = (
+    f"{NEW_URL}/game_record/app/hkrpg/api/role/basicInfo"  # 崩坏：星穹铁道角色基础信息
+)
+STAR_RAIL_INDEX_API = f"{NEW_URL}/game_record/app/hkrpg/api/index"  # 崩坏：星穹铁道角色橱窗信息
+STAR_RAIL_AVATAR_INFO_API = (
+    f"{NEW_URL}/game_record/app/hkrpg/api/avatar/info"  # 崩坏：星穹铁道角色详细信息
+)
 
 
 def md5(text: str) -> str:
@@ -72,7 +89,7 @@ def get_ds(q: str = "", b: Optional[dict] = None, mhy_bbs_sign: bool = False) ->
     return f"{t},{r},{c}"
 
 
-def mihoyo_headers(cookie, q="", b=None) -> dict:
+def generate_headers(cookie, q="", b=None) -> dict:
     """
     生成米游社headers
         :param cookie: cookie
@@ -92,27 +109,6 @@ def mihoyo_headers(cookie, q="", b=None) -> dict:
     }
 
 
-async def get_bind_game_info(cookie: str, mys_id: str):
-    """
-    通过cookie，获取米游社绑定的原神游戏信息
-    :param cookie: cookie
-    :param mys_id: 米游社id
-    :return: 原神信息
-    """
-    with contextlib.suppress(Exception):
-        async with httpx.AsyncClient(
-            headers=mihoyo_headers(cookie, f"uid={mys_id}")
-        ) as client:
-            data = await client.get(
-                url=GAME_RECORD_API, params={"uid": mys_id}, timeout=10
-            )
-            data = data.json()
-            logger.debug(data)
-            if data["retcode"] == 0:
-                return data["data"]
-    return None
-
-
 async def get_stoken_by_login_ticket(login_ticket: str, mys_id: str) -> Optional[str]:
     with contextlib.suppress(Exception):
         async with httpx.AsyncClient(
@@ -125,7 +121,7 @@ async def get_stoken_by_login_ticket(login_ticket: str, mys_id: str) -> Optional
             }
         ) as client:
             data = await client.get(
-                url=STOKEN_API,
+                url=GET_TOKENS_BY_LT_API,
                 params={
                     "login_ticket": login_ticket,
                     "token_types": "3",
@@ -151,7 +147,7 @@ async def get_cookie_token_by_stoken(stoken: str, mys_id: str) -> Optional[str]:
             }
         ) as client:
             data = await client.get(
-                url=COOKIE_TOKEN_API,
+                url=GET_COOKIE_BY_STOKEN_API,
                 params={"uid": mys_id, "stoken": stoken},
                 timeout=10,
             )
@@ -160,30 +156,76 @@ async def get_cookie_token_by_stoken(stoken: str, mys_id: str) -> Optional[str]:
     return None
 
 
-async def get_mihoyo_public_data(
-    uid: str,
+async def call_mihoyo_api(
+    api: Literal["game_record", "sr_basic_info", "sr_index", "sr_avatar_info"],
     cookie: str,
-    mode: Literal["sr_basic_info", "sr_index"],
-):
-    server_id = RECOGNIZE_SERVER.get(uid[0])
+    role_uid: str = "0",
+    **kwargs,
+) -> Optional[Dict]:
+    # cookie check
     if not cookie:
         return None
-    headers = mihoyo_headers(q=f"role_id={uid}&server={server_id}", cookie=cookie)
-    if mode == "sr_basic_info":
-        url = STAR_RAIL_ROLE_BASIC_INFO_URL
-    elif mode == "sr_index":
-        url = STAR_RAIL_INDEX_URL
-    else:
+    # request params
+    # fill params by api, or keep empty to use default params
+    # default params: uid, server_id, role_id
+    params: Dict[str, Any] = {}
+    params_str: str = ""
+    # fill headers and params by api
+    if api == "game_record":
+        # extra params: mys_id
+        mys_id = kwargs.get("mys_id", None)
+        if not mys_id:
+            raise ValueError("mys_id is required for game_record api")
+        url = GAME_RECORD_API  # 游戏记录
+        params = {"uid": mys_id}
+        params_str = f"uid={mys_id}"
+    elif api == "sr_basic_info":
+        url = STAR_RAIL_ROLE_BASIC_INFO_API
+    elif api == "sr_index":
+        url = STAR_RAIL_INDEX_API
+    elif api == "sr_avatar_info":
+        # extra params: avatar_id
+        url = STAR_RAIL_AVATAR_INFO_API
+        avatar_id = kwargs.get("avatar_id", None)
+        if avatar_id is None:
+            raise ValueError("avatar_id is required for sr_avatar_info api")
+        server_id = RECOGNIZE_SERVER.get(role_uid[0])
+        params = {"id": avatar_id, "need_wiki": "false", "role_id": role_uid, "server": server_id}
+        params_str = f"id={avatar_id}&need_wiki=false&role_id={role_uid}&server={server_id}"
+    else:  # api not found
         url = None
-    if url:
+    if url is not None:  # send request
+        # get server_id by role_uid
+        server_id = RECOGNIZE_SERVER.get(role_uid[0])
+        # fill deault params
+        if not params_str:
+            params_str = "&".join([f"{k}={v}" for k, v in params.items()])
+            params_fixed = f"role_id={role_uid}&server={server_id}"
+            params_str = f"{params_str}&{params_fixed}" if params_str else params_fixed
+        if not params:
+            params = {"role_id": role_uid, "server": server_id}
+        # generate headers
+        headers = generate_headers(cookie=cookie, q=params_str)
         async with httpx.AsyncClient(headers=headers) as client:
             data = await client.get(
                 url=url,
-                params={"role_id": uid, "server": server_id},
+                params=params,
                 timeout=10,
             )
-    else:
+    else:  # url is None
         data = None
-    data = dict(data.json()) if data else {"retcode": 999}
+    # debug log
+    # parse data
+    try:
+        retcode = data.json()["retcode"] if data else None
+        if retcode != 0 and data is not None:
+            logger.warning(f"mys api ({api}) failed: {data.json()}")
+            logger.warning(f"params: {params}")
+            data = None
+        data = dict(data.json()["data"]) if data else None
+    except (json.JSONDecodeError, KeyError):
+        data = None
+    if data is None:
+        logger.warning(f"mys api ({api}) error")
     logger.debug(data)
     return data

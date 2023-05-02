@@ -15,15 +15,15 @@ from nonebot_plugin_saa import MessageFactory, Text
 
 try:
     from march7th.nonebot_plugin_mys_api import (
-        get_bind_game_info,
+        call_mihoyo_api,
         get_cookie_token_by_stoken,
         get_stoken_by_login_ticket,
     )
 except ModuleNotFoundError:
     from nonebot_plugin_mys_api import (
+        call_mihoyo_api,
         get_stoken_by_login_ticket,
         get_cookie_token_by_stoken,
-        get_bind_game_info,
     )
 
 from .models import UserBind, del_user_srbind, get_user_srbind, set_user_srbind
@@ -120,8 +120,10 @@ async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
             logger.debug(f"cookie_token: {cookie_token}")
         if not cookie_token:
             msg = "cookie无效，缺少cookie_token或login_ticket字段\n获取cookie的教程：\ndocs.qq.com/doc/DQ3JLWk1vQVllZ2Z1"
-        elif game_info := await get_bind_game_info(
-            f"account_id={mys_id};cookie_token={cookie_token}", mys_id
+        elif game_info := await call_mihoyo_api(
+            api="game_record",
+            cookie=f"account_id={mys_id};cookie_token={cookie_token}",
+            mys_id=mys_id,
         ):
             if not game_info["list"]:
                 msg = "该账号尚未绑定任何游戏，请确认账号无误~"
@@ -146,7 +148,7 @@ async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
                         stoken=f"stuid={mys_id};stoken={stoken};" if stoken else None,
                     )
                     await set_user_srbind(user)
-                msg = f'玩家{player.strip()}绑定cookie{"和stoken" if stoken else ""}成功{"" if stoken else "当未能绑定stoken"}，建议将cookie撤回哦"'
+                msg = f'玩家{player.strip()}绑定cookie{"和stoken" if stoken else ""}成功{"" if stoken else "当未能绑定stoken"}，建议将cookie撤回哦'
         else:
             msg = "Cookie无效，请确认是否已过期\n获取cookie的教程：\ndocs.qq.com/doc/DQ3JLWk1vQVllZ2Z1"
     msg_builder = MessageFactory([Text(str(msg))])

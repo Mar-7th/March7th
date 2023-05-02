@@ -1,7 +1,6 @@
 from nonebot import on_command, require
-from nonebot.adapters import Bot, Event, Message
+from nonebot.adapters import Bot, Event
 from nonebot.log import logger
-from nonebot.params import CommandArg
 from nonebot.plugin import PluginMetadata
 
 require("nonebot_plugin_saa")
@@ -11,11 +10,11 @@ require("nonebot_plugin_mys_api")
 from nonebot_plugin_saa import Image, MessageFactory, Text
 
 try:
-    from march7th.nonebot_plugin_mys_api import get_mihoyo_public_data
+    from march7th.nonebot_plugin_mys_api import call_mihoyo_api
     from march7th.nonebot_plugin_srbind import get_user_srbind
     from march7th.nonebot_plugin_srbind.cookie import get_public_cookie, get_user_cookie
 except ModuleNotFoundError:
-    from nonebot_plugin_mys_api import get_mihoyo_public_data
+    from nonebot_plugin_mys_api import call_mihoyo_api
     from nonebot_plugin_srbind import get_user_srbind
     from nonebot_plugin_srbind.cookie import get_user_cookie, get_public_cookie
 
@@ -34,7 +33,7 @@ srinfo = on_command("srinfo", aliases={"星铁信息", "星铁账号信息"}, pr
 
 
 @srinfo.handle()
-async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
+async def _(bot: Bot, event: Event):
     user_list = await get_user_srbind(bot.self_id, event.get_user_id())
     if not user_list:
         msg = "未绑定SRUID"
@@ -51,20 +50,24 @@ async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
         await msg_builder.send(at_sender=True)
         await srinfo.finish()
     logger.info(f"正在查询SRUID『{sr_uid}』信息")
-    sr_basic_info = await get_mihoyo_public_data(sr_uid, cookie, mode="sr_basic_info")
-    sr_index = await get_mihoyo_public_data(sr_uid, cookie, mode="sr_index")
-    if (
-        not sr_basic_info
-        or not sr_index
-        or sr_basic_info["retcode"] == 999
-        or sr_index["retcode"] == 999
-    ):
+    sr_basic_info = await call_mihoyo_api(
+        api="sr_basic_info", cookie=cookie, role_uid=sr_uid
+    )
+    sr_index = await call_mihoyo_api(api="sr_index", cookie=cookie, role_uid=sr_uid)
+    try:
+        avatar_id = sr_index["avatar_list"][0]["id"] if sr_index else None
+    except (KeyError, IndexError):
+        avatar_id = None
+    sr_avatar_info = await call_mihoyo_api(
+        api="sr_avatar_info", cookie=cookie, role_uid=sr_uid, avatar_id=avatar_id
+    )
+    if not sr_basic_info or not sr_index or not sr_avatar_info:
         msg = "查询失败，请稍后重试"
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.send(at_sender=True)
         await srinfo.finish()
     logger.info(f"正在绘制SRUID『{sr_uid}』信息图片")
-    img = await get_srinfo_img(sr_uid, sr_basic_info, sr_index)
+    img = await get_srinfo_img(sr_uid, sr_basic_info, sr_index, sr_avatar_info)
     if img:
         msg_builder = MessageFactory([Image(img)])
     else:
