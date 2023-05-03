@@ -42,7 +42,7 @@ WIKI_RE = (
     rf"(?P<name>\w{{0,7}}?)(?P<type>{BASE_TYPE_RE}?{WIKI_TYPE_RE})(?P<res>\w{{0,7}})"
 )
 
-wiki_search = on_regex(WIKI_RE, priority=9, block=True)
+wiki_search = on_regex(WIKI_RE, priority=9, block=False)
 wiki_renew = on_command(
     "srupdate", aliases={"更新星铁资源列表"}, permission=SUPERUSER, block=True
 )
@@ -90,9 +90,7 @@ async def _(regex_dict: dict = RegexDict()):
             pic_content = (
                 random.choice(light_cone_overview) if light_cone_overview else ""
             )
-    if pic_content == "":
-        msg_builder = MessageFactory([Text(f"未找到『{regex_dict['name']}』的攻略")])
-    else:
+    if pic_content:
         msg_builder = MessageFactory(
             [
                 Image(
@@ -100,15 +98,16 @@ async def _(regex_dict: dict = RegexDict()):
                 )
             ]
         )
-    await msg_builder.send(at_sender=True)
+        msg_builder = MessageFactory([Text(f"未找到『{regex_dict['name']}』的攻略")])
+        await msg_builder.send(at_sender=True)
     await wiki_search.finish()
 
 
 @wiki_renew.handle()
 async def _():
-    msg_builder = MessageFactory([Text("开始更新『崩坏：星穹铁道』游戏资源")])
+    msg_builder = MessageFactory([Text("开始更新『崩坏：星穹铁道』游戏资源列表")])
     await msg_builder.send()
     await update_resources(overwrite=True)
-    msg_builder = MessageFactory([Text("『崩坏：星穹铁道』游戏资源更新完成")])
+    msg_builder = MessageFactory([Text("『崩坏：星穹铁道』游戏资源列表更新完成")])
     await msg_builder.send()
     await wiki_renew.finish()
