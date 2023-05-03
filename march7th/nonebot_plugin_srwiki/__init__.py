@@ -33,6 +33,8 @@ async def _():
 BASE_TYPE = [
     "角色",
     "光锥",
+    "武器",
+    "装备",
 ]
 BASE_TYPE_RE = "(" + "|".join(BASE_TYPE) + ")"
 WIKI_TYPE = ["图鉴", "攻略", "材料"]
@@ -59,7 +61,7 @@ async def _(regex_dict: dict = RegexDict()):
         await wiki_search.finish()
     if "角色" in wiki_type:
         wiki_type_1 = "character"
-    elif "光锥" in wiki_type:
+    elif "光锥" in wiki_type or "武器" in wiki_type or "装备" in wiki_type:
         wiki_type_1 = "light_cone"
     else:
         wiki_type_1 = "all"
