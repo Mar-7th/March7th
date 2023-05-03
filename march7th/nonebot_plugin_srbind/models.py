@@ -1,5 +1,7 @@
+from io import BytesIO
 from typing import List, Optional
 
+import qrcode
 from nonebot_plugin_datastore import create_session, get_plugin_data
 from sqlalchemy import TEXT, String, select, update
 from sqlalchemy.orm import Mapped, mapped_column
@@ -58,3 +60,15 @@ async def get_user_srbind(bot_id: str, user_id: str) -> List[UserBind]:
     async with create_session() as session:
         records = (await session.scalars(statement)).all()
     return list(records)
+
+
+def generate_qrcode(url: str) -> BytesIO:
+    qr = qrcode.QRCode(
+        version=1, error_correction=qrcode.ERROR_CORRECT_L, box_size=10, border=4
+    )
+    qr.add_data(url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    bio = BytesIO()
+    img.save(bio)
+    return bio

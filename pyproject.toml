@@ -28,6 +28,7 @@ nonebot-plugin-sentry = "^0.3.0"
 httpx = "^0.24.0"
 pillow = "^9.5.0"
 pil-utils = "^0.1.7"
+qrcode = "^7.4.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.3.0"

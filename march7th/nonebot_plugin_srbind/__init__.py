@@ -1,22 +1,40 @@
+import asyncio
+import contextlib
+import json
 import re
+from io import BytesIO
+from typing import Any, Dict
 
-from nonebot import on_command, require
+from nonebot import get_bot, on_command, require
 from nonebot.adapters import Bot, Event, Message
 from nonebot.log import logger
 from nonebot.params import CommandArg
 from nonebot.permission import SUPERUSER
 from nonebot.plugin import PluginMetadata
 
+require("nonebot_plugin_apscheduler")
 require("nonebot_plugin_datastore")
 require("nonebot_plugin_saa")
 require("nonebot_plugin_mys_api")
 
-from nonebot_plugin_saa import MessageFactory, Text
+from nonebot_plugin_apscheduler import scheduler
+from nonebot_plugin_saa import (
+    Image,
+    Mention,
+    MessageFactory,
+    PlatformTarget,
+    Text,
+    extract_target,
+)
 
 try:
     from march7th.nonebot_plugin_mys_api import (
         call_mihoyo_api,
+        check_login_qr,
+        create_login_qr,
+        get_cookie_by_game_token,
         get_cookie_token_by_stoken,
+        get_stoken_by_game_token,
         get_stoken_by_login_ticket,
     )
 except ModuleNotFoundError:
@@ -24,9 +42,19 @@ except ModuleNotFoundError:
         call_mihoyo_api,
         get_stoken_by_login_ticket,
         get_cookie_token_by_stoken,
+        create_login_qr,
+        check_login_qr,
+        get_cookie_by_game_token,
+        get_stoken_by_game_token,
     )
 
-from .models import UserBind, del_user_srbind, get_user_srbind, set_user_srbind
+from .models import (
+    UserBind,
+    del_user_srbind,
+    generate_qrcode,
+    get_user_srbind,
+    set_user_srbind,
+)
 
 __plugin_meta__ = PluginMetadata(
     name="StarRailBind",
@@ -36,6 +64,8 @@ __plugin_meta__ = PluginMetadata(
         "version": "1.0",
     },
 )
+
+qrbind_buffer: Dict[str, Any] = {}
 
 sruid = on_command("sruid", aliases={"星铁uid", "星铁绑定", "星铁账号绑定"}, priority=2, block=True)
 srck = on_command(
@@ -51,6 +81,12 @@ srpck = on_command(
 srdel = on_command(
     "srdel",
     aliases={"星铁解绑", "星铁取消绑定", "星铁解除绑定", "星铁取消账号绑定", "星铁解除账号绑定"},
+    priority=2,
+    block=True,
+)
+srqr = on_command(
+    "srqr",
+    aliases={"星铁扫码绑定"},
     priority=2,
     block=True,
 )
@@ -239,3 +275,114 @@ async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
     msg_builder = MessageFactory([Text(str(msg))])
     await msg_builder.send(at_sender=True)
     await srdel.finish()
+
+
+@srqr.handle()
+async def _(bot: Bot, event: Event):
+    user_id = str(event.get_user_id())
+    if user_id in qrbind_buffer:
+        msg_builder = MessageFactory([Text("你已经在绑定中了，请扫描上一次的二维码")])
+        await msg_builder.send(at_sender=True)
+        await srdel.finish()
+    login_data = await create_login_qr(8)
+    qr_img: BytesIO = generate_qrcode(login_data["url"])
+    qrbind_buffer[user_id] = login_data
+    qrbind_buffer[user_id]["bot_id"] = bot.self_id
+    qrbind_buffer[user_id]["qr_img"] = qr_img
+    qrbind_buffer[user_id]["target"] = extract_target(event).json()
+    msg_builder = MessageFactory(
+        [
+            Image(qr_img),
+            Text(
+                f"\n请在3分钟内使用米游社扫码并确认进行绑定。\n注意：1.扫码即代表你同意将cookie信息授权给Bot使用\n2.扫码时会提示登录游戏，但不会基调账号\n3.其他人请不要乱扫，否则会将你的账号绑到TA身上！"
+            ),
+        ]
+    )
+    await msg_builder.send()
+    await srqr.finish()
+
+
+@scheduler.scheduled_job("cron", second="*/10", misfire_grace_time=10)
+async def check_qrcode():
+    with contextlib.suppress(RuntimeError):
+        for user_id, data in qrbind_buffer.items():
+            logger.debug(f"Check qr result of {user_id}")
+            try:
+                status_data = await check_login_qr(data)
+                logger.debug(status_data)
+                if status_data["retcode"] != 0:
+                    qrbind_buffer.pop(user_id)
+                    msg_builder = MessageFactory(
+                        [Mention(user_id), Text("绑定二维码已过期，请重新发送扫码绑定指令")]
+                    )
+                elif status_data["data"]["stat"] == "Confirmed":
+                    game_token = json.loads(status_data["data"]["payload"]["raw"])
+                    cookie_token_data = await get_cookie_by_game_token(
+                        int(game_token["uid"]), game_token["token"]
+                    )
+                    stoken_data = await get_stoken_by_game_token(
+                        int(game_token["uid"]), game_token["token"]
+                    )
+                    if not cookie_token_data or not stoken_data:
+                        continue
+                    mys_id = stoken_data["data"]["user_info"]["aid"]
+                    # mid = stoken_data['data']['user_info']['mid']
+                    cookie_token = cookie_token_data["data"]["cookie_token"]
+                    stoken = stoken_data["data"]["token"]["token"]
+                    if game_info := await call_mihoyo_api(
+                        api="game_record",
+                        cookie=f"account_id={mys_id};cookie_token={cookie_token}",
+                        mys_id=mys_id,
+                    ):
+                        if not game_info["list"]:
+                            msg_builder = MessageFactory(
+                                [Mention(user_id), Text("该账号尚未绑定任何游戏，请确认扫码的账号无误")]
+                            )
+                        elif not (
+                            sr_games := [
+                                {
+                                    "uid": game["game_role_id"],
+                                    "nickname": game["nickname"],
+                                }
+                                for game in game_info["list"]
+                                if game["game_id"] == 6
+                            ]
+                        ):
+                            msg_builder = MessageFactory(
+                                [Mention(user_id), Text("该账号尚未绑定星穹铁道，请确认扫码的账号无误")]
+                            )
+                        else:
+                            msg_builder = MessageFactory(
+                                [Mention(user_id), Text(f"成功绑定星穹铁道账号:\n")]
+                            )
+                            for info in sr_games:
+                                msg_builder += MessageFactory(
+                                    [Text(f"{info['nickname']} ({info['uid']})")]
+                                )
+                                user = UserBind(
+                                    bot_id=data["bot_id"],
+                                    user_id=str(user_id),
+                                    mys_id=mys_id,
+                                    sr_uid=info["uid"],
+                                    cookie=f"account_id={mys_id};cookie_token={cookie_token}",
+                                    stoken=f"stuid={mys_id};stoken={stoken};"
+                                    if stoken
+                                    else None,
+                                )
+                                await set_user_srbind(user)
+                        # send message to origin target
+                        target = PlatformTarget.deserialize(data["target"])
+                        bot = get_bot(self_id=data["bot_id"])
+                        await msg_builder.send_to(target=target, bot=bot)
+                        qrbind_buffer.pop(user_id)
+                        logger.debug(f"Check of user_id {user_id} success")
+                    else:
+                        pass
+                else:
+                    pass
+                if not qrbind_buffer:
+                    break
+            except Exception:
+                pass
+            finally:
+                await asyncio.sleep(1)

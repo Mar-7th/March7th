@@ -36,7 +36,7 @@ srinfo = on_command("srinfo", aliases={"星铁信息", "星铁账号信息"}, pr
 async def _(bot: Bot, event: Event):
     user_list = await get_user_srbind(bot.self_id, event.get_user_id())
     if not user_list:
-        msg = "未绑定SRUID"
+        msg = "未绑定SRUID，请使用`sruid [uid]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.send(at_sender=True)
         await srinfo.finish()
