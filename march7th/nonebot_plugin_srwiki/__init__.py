@@ -1,7 +1,8 @@
 import random
 
-from nonebot import get_driver, on_regex, require
+from nonebot import get_driver, on_command, on_regex, require
 from nonebot.params import RegexDict
+from nonebot.permission import SUPERUSER
 from nonebot.plugin import PluginMetadata
 
 require("nonebot_plugin_datastore")
@@ -15,7 +16,7 @@ from .models import character, light_cone, mapping_cn, update_resources
 __plugin_meta__ = PluginMetadata(
     name="StarRailWiki",
     description="崩坏：星穹铁道百科",
-    usage="(角色|武器)(攻略|图鉴|材料)",
+    usage="xxx(角色|武器)(攻略|图鉴|材料) 更新星铁资源列表",
     extra={
         "version": "1.0",
     },
@@ -42,6 +43,9 @@ WIKI_RE = (
 )
 
 wiki_search = on_regex(WIKI_RE, priority=9, block=True)
+wiki_renew = on_command(
+    "srupdate", aliases={"更新星铁资源列表"}, permission=SUPERUSER, block=True
+)
 
 
 @wiki_search.handle()
@@ -98,3 +102,13 @@ async def _(regex_dict: dict = RegexDict()):
         )
     await msg_builder.send(at_sender=True)
     await wiki_search.finish()
+
+
+@wiki_renew.handle()
+async def _():
+    msg_builder = MessageFactory([Text("开始更新『崩坏：星穹铁道』游戏资源")])
+    await msg_builder.send()
+    await update_resources(overwrite=True)
+    msg_builder = MessageFactory([Text("『崩坏：星穹铁道』游戏资源更新完成")])
+    await msg_builder.send()
+    await wiki_renew.finish()
