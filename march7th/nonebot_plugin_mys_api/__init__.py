@@ -4,6 +4,7 @@ import json
 import random
 import string
 import time
+import uuid
 from typing import Any, Dict, Literal, Optional
 
 import httpx
@@ -21,6 +22,9 @@ RECOGNIZE_SERVER = {
 
 OLD_URL = "https://api-takumi.mihoyo.com"
 NEW_URL = "https://api-takumi-record.mihoyo.com"
+HK4_SDK_URL = "https://hk4e-sdk.mihoyo.com"
+TAKUMI_HOST = "https://api-takumi.mihoyo.com"
+PASSPORT_HOST = "https://passport-api.mihoyo.com"
 
 # AuthKey
 GET_TOKENS_BY_LT_API = (
@@ -29,9 +33,16 @@ GET_TOKENS_BY_LT_API = (
 GET_COOKIE_BY_STOKEN_API = (
     f"{OLD_URL}/auth/api/getCookieAccountInfoBySToken"  # 通过stoken获取cookie
 )
+CREATE_QRCODE_API = f"{HK4_SDK_URL}/hk4e_cn/combo/panda/qrcode/fetch"  # 创建登录qrcode
+CHECK_QRCODE_API = f"{HK4_SDK_URL}/hk4e_cn/combo/panda/qrcode/query"  # 检查qrcode扫描状态
+GET_COOKIE_BY_GAME_TOKEN_API = (
+    f"{TAKUMI_HOST}/auth/api/getCookieAccountInfoByGameToken"  # 通过game_token获取cookie
+)
+GET_STOKEN_BY_GAME_TOKEN_API = f"{PASSPORT_HOST}/account/ma-cn-session/app/getTokenByGameToken"  # 通过game_token获取stoken
 
 # 米游社
 GAME_RECORD_API = f"{NEW_URL}/game_record/card/wapi/getGameRecordCard"  # 游戏记录
+
 
 # 崩坏：星穹铁道
 STAR_RAIL_ROLE_BASIC_INFO_API = (
@@ -69,27 +80,29 @@ def random_text(length: int) -> str:
     return "".join(random.sample(string.ascii_lowercase + string.digits, length))
 
 
-def get_ds(q: str = "", b: Optional[dict] = None, mhy_bbs_sign: bool = False) -> str:
+def get_ds(
+    query: str = "", body: Optional[Dict] = None, mhy_bbs_sign: bool = False
+) -> str:
     """
     生成米游社headers的ds_token
 
-    :param q: 查询
-    :param b: 请求体
+    :param query: 查询
+    :param body: 请求体
     :param mhy_bbs_sign: 是否为米游社讨论区签到
     :return: ds_token
     """
-    br = json.dumps(b) if b else ""
+    b = json.dumps(body) if body else ""
     if mhy_bbs_sign:
         s = "t0qEgfub6cvueAPgR5m9aQWWVciEer7v"
     else:
         s = "xV8v4Qu54lUKrEYFZkJhB8cuOh9Asafs"
     t = str(int(time.time()))
     r = str(random.randint(100000, 200000))
-    c = md5(f"salt={s}&t={t}&r={r}&b={br}&q={q}")
+    c = md5(f"salt={s}&t={t}&r={r}&b={b}&q={query}")
     return f"{t},{r},{c}"
 
 
-def generate_headers(cookie, q="", b=None) -> dict:
+def generate_headers(cookie: str, q="", b=None) -> Dict[str, str]:
     """
     生成米游社headers
         :param cookie: cookie
@@ -109,51 +122,132 @@ def generate_headers(cookie, q="", b=None) -> dict:
     }
 
 
-async def get_stoken_by_login_ticket(login_ticket: str, mys_id: str) -> Optional[str]:
-    with contextlib.suppress(Exception):
-        async with httpx.AsyncClient(
-            headers={
-                "x-rpc-app_version": "2.11.2",
-                "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1",
-                "x-rpc-client_type": "5",
-                "Referer": "https://webstatic.mihoyo.com/",
-                "Origin": "https://webstatic.mihoyo.com",
-            }
-        ) as client:
-            data = await client.get(
-                url=GET_TOKENS_BY_LT_API,
-                params={
-                    "login_ticket": login_ticket,
-                    "token_types": "3",
-                    "uid": mys_id,
-                },
-                timeout=10,
-            )
+async def get_stoken_by_login_ticket(login_ticket: str, mys_id: str):
+    async with httpx.AsyncClient(
+        headers={
+            "x-rpc-app_version": "2.11.2",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1",
+            "x-rpc-client_type": "5",
+            "Referer": "https://webstatic.mihoyo.com/",
+            "Origin": "https://webstatic.mihoyo.com",
+        }
+    ) as client:
+        data = await client.get(
+            url=GET_TOKENS_BY_LT_API,
+            params={
+                "login_ticket": login_ticket,
+                "token_types": "3",
+                "uid": mys_id,
+            },
+            timeout=10,
+        )
+        try:
             data = data.json()
             return data["data"]["list"][0]["token"]
-    return None
+        except (json.JSONDecodeError, KeyError):
+            return None
 
 
-async def get_cookie_token_by_stoken(stoken: str, mys_id: str) -> Optional[str]:
-    with contextlib.suppress(Exception):
-        async with httpx.AsyncClient(
-            headers={
-                "x-rpc-app_version": "2.11.2",
-                "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1",
-                "x-rpc-client_type": "5",
-                "Referer": "https://webstatic.mihoyo.com/",
-                "Origin": "https://webstatic.mihoyo.com",
-                "Cookie": f"stuid={mys_id};stoken={stoken}",
-            }
-        ) as client:
-            data = await client.get(
-                url=GET_COOKIE_BY_STOKEN_API,
-                params={"uid": mys_id, "stoken": stoken},
-                timeout=10,
-            )
+async def get_cookie_token_by_stoken(stoken: str, mys_id: str):
+    async with httpx.AsyncClient(
+        headers={
+            "x-rpc-app_version": "2.11.2",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1",
+            "x-rpc-client_type": "5",
+            "Referer": "https://webstatic.mihoyo.com/",
+            "Origin": "https://webstatic.mihoyo.com",
+            "Cookie": f"stuid={mys_id};stoken={stoken}",
+        }
+    ) as client:
+        data = await client.get(
+            url=GET_COOKIE_BY_STOKEN_API,
+            params={"uid": mys_id, "stoken": stoken},
+            timeout=10,
+        )
+        try:
             data = data.json()
             return data["data"]["cookie_token"]
-    return None
+        except (json.JSONDecodeError, KeyError):
+            return None
+
+
+async def get_cookie_by_game_token(uid: int, game_token: str):
+    async with httpx.AsyncClient() as client:
+        data = await client.get(
+            url=GET_COOKIE_BY_GAME_TOKEN_API,
+            params={"game_token": game_token, "account_id": uid},
+            timeout=10,
+        )
+        try:
+            return data.json()
+        except json.JSONDecodeError:
+            return None
+
+
+async def get_stoken_by_game_token(uid: int, game_token: str):
+    data = {"account_id": uid, "game_token": game_token}
+    headers = {
+        "DS": get_ds(body=data),
+        "x-rpc-aigis": "",
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "x-rpc-game_biz": "bbs_cn",
+        "x-rpc-sys_version": "11",
+        "x-rpc-device_id": uuid.uuid4().hex,
+        "x-rpc-device_fp": "".join(
+            random.choices((string.ascii_letters + string.digits), k=13)
+        ),
+        "x-rpc-device_name": "Chrome 108.0.0.0",
+        "x-rpc-device_model": "Windows 10 64-bit",
+        "x-rpc-app_id": "bll8iq97cem8",
+        "User-Agent": "okhttp/4.8.0",
+    }
+    async with httpx.AsyncClient(headers=headers) as client:
+        data = await client.post(
+            url=GET_STOKEN_BY_GAME_TOKEN_API,
+            params=data,
+            timeout=10,
+        )
+        try:
+            return data.json()
+        except json.JSONDecodeError:
+            return None
+
+
+async def create_login_qr(app_id: int):
+    """
+    创建登录二维码
+    app_id:
+        1-崩坏3, 2-未定事件簿, 4-原神, 5-平台应用, 7-崩坏学园2,
+        8-星穹铁道, 9-云游戏, 10-3NNN, 11-PJSH, 12-绝区零, 13-HYG
+    """
+    device_id = "".join(random.choices((string.ascii_letters + string.digits), k=64))
+    params = {"app_id": str(app_id), "device": device_id}
+    async with httpx.AsyncClient() as client:
+        data = await client.get(
+            url=CREATE_QRCODE_API,
+            params=params,
+            timeout=10,
+        )
+    url = data.json()["data"]["url"]
+    ticket = url.split("ticket=")[1]
+    ret_data = {"app_id": app_id, "ticket": ticket, "device": device_id, "url": url}
+    return ret_data
+
+
+async def check_login_qr(login_data: Dict):
+    params = {
+        "app_id": login_data["app_id"],
+        "ticket": login_data["ticket"],
+        "device": login_data["device"],
+    }
+    async with httpx.AsyncClient() as client:
+        data = await client.get(
+            url=CHECK_QRCODE_API,
+            params=params,
+            timeout=10,
+        )
+    return data.json()
 
 
 async def call_mihoyo_api(
