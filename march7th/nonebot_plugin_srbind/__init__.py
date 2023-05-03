@@ -293,6 +293,7 @@ async def _(bot: Bot, event: Event):
     msg_builder = MessageFactory(
         [
             Image(qr_img),
+            Mention(user_id),
             Text(
                 f"\n请在3分钟内使用米游社扫码并确认进行绑定。\n注意：1.扫码即代表你同意将cookie信息授权给Bot使用\n2.扫码时会提示登录游戏，但不会基调账号\n3.其他人请不要乱扫，否则会将你的账号绑到TA身上！"
             ),
