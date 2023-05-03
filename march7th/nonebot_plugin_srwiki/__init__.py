@@ -98,7 +98,6 @@ async def _(regex_dict: dict = RegexDict()):
                 )
             ]
         )
-        msg_builder = MessageFactory([Text(f"未找到『{regex_dict['name']}』的攻略")])
         await msg_builder.send(at_sender=True)
     await wiki_search.finish()
 
