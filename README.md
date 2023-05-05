@@ -16,6 +16,8 @@
 
 配置运行环境参数（可复制 `.env` 文件到 `.env.prod` 后填入参数）。
 
+可选：推荐安装 [汉仪润圆-65W](https://www.hanyi.com.cn/productdetail?id=657) 或 [Sarasa Mono SC](https://github.com/be5invis/Sarasa-Gothic)，若不安装则使用系统已安装字体制图。
+
 使用 `nb run` 运行 Bot 程序。
 
 发送命令 `srhelp` 即可查看命令列表。
