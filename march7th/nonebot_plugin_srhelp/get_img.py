@@ -52,9 +52,11 @@ async def get_srhelp_img(plugin_info: Dict[str, Dict[str, str]]) -> Optional[Byt
         item_image_dict[k]["x"] = pos_x
         item_image_dict[k]["y"] = pos_y
         item_image_dict[k]["image"] = item_image
-    image = BuildImage.new("RGBA", (1060, 200 + max(cols_height)), BACKGROUND)
+    image = BuildImage.new("RGBA", (1060, 180 + max(cols_height)), BACKGROUND)
     image.draw_text((60, 30), title, fontsize=56, weight="bold", **font_args)
-    image.draw_text((60, 170), git_repo, fontsize=20, weight="bold", **font_args)
+    image.draw_text(
+        (720, image.height - 40), git_repo, fontsize=20, weight="bold", **font_args
+    )
     for k, v in item_image_dict.items():
         image.paste(v["image"], (v["x"], v["y"]))
 
