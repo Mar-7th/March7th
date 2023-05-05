@@ -90,6 +90,21 @@ twisted = ["twisted"]
 zookeeper = ["kazoo"]
 
 [[package]]
+name = "arrow"
+version = "1.2.3"
+description = "Better dates & times for Python"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "arrow-1.2.3-py3-none-any.whl", hash = "sha256:5a49ab92e3b7b71d96cd6bfcc4df14efefc9dfa96ea19045815914a6ab6b1fe2"},
+    {file = "arrow-1.2.3.tar.gz", hash = "sha256:3934b30ca1b9f292376d9db15b19446088d12ec58629bc3f0da28fd55fb633a1"},
+]
+
+[package.dependencies]
+python-dateutil = ">=2.7.0"
+
+[[package]]
 name = "asgiref"
 version = "3.6.0"
 description = "ASGI specs, helper code, and adapters"
@@ -161,6 +176,21 @@ files = [
 ]
 
 [[package]]
+name = "binaryornot"
+version = "0.4.4"
+description = "Ultra-lightweight pure Python package to check if a file is binary or text."
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "binaryornot-0.4.4-py2.py3-none-any.whl", hash = "sha256:b8b71173c917bddcd2c16070412e369c3ed7f0528926f70cac18a6c97fd563e4"},
+    {file = "binaryornot-0.4.4.tar.gz", hash = "sha256:359501dfc9d40632edc9fac890e19542db1a287bbcfa58175b66658392018061"},
+]
+
+[package.dependencies]
+chardet = ">=3.0.2"
+
+[[package]]
 name = "black"
 version = "23.3.0"
 description = "The uncompromising code formatter."
@@ -211,6 +241,25 @@ jupyter = ["ipython (>=7.8.0)", "tokenize-rt (>=3.2.0)"]
 uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
+name = "cashews"
+version = "6.0.2"
+description = "cache tools with async power"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "cashews-6.0.2-py3-none-any.whl", hash = "sha256:4c5ff02dc57b94b08651787e51691debfca734e79c54a18b35d4ad6ba253bdff"},
+    {file = "cashews-6.0.2.tar.gz", hash = "sha256:f2e4e6fe5aa29a10121c5e5686608d7273bf0b1f7fdeeb101b0110070d194c54"},
+]
+
+[package.extras]
+dill = ["dill"]
+diskcache = ["diskcache (>=5.0.0)"]
+redis = ["redis (>=4.3.1)"]
+speedup = ["bitarray (<3.0.0)", "hiredis", "xxhash (<4.0.0)"]
+tests = ["hypothesis", "pytest", "pytest-asyncio"]
+
+[[package]]
 name = "certifi"
 version = "2022.12.7"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -235,10 +284,22 @@ files = [
 ]
 
 [[package]]
+name = "chardet"
+version = "5.1.0"
+description = "Universal encoding detector for Python 3"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "chardet-5.1.0-py3-none-any.whl", hash = "sha256:362777fb014af596ad31334fde1e8c327dfdb076e1960d1694662d46a6917ab9"},
+    {file = "chardet-5.1.0.tar.gz", hash = "sha256:0d62712b956bc154f85fb0a266e2a3c5913c2967e00348701b32411d6def31e5"},
+]
+
+[[package]]
 name = "charset-normalizer"
 version = "3.1.0"
 description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7.0"
 files = [
@@ -422,6 +483,27 @@ test = ["Pillow", "matplotlib", "pytest"]
 test-no-images = ["pytest"]
 
 [[package]]
+name = "cookiecutter"
+version = "2.1.1"
+description = "A command-line utility that creates projects from project templates, e.g. creating a Python package project from a Python package project template."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "cookiecutter-2.1.1-py2.py3-none-any.whl", hash = "sha256:9f3ab027cec4f70916e28f03470bdb41e637a3ad354b4d65c765d93aad160022"},
+    {file = "cookiecutter-2.1.1.tar.gz", hash = "sha256:f3982be8d9c53dac1261864013fdec7f83afd2e42ede6f6dd069c5e149c540d5"},
+]
+
+[package.dependencies]
+binaryornot = ">=0.4.4"
+click = ">=7.0,<9.0.0"
+Jinja2 = ">=2.7,<4.0.0"
+jinja2-time = ">=0.2.0"
+python-slugify = ">=4.0.0"
+pyyaml = ">=5.3.1"
+requests = ">=2.23.0"
+
+[[package]]
 name = "cycler"
 version = "0.11.0"
 description = "Composable style cycles"
@@ -437,7 +519,7 @@ files = [
 name = "distlib"
 version = "0.3.6"
 description = "Distribution utilities"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 files = [
@@ -486,7 +568,7 @@ test = ["anyio[trio] (>=3.2.1,<4.0.0)", "black (==23.1.0)", "coverage[toml] (>=6
 name = "filelock"
 version = "3.12.0"
 description = "A platform independent file lock."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -828,6 +910,40 @@ files = [
     {file = "iniconfig-2.0.0-py3-none-any.whl", hash = "sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374"},
     {file = "iniconfig-2.0.0.tar.gz", hash = "sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3"},
 ]
+
+[[package]]
+name = "jinja2"
+version = "3.1.2"
+description = "A very fast and expressive template engine."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "Jinja2-3.1.2-py3-none-any.whl", hash = "sha256:6088930bfe239f0e6710546ab9c19c9ef35e29792895fed6e6e31a023a182a61"},
+    {file = "Jinja2-3.1.2.tar.gz", hash = "sha256:31351a702a408a9e7595a8fc6150fc3f43bb6bf7e319770cbc0db9df9437e852"},
+]
+
+[package.dependencies]
+MarkupSafe = ">=2.0"
+
+[package.extras]
+i18n = ["Babel (>=2.7)"]
+
+[[package]]
+name = "jinja2-time"
+version = "0.2.0"
+description = "Jinja2 Extension for Dates and Times"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "jinja2-time-0.2.0.tar.gz", hash = "sha256:d14eaa4d315e7688daa4969f616f226614350c48730bfa1692d2caebd8c90d40"},
+    {file = "jinja2_time-0.2.0-py2.py3-none-any.whl", hash = "sha256:d3eab6605e3ec8b7a0863df09cc1d23714908fa61aa6986a845c20ba488b4efa"},
+]
+
+[package.dependencies]
+arrow = "*"
+jinja2 = "*"
 
 [[package]]
 name = "kiwisolver"
@@ -1239,6 +1355,35 @@ files = [
 ]
 
 [[package]]
+name = "nb-cli"
+version = "1.1.2"
+description = "CLI for nonebot2"
+category = "main"
+optional = false
+python-versions = ">=3.8, <4.0"
+files = [
+    {file = "nb-cli-1.1.2.tar.gz", hash = "sha256:155a2cd1864fce236a9db1171b33510eec4c853a230f68ab4ef37abf2d092b15"},
+    {file = "nb_cli-1.1.2-py3-none-any.whl", hash = "sha256:e6b592b8ec0aa59c2019ee0bce394e1a376de2ee2d3ba69bf196efac76198a8a"},
+]
+
+[package.dependencies]
+anyio = ">=3.6,<4.0"
+cashews = ">=6.0,<7.0"
+click = ">=8.1,<9.0"
+cookiecutter = ">=2.1,<3.0"
+httpx = ">=0.18,<1.0"
+importlib-metadata = {version = ">=4.6", markers = "python_version < \"3.10\""}
+jinja2 = ">=3.0,<4.0"
+noneprompt = ">=0.1.9,<1.0.0"
+pydantic = ">=1.9,<2.0"
+pyfiglet = ">=0.8.post1,<1.0.0"
+tomlkit = ">=0.10,<1.0"
+typing-extensions = ">=4.4,<5.0"
+virtualenv = ">=20.17.1,<20.18.0"
+watchfiles = ">=0.16,<1.0"
+wcwidth = ">=0.2,<1.0"
+
+[[package]]
 name = "nodeenv"
 version = "1.7.0"
 description = "Node.js virtual environment builder"
@@ -1431,7 +1576,7 @@ noneprompt = ">=0.1.3,<0.2.0"
 name = "noneprompt"
 version = "0.1.9"
 description = "Prompt toolkit for console interaction"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
@@ -1634,19 +1779,19 @@ tests = ["check-manifest", "coverage", "defusedxml", "markdown2", "olefile", "pa
 
 [[package]]
 name = "platformdirs"
-version = "3.5.0"
+version = "2.6.2"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "platformdirs-3.5.0-py3-none-any.whl", hash = "sha256:47692bc24c1958e8b0f13dd727307cff1db103fca36399f457da8e05f222fdc4"},
-    {file = "platformdirs-3.5.0.tar.gz", hash = "sha256:7954a68d0ba23558d753f73437c55f89027cf8f5108c19844d4b82e5af396335"},
+    {file = "platformdirs-2.6.2-py3-none-any.whl", hash = "sha256:83c8f6d04389165de7c9b6f0c682439697887bca0aa2f1c87ef1826be3584490"},
+    {file = "platformdirs-2.6.2.tar.gz", hash = "sha256:e1fea1fe471b9ff8332e229df3cb7de4f53eeea4998d3b6bfff542115e998bd2"},
 ]
 
 [package.extras]
-docs = ["furo (>=2023.3.27)", "proselint (>=0.13)", "sphinx (>=6.1.3)", "sphinx-autodoc-typehints (>=1.23,!=1.23.4)"]
-test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=7.3.1)", "pytest-cov (>=4)", "pytest-mock (>=3.10)"]
+docs = ["furo (>=2022.12.7)", "proselint (>=0.13)", "sphinx (>=5.3)", "sphinx-autodoc-typehints (>=1.19.5)"]
+test = ["appdirs (==1.4.4)", "covdefaults (>=2.2.2)", "pytest (>=7.2)", "pytest-cov (>=4)", "pytest-mock (>=3.10)"]
 
 [[package]]
 name = "pluggy"
@@ -1687,7 +1832,7 @@ virtualenv = ">=20.10.0"
 name = "prompt-toolkit"
 version = "3.0.38"
 description = "Library for building powerful interactive command lines in Python"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7.0"
 files = [
@@ -1751,6 +1896,18 @@ typing-extensions = ">=4.2.0"
 [package.extras]
 dotenv = ["python-dotenv (>=0.10.4)"]
 email = ["email-validator (>=1.0.3)"]
+
+[[package]]
+name = "pyfiglet"
+version = "0.8.post1"
+description = "Pure-python FIGlet implementation"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pyfiglet-0.8.post1-py2.py3-none-any.whl", hash = "sha256:d555bcea17fbeaf70eaefa48bb119352487e629c9b56f30f383e2c62dd67a01c"},
+    {file = "pyfiglet-0.8.post1.tar.gz", hash = "sha256:c6c2321755d09267b438ec7b936825a4910fec696292139e664ca8670e103639"},
+]
 
 [[package]]
 name = "pygtrie"
@@ -1864,6 +2021,24 @@ files = [
 cli = ["click (>=5.0)"]
 
 [[package]]
+name = "python-slugify"
+version = "8.0.1"
+description = "A Python slugify application that also handles Unicode"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "python-slugify-8.0.1.tar.gz", hash = "sha256:ce0d46ddb668b3be82f4ed5e503dbc33dd815d83e2eb6824211310d3fb172a27"},
+    {file = "python_slugify-8.0.1-py2.py3-none-any.whl", hash = "sha256:70ca6ea68fe63ecc8fa4fcf00ae651fc8a5d02d93dcd12ae6d4fc7ca46c4d395"},
+]
+
+[package.dependencies]
+text-unidecode = ">=1.3"
+
+[package.extras]
+unidecode = ["Unidecode (>=1.1.1)"]
+
+[[package]]
 name = "pytz"
 version = "2023.3"
 description = "World timezone definitions, modern and historical"
@@ -1969,7 +2144,7 @@ test = ["coverage", "pytest"]
 name = "requests"
 version = "2.29.0"
 description = "Python HTTP for Humans."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -2189,6 +2364,18 @@ release = ["twine"]
 test = ["pylint", "pytest", "pytest-black", "pytest-cov", "pytest-pylint"]
 
 [[package]]
+name = "text-unidecode"
+version = "1.3"
+description = "The most basic Text::Unidecode port"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "text-unidecode-1.3.tar.gz", hash = "sha256:bad6603bb14d279193107714b288be206cac565dfa49aa5b105294dd5c4aab93"},
+    {file = "text_unidecode-1.3-py2.py3-none-any.whl", hash = "sha256:1311f10e8b895935241623731c2ba64f4c455287888b18189350b67134a822e8"},
+]
+
+[[package]]
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
@@ -2198,6 +2385,18 @@ python-versions = ">=3.7"
 files = [
     {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
     {file = "tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
+]
+
+[[package]]
+name = "tomlkit"
+version = "0.11.8"
+description = "Style preserving TOML library"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "tomlkit-0.11.8-py3-none-any.whl", hash = "sha256:8c726c4c202bdb148667835f68d68780b9a003a9ec34167b6c673b38eff2a171"},
+    {file = "tomlkit-0.11.8.tar.gz", hash = "sha256:9330fc7faa1db67b541b28e62018c17d20be733177d290a13b24c62d1614e0c3"},
 ]
 
 [[package]]
@@ -2334,24 +2533,24 @@ test = ["Cython (>=0.29.32,<0.30.0)", "aiohttp", "flake8 (>=3.9.2,<3.10.0)", "my
 
 [[package]]
 name = "virtualenv"
-version = "20.23.0"
+version = "20.17.1"
 description = "Virtual Python Environment builder"
-category = "dev"
+category = "main"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.6"
 files = [
-    {file = "virtualenv-20.23.0-py3-none-any.whl", hash = "sha256:6abec7670e5802a528357fdc75b26b9f57d5d92f29c5462ba0fbe45feacc685e"},
-    {file = "virtualenv-20.23.0.tar.gz", hash = "sha256:a85caa554ced0c0afbd0d638e7e2d7b5f92d23478d05d17a76daeac8f279f924"},
+    {file = "virtualenv-20.17.1-py3-none-any.whl", hash = "sha256:ce3b1684d6e1a20a3e5ed36795a97dfc6af29bc3970ca8dab93e11ac6094b3c4"},
+    {file = "virtualenv-20.17.1.tar.gz", hash = "sha256:f8b927684efc6f1cc206c9db297a570ab9ad0e51c16fa9e45487d36d1905c058"},
 ]
 
 [package.dependencies]
 distlib = ">=0.3.6,<1"
-filelock = ">=3.11,<4"
-platformdirs = ">=3.2,<4"
+filelock = ">=3.4.1,<4"
+platformdirs = ">=2.4,<3"
 
 [package.extras]
-docs = ["furo (>=2023.3.27)", "proselint (>=0.13)", "sphinx (>=6.1.3)", "sphinx-argparse (>=0.4)", "sphinxcontrib-towncrier (>=0.2.1a0)", "towncrier (>=22.12)"]
-test = ["covdefaults (>=2.3)", "coverage (>=7.2.3)", "coverage-enable-subprocess (>=1)", "flaky (>=3.7)", "packaging (>=23.1)", "pytest (>=7.3.1)", "pytest-env (>=0.8.1)", "pytest-freezegun (>=0.4.2)", "pytest-mock (>=3.10)", "pytest-randomly (>=3.12)", "pytest-timeout (>=2.1)", "setuptools (>=67.7.1)", "time-machine (>=2.9)"]
+docs = ["proselint (>=0.13)", "sphinx (>=5.3)", "sphinx-argparse (>=0.3.2)", "sphinx-rtd-theme (>=1)", "towncrier (>=22.8)"]
+testing = ["coverage (>=6.2)", "coverage-enable-subprocess (>=1)", "flaky (>=3.7)", "packaging (>=21.3)", "pytest (>=7.0.1)", "pytest-env (>=0.6.2)", "pytest-freezegun (>=0.4.2)", "pytest-mock (>=3.6.1)", "pytest-randomly (>=3.10.3)", "pytest-timeout (>=2.1)"]
 
 [[package]]
 name = "watchfiles"
@@ -2392,7 +2591,7 @@ anyio = ">=3.0.0"
 name = "wcwidth"
 version = "0.2.6"
 description = "Measures the displayed width of unicode strings in a terminal"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 files = [
@@ -2602,4 +2801,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8, <4.0"
-content-hash = "c67353ca953ad784eeccca3a68c4297dc4c9572ab79fb1a5fa7c6cbfca712353"
+content-hash = "3db2a35433e3d775c55e6ca58fbeb307706dfba6de39d848e0102d0d60185650"
