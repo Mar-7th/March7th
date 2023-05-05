@@ -9,13 +9,11 @@ from nonebot_plugin_datastore import get_plugin_data
 from .config import (
     CHARACTER_FILE_NAME,
     LIGHT_CONE_FILE_NAME,
-    MAPPING_CN_FILE_NAME,
     plugin_config,
 )
 
 plugin_data_dir: Path = get_plugin_data().data_dir
 
-mapping_cn: Dict[str, Any] = {}
 character: Dict[str, Any] = {}
 light_cone: Dict[str, Any] = {}
 
@@ -38,7 +36,7 @@ async def update_resources(overwrite: bool = False):
             return None
 
     logger.info("Checking wiki resources...")
-    for FILE in [MAPPING_CN_FILE_NAME, LIGHT_CONE_FILE_NAME, CHARACTER_FILE_NAME]:
+    for FILE in [LIGHT_CONE_FILE_NAME, CHARACTER_FILE_NAME]:
         if not (plugin_data_dir / FILE).exists() or overwrite:
             logger.info(f"Downloading {FILE}...")
             data = await download(
@@ -50,8 +48,6 @@ async def update_resources(overwrite: bool = False):
             with open(plugin_data_dir / FILE, "wb") as f:
                 f.write(data)
     logger.info("Wiki resources checked.")
-    with open(plugin_data_dir / MAPPING_CN_FILE_NAME, "r", encoding="utf-8") as f:
-        mapping_cn.update(eval(f.read()))
     with open(plugin_data_dir / CHARACTER_FILE_NAME, "r", encoding="utf-8") as f:
         character.update(eval(f.read()))
     with open(plugin_data_dir / LIGHT_CONE_FILE_NAME, "r", encoding="utf-8") as f:

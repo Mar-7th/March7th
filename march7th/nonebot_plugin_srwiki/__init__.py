@@ -11,7 +11,7 @@ require("nonebot_plugin_saa")
 from nonebot_plugin_saa import Image, MessageFactory, Text
 
 from .config import plugin_config
-from .models import character, light_cone, mapping_cn, update_resources
+from .models import character, light_cone, update_resources
 
 __plugin_meta__ = PluginMetadata(
     name="StarRailWiki",
@@ -71,9 +71,8 @@ async def _(regex_dict: dict = RegexDict()):
         wiki_type_2 = "overview"
     pic_content = ""
     if wiki_type_1 in {"all", "character"} and wiki_type_2 == "overview":
-        if wiki_name in mapping_cn["character"]:
-            name_en = mapping_cn["character"][wiki_name]
-            character_overview = list(character[name_en]["character_overview"])
+        if wiki_name in character:
+            character_overview = list(character[wiki_name]["character_overview"])
             pic_content = (
                 random.choice(character_overview) if character_overview else ""
             )
@@ -82,13 +81,11 @@ async def _(regex_dict: dict = RegexDict()):
         and wiki_type_1 in {"all", "character"}
         and wiki_type_2 == "material"
     ):
-        if wiki_name in mapping_cn["character"]:
-            name_en = mapping_cn["character"][wiki_name]
-            pic_content = character[name_en]["character_material"] or ""
+        if wiki_name in character:
+            pic_content = character[wiki_name]["character_material"] or ""
     if pic_content == "" and wiki_type_1 in {"all", "light_cone"}:
-        if wiki_name in mapping_cn["light_cone"]:
-            name_en = mapping_cn["light_cone"][wiki_name]
-            light_cone_overview = list(light_cone[name_en]["light_cone_overview"])
+        if wiki_name in light_cone:
+            light_cone_overview = list(light_cone[wiki_name]["light_cone_overview"])
             pic_content = (
                 random.choice(light_cone_overview) if light_cone_overview else ""
             )
