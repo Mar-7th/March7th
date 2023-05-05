@@ -19,8 +19,9 @@ GRAY3 = (75, 75, 75)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
-fontname = "Sarasa Mono SC"
+fontname = "HYRunYuan-65W"
 fallback_fonts = [
+    "Sarasa Mono SC",
     "Source Han Sans SC",
     "Microsoft YaHei",
     "Noto Sans SC",
@@ -154,7 +155,7 @@ async def get_srinfo_img(
                 item_image.paste(item_bg.copy(), alpha=True)
                 item_image.paste(equip_icon, (9, 80), alpha=True)
             item_image.draw_text(
-                (30, 130), level_fmt(avatar["level"]), **small_num_font_args
+                (28, 130), level_fmt(avatar["level"]), **small_num_font_args
             )
             line.paste(item_image, (x_index, 0))
             x_index += 135

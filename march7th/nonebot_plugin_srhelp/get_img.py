@@ -7,8 +7,9 @@ BACKGROUND = (248, 248, 248)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
-fontname = "Sarasa Mono SC"
+fontname = "HYRunYuan-65W"
 fallback_fonts = [
+    "Sarasa Mono SC",
     "Source Han Sans SC",
     "Microsoft YaHei",
     "Noto Sans SC",
@@ -55,7 +56,7 @@ async def get_srhelp_img(plugin_info: Dict[str, Dict[str, str]]) -> Optional[Byt
     image = BuildImage.new("RGBA", (1060, 180 + max(cols_height)), BACKGROUND)
     image.draw_text((60, 30), title, fontsize=56, weight="bold", **font_args)
     image.draw_text(
-        (720, image.height - 40), git_repo, fontsize=20, weight="bold", **font_args
+        (700, image.height - 40), git_repo, fontsize=20, weight="bold", **font_args
     )
     for k, v in item_image_dict.items():
         image.paste(v["image"], (v["x"], v["y"]))
