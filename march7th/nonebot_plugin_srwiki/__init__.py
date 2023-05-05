@@ -16,7 +16,10 @@ from .models import character, light_cone, update_resources
 __plugin_meta__ = PluginMetadata(
     name="StarRailWiki",
     description="崩坏：星穹铁道百科",
-    usage="xxx(角色|武器)(攻略|图鉴|材料) 更新星铁资源列表",
+    usage="""\
+查询Wiki:   xxx(角色|光锥)(攻略|材料)
+更新资源:   srupdate *superuser
+""",
     extra={
         "version": "1.0",
     },

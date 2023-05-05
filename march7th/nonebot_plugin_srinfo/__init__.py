@@ -23,7 +23,9 @@ from .get_img import get_srinfo_img
 __plugin_meta__ = PluginMetadata(
     name="StarRailInfo",
     description="崩坏：星穹铁道账号信息查询",
-    usage="srinfo",
+    usage="""\
+查看信息:   srinfo
+""",
     extra={
         "version": "1.0",
     },

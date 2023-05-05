@@ -59,7 +59,14 @@ from .models import (
 __plugin_meta__ = PluginMetadata(
     name="StarRailBind",
     description="崩坏：星穹铁道账号绑定",
-    usage="sruid / sruid [UID] / srdel / srck [COOKIE] / srdel [UID]",
+    usage="""\
+查看绑定:   sruid
+绑定UID:    sruid [UID]
+清空绑定:   srdel
+删除UID:    srdel [UID]
+绑定cookie: srck  [COOKIE]
+扫码绑定:   srqr
+""",
     extra={
         "version": "1.0",
     },

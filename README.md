@@ -14,4 +14,8 @@
 
 配置协议实现端（如 `go-cqhttp` 可使用 `nb plugin install gocqhttp` 安装）。
 
+配置运行环境参数（可复制 `.env` 文件到 `.env.prod` 后填入参数）。
+
 使用 `nb run` 运行 Bot 程序。
+
+发送命令 `srhelp` 即可查看命令列表。
