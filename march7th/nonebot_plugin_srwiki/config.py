@@ -5,6 +5,7 @@ from pydantic import BaseModel, Extra
 
 CHARACTER_FILE_NAME = "character_cn.json"
 LIGHT_CONE_FILE_NAME = "light_cone_cn.json"
+NICKNAME_FILE_NAME = "nickname_cn.json"
 
 
 class Config(BaseModel, extra=Extra.ignore):

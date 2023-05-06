@@ -9,6 +9,7 @@ from nonebot_plugin_datastore import get_plugin_data
 from .config import (
     CHARACTER_FILE_NAME,
     LIGHT_CONE_FILE_NAME,
+    NICKNAME_FILE_NAME,
     plugin_config,
 )
 
@@ -16,6 +17,9 @@ plugin_data_dir: Path = get_plugin_data().data_dir
 
 character: Dict[str, Any] = {}
 light_cone: Dict[str, Any] = {}
+nickname: Dict[str, Any] = {}
+nickname_character_reverse: Dict[str, Any] = {}
+nickname_light_cone_reverse: Dict[str, Any] = {}
 
 
 async def update_resources(overwrite: bool = False):
@@ -36,7 +40,7 @@ async def update_resources(overwrite: bool = False):
             return None
 
     logger.info("Checking wiki resources...")
-    for FILE in [LIGHT_CONE_FILE_NAME, CHARACTER_FILE_NAME]:
+    for FILE in [LIGHT_CONE_FILE_NAME, CHARACTER_FILE_NAME, NICKNAME_FILE_NAME]:
         if not (plugin_data_dir / FILE).exists() or overwrite:
             logger.info(f"Downloading {FILE}...")
             data = await download(
@@ -52,3 +56,11 @@ async def update_resources(overwrite: bool = False):
         character.update(eval(f.read()))
     with open(plugin_data_dir / LIGHT_CONE_FILE_NAME, "r", encoding="utf-8") as f:
         light_cone.update(eval(f.read()))
+    with open(plugin_data_dir / NICKNAME_FILE_NAME, "r", encoding="utf-8") as f:
+        nickname.update(eval(f.read()))
+    for k, v in dict(nickname["character"]).items():
+        for v_item in list(v):
+            nickname_character_reverse[v_item] = k
+    for k, v in dict(nickname["light_cone"]).items():
+        for v_item in list(v):
+            nickname_light_cone_reverse[v_item] = k
