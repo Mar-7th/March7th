@@ -1,5 +1,4 @@
 from io import BytesIO
-from pathlib import Path
 from typing import Dict, Generator, List, Optional, TypeVar
 
 from PIL import Image
