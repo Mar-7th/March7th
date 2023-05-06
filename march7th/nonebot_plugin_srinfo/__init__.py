@@ -4,21 +4,26 @@ from nonebot.log import logger
 from nonebot.plugin import PluginMetadata
 
 require("nonebot_plugin_saa")
-require("nonebot_plugin_srbind")
 require("nonebot_plugin_mys_api")
+require("nonebot_plugin_srbind")
+require("nonebot_plugin_srres")
 
 from nonebot_plugin_saa import Image, MessageFactory, Text
 
 try:
     from march7th.nonebot_plugin_mys_api import call_mihoyo_api
     from march7th.nonebot_plugin_srbind import get_user_srbind
-    from march7th.nonebot_plugin_srbind.cookie import get_public_cookie, get_user_cookie
+    from march7th.nonebot_plugin_srbind.cookie import (
+        get_public_cookie,
+        get_user_cookie,
+        set_cookie_expire,
+    )
 except ModuleNotFoundError:
     from nonebot_plugin_mys_api import call_mihoyo_api
     from nonebot_plugin_srbind import get_user_srbind
     from nonebot_plugin_srbind.cookie import (
-        get_user_cookie,
         get_public_cookie,
+        get_user_cookie,
         set_cookie_expire,
     )
 
