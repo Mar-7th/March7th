@@ -200,7 +200,7 @@ async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
 
 
 @srpck.handle()
-async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
+async def _(bot: Bot, arg: Message = CommandArg()):
     cookie: str = arg.extract_plain_text().strip()
     if cookie in {"cookie", "[cookie]", "Cookie", "[COOKIE]", "ck", "CK", ""}:
         msg = f"请查看教程获取cookie:\ndocs.qq.com/doc/DQ3JLWk1vQVllZ2Z1"
