@@ -30,10 +30,10 @@ async def set_user_srbind(user: UserBind) -> None:
         statement = (
             update(UserBind)
             .where(UserBind.id == old_user.id)
-            .values(cookie=user.cookie, stoken=user.stoken)
+            .values(mys_id=user.mys_id, cookie=user.cookie, stoken=user.stoken)
         )
         async with create_session() as session:
-            await session.scalars(statement)
+            await session.execute(statement)
             await session.commit()
     else:
         async with create_session() as session:
