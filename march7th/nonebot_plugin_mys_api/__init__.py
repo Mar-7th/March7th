@@ -1,4 +1,3 @@
-import contextlib
 import hashlib
 import json
 import random
@@ -8,7 +7,17 @@ import uuid
 from typing import Any, Dict, Literal, Optional
 
 import httpx
-from nonebot import logger
+from nonebot.log import logger
+from nonebot.plugin import PluginMetadata
+
+__plugin_meta__ = PluginMetadata(
+    name="MysApi",
+    description="米游社API接口",
+    usage="",
+    extra={
+        "version": "1.0",
+    },
+)
 
 RECOGNIZE_SERVER = {
     "1": "prod_gf_cn",
@@ -52,6 +61,8 @@ STAR_RAIL_INDEX_API = f"{NEW_URL}/game_record/app/hkrpg/api/index"  # 崩坏：�
 STAR_RAIL_AVATAR_INFO_API = (
     f"{NEW_URL}/game_record/app/hkrpg/api/avatar/info"  # 崩坏：星穹铁道角色详细信息
 )
+STAR_RAIL_NOTE_API = f"{NEW_URL}/game_record/app/hkrpg/api/note"  # 崩坏：星穹铁道实时便笺
+STAR_RAIL_MONTH_INFO_API = f"{OLD_URL}/event/srledger/month_info"  # 崩坏：星穹铁道开拓月历
 
 
 def md5(text: str) -> str:
@@ -251,7 +262,14 @@ async def check_login_qr(login_data: Dict):
 
 
 async def call_mihoyo_api(
-    api: Literal["game_record", "sr_basic_info", "sr_index", "sr_avatar_info"],
+    api: Literal[
+        "game_record",
+        "sr_basic_info",
+        "sr_index",
+        "sr_avatar_info",
+        "sr_note",
+        "sr_month_info",
+    ],
     cookie: str,
     role_uid: str = "0",
     **kwargs,
@@ -293,6 +311,10 @@ async def call_mihoyo_api(
         params_str = (
             f"id={avatar_id}&need_wiki=false&role_id={role_uid}&server={server_id}"
         )
+    elif api == "sr_note":
+        url = STAR_RAIL_NOTE_API
+    elif api == "sr_month_info":
+        url = STAR_RAIL_MONTH_INFO_API
     else:  # api not found
         url = None
     if url is not None:  # send request
