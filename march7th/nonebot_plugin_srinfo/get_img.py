@@ -162,9 +162,9 @@ async def get_srinfo_img(
                     .draw_arc((0, 0, 100, 100), 0, 360, width=2, fill=GRAY2)
                 )
                 if rarity == 5:
-                    char_icon.draw_arc((0, 0, 100, 100), 0, 360, width=3, fill=STAR5)
+                    char_icon.draw_arc((0, 0, 100, 100), 0, 360, width=4, fill=STAR5)
                 else:
-                    char_icon.draw_arc((0, 0, 100, 100), 0, 360, width=3, fill=STAR4)
+                    char_icon.draw_arc((0, 0, 100, 100), 0, 360, width=4, fill=STAR4)
                 item_image.paste(char_icon, (30, 30), alpha=True)
             item_image.draw_text(
                 (30, 130, 130, 170),
@@ -178,10 +178,10 @@ async def get_srinfo_img(
                 item_image.paste(element_icon, (116, 16), alpha=True)
             if rank > 0:
                 item_image.draw_rounded_rectangle(
-                    (16, 16, 36, 36), outline=GRAY2, radius=5, width=2
+                    (20, 20, 40, 40), outline=GRAY2, radius=5, width=2
                 )
                 item_image.draw_text(
-                    (16, 16, 36, 36),
+                    (20, 20, 40, 40),
                     str(rank),
                     max_fontsize=24,
                     fontname=fontname,
