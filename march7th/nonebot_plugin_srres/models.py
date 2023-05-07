@@ -30,6 +30,11 @@ class StarRailRes:
     nickname: Dict[str, Any] = {}
     nickname_reverse: Dict[str, Any] = {}
 
+    def proxy_url(self, url: str) -> str:
+        if plugin_config.github_proxy:
+            return f"{plugin_config.github_proxy}/{url}"
+        return url
+
     def icon(self, name: str, use_nickname: bool = False) -> Optional[Path]:
         chars = "「」！"
         for char in chars:
@@ -81,7 +86,7 @@ class StarRailRes:
         if name in self.character:
             preview = self.character[name].get("preview")
             if preview:
-                return f"{plugin_config.github_proxy}/{plugin_config.sr_wiki_url}/{preview}"
+                return f"{plugin_config.sr_wiki_url}/{preview}"
         if use_nickname and name in self.nickname_reverse:
             return self.character_preview_url(self.nickname_reverse[name])
         return None
@@ -92,7 +97,7 @@ class StarRailRes:
         if name in self.character:
             portrait = self.character[name].get("portrait")
             if portrait:
-                return f"{plugin_config.github_proxy}/{plugin_config.sr_wiki_url}/{portrait}"
+                return self.proxy_url(f"{plugin_config.sr_wiki_url}/{portrait}")
         if use_nickname and name in self.nickname_reverse:
             return self.character_portrait_url(self.nickname_reverse[name])
         return None
@@ -105,7 +110,7 @@ class StarRailRes:
             if isinstance(overview, list):
                 overview = random.choice(overview)
             if overview:
-                return f"{plugin_config.github_proxy}/{plugin_config.sr_wiki_url}/{overview}"
+                return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
         if use_nickname and name in self.nickname_reverse:
             return self.character_overview_url(self.nickname_reverse[name])
         return None
@@ -118,7 +123,7 @@ class StarRailRes:
             if isinstance(material, list):
                 material = random.choice(material)
             if material:
-                return f"{plugin_config.github_proxy}/{plugin_config.sr_wiki_url}/{material}"
+                return self.proxy_url(f"{plugin_config.sr_wiki_url}/{material}")
         if use_nickname and name in self.nickname_reverse:
             return self.character_material_url(self.nickname_reverse[name])
         return None
@@ -131,7 +136,7 @@ class StarRailRes:
             if isinstance(overview, list):
                 overview = random.choice(overview)
             if overview:
-                return f"{plugin_config.github_proxy}/{plugin_config.sr_wiki_url}/{overview}"
+                return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
         if use_nickname and name in self.nickname_reverse:
             return self.light_cone_overview_url(self.nickname_reverse[name])
         return None
@@ -182,7 +187,7 @@ class StarRailRes:
             if not (plugin_data_dir / file_name).exists() or update_index:
                 logger.debug(f"Downloading {file_name}...")
                 data = await download(
-                    f"{plugin_config.github_proxy}/{plugin_config.sr_wiki_url}/{file_name}"
+                    self.proxy_url(f"{plugin_config.sr_wiki_url}/{file_name}")
                 )
                 if not data:
                     logger.error(f"Failed to download {file_name}.")
@@ -218,7 +223,7 @@ class StarRailRes:
             if not (plugin_data_dir / icon_file).exists():
                 logger.debug(f"Downloading {icon_file}...")
                 data = await download(
-                    f"{plugin_config.github_proxy}/{plugin_config.sr_wiki_url}/{icon_file}"
+                    self.proxy_url(f"{plugin_config.sr_wiki_url}/{icon_file}")
                 )
                 if not data:
                     logger.error(f"Failed to download {icon_file}.")
