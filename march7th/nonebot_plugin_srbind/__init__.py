@@ -60,15 +60,23 @@ __plugin_meta__ = PluginMetadata(
     name="StarRailBind",
     description="崩坏：星穹铁道账号绑定",
     usage="""\
-查看绑定:   sruid
-绑定UID:    sruid [UID]
-清空绑定:   srdel
-删除UID:    srdel [UID]
+查看绑定: sruid
+绑定UID: sruid [UID]
+清空绑定: srdel
+删除UID: srdel [UID]
 绑定cookie: srck  [COOKIE]
-扫码绑定:   srqr
+扫码绑定: srqr
 """,
     extra={
         "version": "1.0",
+        "srhelp": """\
+查看绑定: sruid
+绑定UID: sruid [u]UID[/u]
+清空绑定: srdel
+删除UID: srdel [u]UID[/u]
+绑定cookie: srck [u]COOKIE[/u]
+扫码绑定: srqr
+""",
     },
 )
 

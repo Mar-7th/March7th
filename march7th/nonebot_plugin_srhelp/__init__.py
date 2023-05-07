@@ -21,6 +21,9 @@ __plugin_meta__ = PluginMetadata(
 """,
     extra={
         "version": "1.0",
+        "srhelp": """\
+查看帮助: srhelp
+""",
     },
 )
 
@@ -47,8 +50,12 @@ async def _():
                 if plugin.metadata and plugin.metadata.description
                 else plugin.module.__getattribute__("__help_plugin_description__")
             )
-            plugin_info[name]["usage"] = (
-                plugin.metadata.usage
+            plugin_info[name]["srhelp"] = (
+                plugin.metadata.extra["srhelp"]
+                if plugin.metadata
+                and plugin.metadata.extra
+                and "srhelp" in plugin.metadata.extra
+                else plugin.metadata.usage
                 if plugin.metadata and plugin.metadata.usage
                 else plugin.module.__getattribute__("__help_plugin_usage__")
             )

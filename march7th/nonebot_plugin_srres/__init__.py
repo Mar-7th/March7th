@@ -19,7 +19,7 @@ __plugin_meta__ = PluginMetadata(
     extra={
         "version": "1.0",
         "srhelp": """\
-更新资源: srupdate *superuser
+更新资源: srupdate [color=gray]*superuser[/color]
 """,
     },
 )

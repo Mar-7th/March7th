@@ -32,7 +32,7 @@ async def get_srhelp_img(plugin_info: Dict[str, Dict[str, str]]) -> Optional[Byt
     item_image_dict: Dict[str, Dict[str, Any]] = {}
     for k, v in plugin_info.items():
         description = v.get("description", "No description")
-        usage = v.get("usage", "No usage")
+        usage = v.get("srhelp", "暂无帮助信息")
         item_text_image = text2image(
             f"[size=30][b]{k}[/b][/size]\n[size=20][i]{description}[/i][/size]\n[size=10] [/size]\n{usage}",
             fontsize=24,

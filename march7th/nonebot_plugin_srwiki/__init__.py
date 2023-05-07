@@ -22,6 +22,9 @@ __plugin_meta__ = PluginMetadata(
 """,
     extra={
         "version": "1.0",
+        "srhelp": """\
+查询Wiki: [u]xxx[/u](角色|光锥)(攻略|材料)
+""",
     },
 )
 
