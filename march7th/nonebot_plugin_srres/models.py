@@ -31,6 +31,9 @@ class StarRailRes:
     nickname_reverse: Dict[str, Any] = {}
 
     def icon(self, name: str, use_nickname: bool = False) -> Optional[Path]:
+        chars = "「」！"
+        for char in chars:
+            name = name.replace(char, "")
         if name in self.character:
             return self.icon_character(name)
         if name in self.light_cone:
