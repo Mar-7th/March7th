@@ -47,6 +47,9 @@ class StarRailRes:
         return None
 
     def icon_light_cone(self, name: str) -> Optional[Path]:
+        chars = "「」！"
+        for char in chars:
+            name = name.replace(char, "")
         if name in self.light_cone:
             icon_file = self.light_cone[name].get("icon")
             if icon_file:
