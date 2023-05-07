@@ -1,5 +1,5 @@
 from io import BytesIO
-from typing import Dict, List, Optional
+from typing import Optional
 
 from PIL import Image
 from pil_utils import BuildImage
