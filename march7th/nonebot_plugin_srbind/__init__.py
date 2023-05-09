@@ -123,14 +123,14 @@ async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
         if not uid:
             msg = "SRUID格式错误"
         else:
-            logger.info(f"开始为『{event.get_user_id()}』绑定SRUID『{sr_uid}』")
+            logger.info(f"开始为『{event.get_user_id()}』绑定SRUID『{uid}』")
             user = UserBind(
                 bot_id=bot.self_id,
                 user_id=str(event.get_user_id()),
-                sr_uid=sr_uid,
+                sr_uid=uid,
             )
             await set_user_srbind(user)
-            msg = f"成功绑定SRUID『{sr_uid}』"
+            msg = f"成功绑定SRUID『{uid}』"
     msg_builder = MessageFactory([Text(str(msg))])
     await msg_builder.send(at_sender=True)
     await sruid.finish()
