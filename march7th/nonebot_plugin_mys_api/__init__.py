@@ -315,6 +315,12 @@ async def call_mihoyo_api(
         url = STAR_RAIL_NOTE_API
     elif api == "sr_month_info":
         url = STAR_RAIL_MONTH_INFO_API
+        params = {
+            "act_id": "e202304121516551",
+            "region": RECOGNIZE_SERVER.get(role_uid[0]),
+            "uid": role_uid,
+            "lang": "zh-cn",
+        }
     else:  # api not found
         url = None
     if url is not None:  # send request
