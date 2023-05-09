@@ -46,7 +46,10 @@ sr_update = on_command(
 async def _():
     msg_builder = MessageFactory([Text("开始更新『崩坏：星穹铁道』游戏资源")])
     await msg_builder.send()
-    await srres.update(update_index=True)
-    msg_builder = MessageFactory([Text("『崩坏：星穹铁道』游戏资源更新完成")])
+    status = await srres.update(update_index=True)
+    if not status:
+        msg_builder = MessageFactory([Text("『崩坏：星穹铁道』游戏资源更新失败，请查看控制台输出")])
+    else:
+        msg_builder = MessageFactory([Text("『崩坏：星穹铁道』游戏资源更新完成")])
     await msg_builder.send()
     await sr_update.finish()

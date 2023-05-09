@@ -1,7 +1,6 @@
 import asyncio
 import json
 import random
-from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -14,12 +13,13 @@ from .config import plugin_config
 plugin_data_dir: Path = get_plugin_data().data_dir
 
 
-class ResFile(Enum):
-    CHARACTER = "character_cn.json"
-    LIGHT_CONE = "light_cone_cn.json"
-    NICKNAME = "nickname_cn.json"
-    PATH = "path.json"
-    ELEMENT = "element.json"
+ResFiles = {
+    "character": "characters.json",
+    "light_cone": "light_cones.json",
+    "nickname": "nickname.json",
+    "path": "paths.json",
+    "element": "elements.json",
+}
 
 
 class StarRailRes:
@@ -35,132 +35,124 @@ class StarRailRes:
             return f"{plugin_config.github_proxy}/{url}"
         return url
 
-    def icon(self, name: str, use_nickname: bool = False) -> Optional[Path]:
-        chars = "「」！"
-        for char in chars:
-            name = name.replace(char, "")
-        if name in self.character:
-            return self.icon_character(name)
-        if name in self.light_cone:
-            return self.icon_light_cone(name)
-        if use_nickname and name in self.nickname_reverse:
-            return self.icon(self.nickname_reverse[name])
+    def get_icon(
+        self, name: Optional[str] = None, id: Optional[str] = None
+    ) -> Optional[Path]:
+        if name:
+            chars = "「」！"
+            for char in chars:
+                name = name.replace(char, "")
+            if name in self.nickname_reverse:
+                return self.get_icon(id=self.nickname_reverse[name])
+        if id:
+            if id in self.character:
+                return self.get_icon_character(id)
+            if id in self.light_cone:
+                return self.get_icon_light_cone(id)
         return None
 
-    def icon_character(self, name: str) -> Optional[Path]:
-        if name in self.character:
-            icon_file = self.character[name].get("icon")
+    def get_icon_character(self, id: str) -> Optional[Path]:
+        if id in self.character:
+            icon_file = self.character[id].get("icon")
             if icon_file:
                 return plugin_data_dir / icon_file
         return None
 
-    def icon_light_cone(self, name: str) -> Optional[Path]:
-        chars = "「」！"
-        for char in chars:
-            name = name.replace(char, "")
-        if name in self.light_cone:
-            icon_file = self.light_cone[name].get("icon")
+    def get_icon_light_cone(self, id: str) -> Optional[Path]:
+        if id in self.light_cone:
+            icon_file = self.light_cone[id].get("icon")
             if icon_file:
                 return plugin_data_dir / icon_file
         return None
 
-    def icon_path(self, name: str) -> Optional[Path]:
-        name = name.capitalize()
-        if name in self.path:
-            icon_file = self.path[name].get("icon")
+    def get_icon_path(self, id: str) -> Optional[Path]:
+        id = id.capitalize()
+        if id in self.path:
+            icon_file = self.path[id].get("icon")
             if icon_file:
                 return plugin_data_dir / icon_file
         return None
 
-    def icon_element(self, name: str) -> Optional[Path]:
-        name = name.capitalize()
-        if name in self.element:
-            icon_file = self.element[name].get("icon")
+    def get_icon_element(self, id: str) -> Optional[Path]:
+        id = id.capitalize()
+        if id in self.element:
+            icon_file = self.element[id].get("icon")
             if icon_file:
                 return plugin_data_dir / icon_file
         return None
 
-    def character_preview_url(
-        self, name: str, use_nickname: bool = False
-    ) -> Optional[str]:
-        if name in self.character:
+    def get_character_preview_url(self, name: str) -> Optional[str]:
+        id = self.nickname_reverse[name]
+        if id in self.character:
             preview = self.character[name].get("preview")
             if preview:
                 return f"{plugin_config.sr_wiki_url}/{preview}"
-        if use_nickname and name in self.nickname_reverse:
-            return self.character_preview_url(self.nickname_reverse[name])
         return None
 
-    def character_portrait_url(
-        self, name: str, use_nickname: bool = False
-    ) -> Optional[str]:
-        if name in self.character:
-            portrait = self.character[name].get("portrait")
+    def get_character_portrait_url(self, name: str) -> Optional[str]:
+        id = self.nickname_reverse[name]
+        if id in self.character:
+            portrait = self.character[id].get("portrait")
             if portrait:
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{portrait}")
-        if use_nickname and name in self.nickname_reverse:
-            return self.character_portrait_url(self.nickname_reverse[name])
         return None
 
-    def character_overview_url(
-        self, name: str, use_nickname: bool = False
-    ) -> Optional[str]:
-        if name in self.character:
-            overview = self.character[name].get("character_overview")
+    def get_character_overview_url(self, name: str) -> Optional[str]:
+        id = self.nickname_reverse[name]
+        if id in self.character:
+            overview = self.character[id].get("character_overview")
             if isinstance(overview, list):
                 overview = random.choice(overview)
             if overview:
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
-        if use_nickname and name in self.nickname_reverse:
-            return self.character_overview_url(self.nickname_reverse[name])
         return None
 
-    def character_material_url(
-        self, name: str, use_nickname: bool = False
-    ) -> Optional[str]:
-        if name in self.character:
-            material = self.character[name].get("character_material")
+    def get_character_material_url(self, name: str) -> Optional[str]:
+        id = self.nickname_reverse[name]
+        if id in self.character:
+            material = self.character[id].get("character_material")
             if isinstance(material, list):
                 material = random.choice(material)
             if material:
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{material}")
-        if use_nickname and name in self.nickname_reverse:
-            return self.character_material_url(self.nickname_reverse[name])
         return None
 
-    def light_cone_overview_url(
-        self, name: str, use_nickname: bool = False
-    ) -> Optional[str]:
-        if name in self.light_cone:
-            overview = self.light_cone[name].get("light_cone_overview")
+    def get_light_cone_overview_url(self, name: str) -> Optional[str]:
+        id = self.nickname_reverse[name]
+        if id in self.light_cone:
+            overview = self.light_cone[id].get("light_cone_overview")
             if isinstance(overview, list):
                 overview = random.choice(overview)
             if overview:
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
-        if use_nickname and name in self.nickname_reverse:
-            return self.light_cone_overview_url(self.nickname_reverse[name])
         return None
 
     def reload(self) -> None:
         with open(
-            plugin_data_dir / ResFile.CHARACTER.value, "r", encoding="utf-8"
+            plugin_data_dir / "index" / ResFiles["character"], "r", encoding="utf-8"
         ) as f:
             self.character = json.load(f)
         with open(
-            plugin_data_dir / ResFile.LIGHT_CONE.value, "r", encoding="utf-8"
+            plugin_data_dir / "index" / ResFiles["light_cone"], "r", encoding="utf-8"
         ) as f:
             self.light_cone = json.load(f)
-        with open(plugin_data_dir / ResFile.NICKNAME.value, "r", encoding="utf-8") as f:
+        with open(
+            plugin_data_dir / "index" / ResFiles["nickname"], "r", encoding="utf-8"
+        ) as f:
             self.nickname = json.load(f)
-        for k, v in dict(self.nickname["character"]).items():
+        for k, v in dict(self.nickname["characters"]).items():
             for v_item in list(v):
                 self.nickname_reverse[v_item] = k
-        for k, v in dict(self.nickname["light_cone"]).items():
+        for k, v in dict(self.nickname["light_cones"]).items():
             for v_item in list(v):
                 self.nickname_reverse[v_item] = k
-        with open(plugin_data_dir / ResFile.PATH.value, "r", encoding="utf-8") as f:
+        with open(
+            plugin_data_dir / "index" / ResFiles["path"], "r", encoding="utf-8"
+        ) as f:
             self.path = json.load(f)
-        with open(plugin_data_dir / ResFile.ELEMENT.value, "r", encoding="utf-8") as f:
+        with open(
+            plugin_data_dir / "index" / ResFiles["element"], "r", encoding="utf-8"
+        ) as f:
             self.element = json.load(f)
 
     async def update(self, update_index: bool = False) -> bool:
@@ -182,18 +174,19 @@ class StarRailRes:
 
         status: bool = True
         logger.info("正在检查索引文件是否完整")
-        for file in ResFile:
-            file_name = file.value
-            if not (plugin_data_dir / file_name).exists() or update_index:
-                logger.debug(f"Downloading {file_name}...")
+        if not (plugin_data_dir / "index").exists():
+            (plugin_data_dir / "index").mkdir(parents=True)
+        for _, file_name in ResFiles.items():
+            if not (plugin_data_dir / "index" / file_name).exists() or update_index:
+                logger.debug(f"Downloading index {file_name}...")
                 data = await download(
-                    self.proxy_url(f"{plugin_config.sr_wiki_url}/{file_name}")
+                    self.proxy_url(f"{plugin_config.sr_wiki_url}/index/cn/{file_name}")
                 )
                 if not data:
                     logger.error(f"Failed to download {file_name}.")
                     status = False
                     continue
-                with open(plugin_data_dir / file_name, "wb") as f:
+                with open(plugin_data_dir / "index" / file_name, "wb") as f:
                     f.write(data)
         logger.info("索引文件检查完毕")
         logger.info("正在检查资源文件是否完整")
@@ -203,16 +196,20 @@ class StarRailRes:
         element = {}
         all = {}
         with open(
-            plugin_data_dir / ResFile.CHARACTER.value, "r", encoding="utf-8"
+            plugin_data_dir / "index" / ResFiles["character"], "r", encoding="utf-8"
         ) as f:
             character = json.load(f)
         with open(
-            plugin_data_dir / ResFile.LIGHT_CONE.value, "r", encoding="utf-8"
+            plugin_data_dir / "index" / ResFiles["light_cone"], "r", encoding="utf-8"
         ) as f:
             light_cone = json.load(f)
-        with open(plugin_data_dir / ResFile.PATH.value, "r", encoding="utf-8") as f:
+        with open(
+            plugin_data_dir / "index" / ResFiles["path"], "r", encoding="utf-8"
+        ) as f:
             path = json.load(f)
-        with open(plugin_data_dir / ResFile.ELEMENT.value, "r", encoding="utf-8") as f:
+        with open(
+            plugin_data_dir / "index" / ResFiles["element"], "r", encoding="utf-8"
+        ) as f:
             element = json.load(f)
         all.update(character)
         all.update(light_cone)
@@ -232,6 +229,7 @@ class StarRailRes:
                 (plugin_data_dir / icon_file).parent.mkdir(parents=True, exist_ok=True)
                 with open(plugin_data_dir / icon_file, "wb") as f:
                     f.write(data)
+                logger.success(f"Succeed to download {icon_file}.")
                 await asyncio.sleep(0.1)
         logger.info("资源文件检查完毕")
         self.reload()

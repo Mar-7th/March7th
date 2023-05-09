@@ -68,15 +68,15 @@ async def _(regex_dict: dict = RegexDict()):
         wiki_type_2 = "overview"
     pic_content = ""
     if wiki_type_1 in {"all", "character"} and wiki_type_2 == "overview":
-        pic_content = srres.character_overview_url(wiki_name, use_nickname=True)
+        pic_content = srres.get_character_overview_url(wiki_name)
     if (
         not pic_content
         and wiki_type_1 in {"all", "character"}
         and wiki_type_2 == "material"
     ):
-        pic_content = srres.character_material_url(wiki_name, use_nickname=True)
+        pic_content = srres.get_character_material_url(wiki_name)
     if not pic_content and wiki_type_1 in {"all", "light_cone"}:
-        pic_content = srres.light_cone_overview_url(wiki_name, use_nickname=True)
+        pic_content = srres.get_light_cone_overview_url(wiki_name)
     if pic_content:
         msg_builder = MessageFactory([Image(pic_content)])
         await msg_builder.send(at_sender=True)
