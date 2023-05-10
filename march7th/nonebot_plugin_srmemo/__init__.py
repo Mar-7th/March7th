@@ -46,7 +46,7 @@ srmemo = on_command(
     block=True,
 )
 srmonth = on_command(
-    "srmonth", aliases={"srnote", "星铁每月", "星铁月历", "星铁开拓月历"}, priority=2, block=True
+    "srmonth", aliases={"星铁每月", "星铁月历", "星铁开拓月历"}, priority=2, block=True
 )
 
 
