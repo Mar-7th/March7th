@@ -119,7 +119,7 @@ async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
         else:
             msg = "未绑定SRUID"
     else:
-        uid = re.match(r"[1]\d{8}", sr_uid)
+        uid = re.match(r"[1]\d{8}$", sr_uid)
         if not uid:
             msg = "SRUID格式错误"
         else:
