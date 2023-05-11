@@ -112,9 +112,9 @@ async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
     sr_uid: str = arg.extract_plain_text().strip()
     if not sr_uid:
         logger.info(f"开始查询『{event.get_user_id()}』的SRUID绑定状态")
-        uaer_list = await get_user_srbind(bot.self_id, event.get_user_id())
-        if uaer_list:
-            uid_list_str = [str(user.sr_uid) for user in uaer_list]
+        user_list = await get_user_srbind(bot.self_id, event.get_user_id())
+        if user_list:
+            uid_list_str = [str(user.sr_uid) for user in user_list]
             msg = "已绑定SRUID：\n" + "\n".join(uid_list_str)
         else:
             msg = "未绑定SRUID"
@@ -123,14 +123,14 @@ async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
         if not uid:
             msg = "SRUID格式错误"
         else:
-            logger.info(f"开始为『{event.get_user_id()}』绑定SRUID『{uid}』")
+            logger.info(f"开始为『{event.get_user_id()}』绑定SRUID『{uid.group()}』")
             user = UserBind(
                 bot_id=bot.self_id,
                 user_id=str(event.get_user_id()),
-                sr_uid=uid,
+                sr_uid=uid.group(),
             )
             await set_user_srbind(user)
-            msg = f"成功绑定SRUID『{uid}』"
+            msg = f"成功绑定SRUID『{uid.group()}』"
     msg_builder = MessageFactory([Text(str(msg))])
     await msg_builder.send(at_sender=True)
     await sruid.finish()
