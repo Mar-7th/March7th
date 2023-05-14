@@ -33,15 +33,15 @@ def level_fmt(level: int) -> str:
     return f"Lv.0{level}" if level < 10 else f"Lv.{level}"
 
 
-def get_icon(id: str) -> Optional[Image.Image]:
-    icon = srres.get_icon(id=id)
+async def get_icon(id: str) -> Optional[Image.Image]:
+    icon = await srres.get_icon(id=id)
     if icon:
         return Image.open(icon).convert("RGBA")
     return None
 
 
-def get_element_icon(name: str) -> Optional[Image.Image]:
-    icon = srres.get_icon_element(name)
+async def get_element_icon(name: str) -> Optional[Image.Image]:
+    icon = await srres.get_icon_element(name)
     if icon:
         return Image.open(icon).convert("RGBA")
     return None
@@ -153,8 +153,8 @@ async def get_srinfo_img(
             item_image = BuildImage.new("RGBA", (160, 240), BACKGROUND)
             rank = avatar["rank"]
             rarity = avatar["rarity"]
-            char_icon = get_icon(str(avatar["id"]))
-            element_icon = get_element_icon(avatar["element"])
+            char_icon = await get_icon(str(avatar["id"]))
+            element_icon = await get_element_icon(avatar["element"])
             if char_icon:
                 char_icon = (
                     BuildImage(char_icon)
@@ -190,7 +190,7 @@ async def get_srinfo_img(
                 )
             if avatar["id"] in equips:
                 equip = equips[avatar["id"]]
-                equip_icon = get_icon(str(equip["id"]))
+                equip_icon = await get_icon(str(equip["id"]))
                 if equip_icon:
                     equip_icon = equip_icon.resize((56, 56))
                     item_image.paste(equip_icon, (20, 170), alpha=True)

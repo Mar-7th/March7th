@@ -11,116 +11,162 @@ from nonebot_plugin_datastore import get_plugin_data
 from .config import plugin_config
 
 plugin_data_dir: Path = get_plugin_data().data_dir
+index_dir = plugin_data_dir / "index"
 
 
 ResFiles = {
-    "character": "characters.json",
-    "light_cone": "light_cones.json",
-    "nickname": "nickname.json",
-    "path": "paths.json",
-    "element": "elements.json",
+    "characters": "characters.json",
+    "character_ranks": "character_ranks.json",
+    "character_skills": "character_skills.json",
+    "character_skill_trees": "character_skill_trees.json",
+    "character_promotions": "character_promotions.json",
+    "light_cones": "light_cones.json",
+    "light_cone_ranks": "light_cone_ranks.json",
+    "light_cone_promotions": "light_cone_promotions.json",
+    "relics": "relics.json",
+    "relic_sets": "relic_sets.json",
+    "relic_main_affixs": "relic_main_affixs.json",
+    "relic_sub_affixs": "relic_sub_affixs.json",
+    "paths": "paths.json",
+    "elements": "elements.json",
+    "properties": "properties.json",
 }
+
+NicknameFile = "nickname.json"
 
 
 class StarRailRes:
-    character: Dict[str, Any] = {}
-    light_cone: Dict[str, Any] = {}
-    path: Dict[str, Any] = {}
-    element: Dict[str, Any] = {}
-    nickname: Dict[str, Any] = {}
-    nickname_reverse: Dict[str, Any] = {}
+    ResIndex: Dict[str, Dict[str, Any]] = {}
+    Nickname: Dict[str, Any] = {}
+    NicknameRev: Dict[str, Any] = {}
 
     def proxy_url(self, url: str) -> str:
         if plugin_config.github_proxy:
             return f"{plugin_config.github_proxy}/{url}"
         return url
 
-    def get_icon(
+    async def download(self, url: str) -> Optional[bytes]:
+        async with httpx.AsyncClient() as client:
+            for i in range(3):
+                try:
+                    resp = await client.get(url, timeout=10)
+                    if resp.status_code == 302:
+                        url = resp.headers["location"]
+                        continue
+                    resp.raise_for_status()
+                    return resp.content
+                except Exception as e:
+                    logger.warning(f"Error downloading {url}, retry {i}/3: {e}")
+                    await asyncio.sleep(2)
+            logger.error(f"Error downloading {url}, all attempts failed.")
+            return None
+
+    async def cache(self, file: str):
+        status = True
+        if not (plugin_data_dir / file).exists():
+            (plugin_data_dir / file).parent.mkdir(parents=True, exist_ok=True)
+            logger.debug(f"Downloading {file}...")
+            data = await self.download(
+                self.proxy_url(f"{plugin_config.sr_wiki_url}/{file}")
+            )
+            if not data:
+                logger.error(f"Failed to download {file}.")
+                status = False
+            else:
+                with open(plugin_data_dir / file, "wb") as f:
+                    f.write(data)
+        return status
+
+    async def get_icon(
         self, name: Optional[str] = None, id: Optional[str] = None
     ) -> Optional[Path]:
         if name:
             chars = "「」！"
             for char in chars:
                 name = name.replace(char, "")
-            if name in self.nickname_reverse:
-                return self.get_icon(id=self.nickname_reverse[name])
+            if name in self.NicknameRev:
+                return await self.get_icon(id=self.NicknameRev[name])
         if id:
-            if id in self.character:
-                return self.get_icon_character(id)
-            if id in self.light_cone:
-                return self.get_icon_light_cone(id)
+            if id in self.ResIndex["characters"]:
+                return await self.get_icon_character(id)
+            if id in self.ResIndex["light_cones"]:
+                return await self.get_icon_light_cone(id)
         return None
 
-    def get_icon_character(self, id: str) -> Optional[Path]:
-        if id in self.character:
-            icon_file = self.character[id].get("icon")
+    async def get_icon_character(self, id: str) -> Optional[Path]:
+        if id in self.ResIndex["characters"]:
+            icon_file = self.ResIndex["characters"][id].get("icon")
             if icon_file:
-                return plugin_data_dir / icon_file
+                if await self.cache(icon_file):
+                    return plugin_data_dir / icon_file
         return None
 
-    def get_icon_light_cone(self, id: str) -> Optional[Path]:
-        if id in self.light_cone:
-            icon_file = self.light_cone[id].get("icon")
+    async def get_icon_light_cone(self, id: str) -> Optional[Path]:
+        if id in self.ResIndex["light_cones"]:
+            icon_file = self.ResIndex["light_cones"][id].get("icon")
             if icon_file:
-                return plugin_data_dir / icon_file
+                if await self.cache(icon_file):
+                    return plugin_data_dir / icon_file
         return None
 
-    def get_icon_path(self, id: str) -> Optional[Path]:
+    async def get_icon_path(self, id: str) -> Optional[Path]:
         id = id.capitalize()
-        if id in self.path:
-            icon_file = self.path[id].get("icon")
+        if id in self.ResIndex["paths"]:
+            icon_file = self.ResIndex["paths"][id].get("icon")
             if icon_file:
-                return plugin_data_dir / icon_file
+                if await self.cache(icon_file):
+                    return plugin_data_dir / icon_file
         return None
 
-    def get_icon_element(self, id: str) -> Optional[Path]:
+    async def get_icon_element(self, id: str) -> Optional[Path]:
         id = id.capitalize()
-        if id in self.element:
-            icon_file = self.element[id].get("icon")
+        if id in self.ResIndex["elements"]:
+            icon_file = self.ResIndex["elements"][id].get("icon")
             if icon_file:
-                return plugin_data_dir / icon_file
+                if await self.cache(icon_file):
+                    return plugin_data_dir / icon_file
         return None
 
-    def get_character_preview_url(self, name: str) -> Optional[str]:
-        id = self.nickname_reverse[name]
-        if id in self.character:
-            preview = self.character[name].get("preview")
+    async def get_character_preview_url(self, name: str) -> Optional[str]:
+        id = self.NicknameRev[name]
+        if id in self.ResIndex["characters"]:
+            preview = self.ResIndex["characters"][name].get("preview")
             if preview:
                 return f"{plugin_config.sr_wiki_url}/{preview}"
         return None
 
-    def get_character_portrait_url(self, name: str) -> Optional[str]:
-        id = self.nickname_reverse[name]
-        if id in self.character:
-            portrait = self.character[id].get("portrait")
+    async def get_character_portrait_url(self, name: str) -> Optional[str]:
+        id = self.NicknameRev[name]
+        if id in self.ResIndex["characters"]:
+            portrait = self.ResIndex["characters"][id].get("portrait")
             if portrait:
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{portrait}")
         return None
 
-    def get_character_overview_url(self, name: str) -> Optional[str]:
-        id = self.nickname_reverse[name]
-        if id in self.character:
-            overview = self.character[id].get("character_overview")
+    async def get_character_overview_url(self, name: str) -> Optional[str]:
+        id = self.NicknameRev[name]
+        if id in self.ResIndex["characters"]:
+            overview = self.ResIndex["characters"][id].get("character_overview")
             if isinstance(overview, list):
                 overview = random.choice(overview)
             if overview:
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
         return None
 
-    def get_character_material_url(self, name: str) -> Optional[str]:
-        id = self.nickname_reverse[name]
-        if id in self.character:
-            material = self.character[id].get("character_material")
+    async def get_character_material_url(self, name: str) -> Optional[str]:
+        id = self.NicknameRev[name]
+        if id in self.ResIndex["characters"]:
+            material = self.ResIndex["characters"][id].get("character_material")
             if isinstance(material, list):
                 material = random.choice(material)
             if material:
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{material}")
         return None
 
-    def get_light_cone_overview_url(self, name: str) -> Optional[str]:
-        id = self.nickname_reverse[name]
-        if id in self.light_cone:
-            overview = self.light_cone[id].get("light_cone_overview")
+    async def get_light_cone_overview_url(self, name: str) -> Optional[str]:
+        id = self.NicknameRev[name]
+        if id in self.ResIndex["light_cones"]:
+            overview = self.ResIndex["light_cones"][id].get("light_cone_overview")
             if isinstance(overview, list):
                 overview = random.choice(overview)
             if overview:
@@ -128,109 +174,53 @@ class StarRailRes:
         return None
 
     def reload(self) -> None:
-        with open(
-            plugin_data_dir / "index" / ResFiles["character"], "r", encoding="utf-8"
-        ) as f:
-            self.character = json.load(f)
-        with open(
-            plugin_data_dir / "index" / ResFiles["light_cone"], "r", encoding="utf-8"
-        ) as f:
-            self.light_cone = json.load(f)
-        with open(
-            plugin_data_dir / "index" / ResFiles["nickname"], "r", encoding="utf-8"
-        ) as f:
-            self.nickname = json.load(f)
-        for k, v in dict(self.nickname["characters"]).items():
+        for k in ResFiles.keys():
+            self.ResIndex[k] = {}
+            with open(index_dir / ResFiles[k], "r", encoding="utf-8") as f:
+                self.ResIndex[k] = json.load(f)
+        with open(index_dir / NicknameFile, "r", encoding="utf-8") as f:
+            self.Nickname = json.load(f)
+        for k, v in dict(self.Nickname["characters"]).items():
             for v_item in list(v):
-                self.nickname_reverse[v_item] = k
-        for k, v in dict(self.nickname["light_cones"]).items():
+                self.NicknameRev[v_item] = k
+        for k, v in dict(self.Nickname["light_cones"]).items():
             for v_item in list(v):
-                self.nickname_reverse[v_item] = k
-        with open(
-            plugin_data_dir / "index" / ResFiles["path"], "r", encoding="utf-8"
-        ) as f:
-            self.path = json.load(f)
-        with open(
-            plugin_data_dir / "index" / ResFiles["element"], "r", encoding="utf-8"
-        ) as f:
-            self.element = json.load(f)
+                self.NicknameRev[v_item] = k
 
     async def update(self, update_index: bool = False) -> bool:
-        async def download(url: str) -> Optional[bytes]:
-            async with httpx.AsyncClient() as client:
-                for i in range(3):
-                    try:
-                        resp = await client.get(url, timeout=10)
-                        if resp.status_code == 302:
-                            url = resp.headers["location"]
-                            continue
-                        resp.raise_for_status()
-                        return resp.content
-                    except Exception as e:
-                        logger.warning(f"Error downloading {url}, retry {i}/3: {e}")
-                        await asyncio.sleep(2)
-                logger.error(f"Error downloading {url}, all attempts failed.")
-                return None
-
         status: bool = True
         logger.info("正在检查索引文件是否完整")
-        if not (plugin_data_dir / "index").exists():
-            (plugin_data_dir / "index").mkdir(parents=True)
+        if not index_dir.exists():
+            index_dir.mkdir(parents=True)
+        # index files
         for _, file_name in ResFiles.items():
-            if not (plugin_data_dir / "index" / file_name).exists() or update_index:
+            if not (index_dir / file_name).exists() or update_index:
                 logger.debug(f"Downloading index {file_name}...")
-                data = await download(
-                    self.proxy_url(f"{plugin_config.sr_wiki_url}/index/cn/{file_name}")
+                data = await self.download(
+                    self.proxy_url(
+                        f"{plugin_config.sr_wiki_url}/index_min/cn/{file_name}"
+                    )
                 )
                 if not data:
                     logger.error(f"Failed to download {file_name}.")
                     status = False
                     continue
-                with open(plugin_data_dir / "index" / file_name, "wb") as f:
+                with open(index_dir / file_name, "wb") as f:
+                    f.write(data)
+        # nickname
+        file_name = NicknameFile
+        if not (index_dir / file_name).exists() or update_index:
+            logger.debug(f"Downloading index {file_name}...")
+            data = await self.download(
+                self.proxy_url(f"{plugin_config.sr_wiki_url}/index/cn/{file_name}")
+            )
+            if not data:
+                logger.error(f"Failed to download {file_name}.")
+                status = False
+            else:
+                with open(index_dir / file_name, "wb") as f:
                     f.write(data)
         logger.info("索引文件检查完毕")
-        logger.info("正在检查资源文件是否完整")
-        character = {}
-        light_cone = {}
-        path = {}
-        element = {}
-        all = {}
-        with open(
-            plugin_data_dir / "index" / ResFiles["character"], "r", encoding="utf-8"
-        ) as f:
-            character = json.load(f)
-        with open(
-            plugin_data_dir / "index" / ResFiles["light_cone"], "r", encoding="utf-8"
-        ) as f:
-            light_cone = json.load(f)
-        with open(
-            plugin_data_dir / "index" / ResFiles["path"], "r", encoding="utf-8"
-        ) as f:
-            path = json.load(f)
-        with open(
-            plugin_data_dir / "index" / ResFiles["element"], "r", encoding="utf-8"
-        ) as f:
-            element = json.load(f)
-        all.update(character)
-        all.update(light_cone)
-        all.update(path)
-        all.update(element)
-        for item in all.values():
-            icon_file = item["icon"]
-            if not (plugin_data_dir / icon_file).exists():
-                logger.debug(f"Downloading {icon_file}...")
-                data = await download(
-                    self.proxy_url(f"{plugin_config.sr_wiki_url}/{icon_file}")
-                )
-                if not data:
-                    logger.error(f"Failed to download {icon_file}.")
-                    status = False
-                    continue
-                (plugin_data_dir / icon_file).parent.mkdir(parents=True, exist_ok=True)
-                with open(plugin_data_dir / icon_file, "wb") as f:
-                    f.write(data)
-                logger.success(f"Succeed to download {icon_file}.")
-                await asyncio.sleep(0.1)
-        logger.info("资源文件检查完毕")
-        self.reload()
+        if status:
+            self.reload()
         return status
