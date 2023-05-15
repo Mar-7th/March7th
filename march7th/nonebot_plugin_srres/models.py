@@ -148,7 +148,7 @@ class StarRailRes:
     def get_character_overview_url(self, name: str) -> Optional[str]:
         id = self.NicknameRev[name]
         if id in self.ResIndex["characters"]:
-            overview = self.ResIndex["characters"][id].get("character_overview")
+            overview = self.ResIndex["characters"][id].get("guide_overview")
             if isinstance(overview, list):
                 overview = random.choice(overview)
             if overview:
@@ -158,7 +158,7 @@ class StarRailRes:
     def get_character_material_url(self, name: str) -> Optional[str]:
         id = self.NicknameRev[name]
         if id in self.ResIndex["characters"]:
-            material = self.ResIndex["characters"][id].get("character_material")
+            material = self.ResIndex["characters"][id].get("guide_material")
             if isinstance(material, list):
                 material = random.choice(material)
             if material:
@@ -168,7 +168,7 @@ class StarRailRes:
     def get_light_cone_overview_url(self, name: str) -> Optional[str]:
         id = self.NicknameRev[name]
         if id in self.ResIndex["light_cones"]:
-            overview = self.ResIndex["light_cones"][id].get("light_cone_overview")
+            overview = self.ResIndex["light_cones"][id].get("guide_overview")
             if isinstance(overview, list):
                 overview = random.choice(overview)
             if overview:
