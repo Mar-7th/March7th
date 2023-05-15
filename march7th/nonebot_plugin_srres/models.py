@@ -242,7 +242,7 @@ class StarRailRes:
         if not font_dir.exists():
             font_dir.mkdir(parents=True)
         file_name = FontFile
-        if not (font_dir / file_name).exists() or update_index:
+        if not (font_dir / file_name).exists():
             logger.debug(f"Downloading index {file_name}...")
             data = await self.download(
                 self.proxy_url(f"{plugin_config.sr_wiki_url}/font/{file_name}")
