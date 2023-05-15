@@ -3,22 +3,18 @@ from typing import Any, Dict, List, Optional
 
 from pil_utils import BuildImage, text2image
 
+try:
+    from march7th.nonebot_plugin_srres import srres
+except ModuleNotFoundError:
+    from nonebot_plugin_srres import srres
+
 BACKGROUND = (248, 248, 248)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
-fontname = "HYRunYuan-65W"
-fallback_fonts = [
-    "Sarasa Mono SC",
-    "Source Han Sans SC",
-    "Microsoft YaHei",
-    "Noto Sans SC",
-    "Noto Sans CJK JP",
-    "WenQuanYi Micro Hei",
-]
+fontname = srres.get_font()
 font_args = {
     "fontname": fontname,
-    "fallback_fonts": fallback_fonts,
     "fill": BLACK,
 }
 
@@ -31,7 +27,7 @@ async def get_srhelp_img(plugin_info: Dict[str, Dict[str, str]]) -> Optional[Byt
     cols_height: List[int] = [0, 0]
     item_image_dict: Dict[str, Dict[str, Any]] = {}
     for k, v in plugin_info.items():
-        description = v.get("description", "No description")
+        description = v.get("description", "")
         usage = v.get("srhelp", "暂无帮助信息")
         item_text_image = text2image(
             f"[size=30][b]{k}[/b][/size]\n[size=20][i]{description}[/i][/size]\n[size=10] [/size]\n{usage}",
@@ -53,6 +49,9 @@ async def get_srhelp_img(plugin_info: Dict[str, Dict[str, str]]) -> Optional[Byt
         item_image_dict[k]["x"] = pos_x
         item_image_dict[k]["y"] = pos_y
         item_image_dict[k]["image"] = item_image
+    if cols_height[0] < cols_height[1]:
+        for k in item_image_dict.keys():
+            item_image_dict[k]["x"] = (30 + 530) - item_image_dict[k]["x"]
     image = BuildImage.new("RGBA", (1060, 180 + max(cols_height)), BACKGROUND)
     image.draw_text((60, 30), title, fontsize=56, weight="bold", **font_args)
     image.draw_text(
@@ -60,5 +59,4 @@ async def get_srhelp_img(plugin_info: Dict[str, Dict[str, str]]) -> Optional[Byt
     )
     for k, v in item_image_dict.items():
         image.paste(v["image"], (v["x"], v["y"]))
-
     return image.save_png()

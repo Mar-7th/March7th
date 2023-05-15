@@ -1,13 +1,11 @@
 from typing import Dict, Set
 
 from nonebot import on_command, require
-from nonebot.adapters import Bot, Event
 from nonebot.log import logger
 from nonebot.plugin import Plugin, PluginMetadata, get_loaded_plugins
 
 require("nonebot_plugin_saa")
-require("nonebot_plugin_srbind")
-require("nonebot_plugin_mys_api")
+require("nonebot_plugin_srres")
 
 from nonebot_plugin_saa import Image, MessageFactory, Text
 

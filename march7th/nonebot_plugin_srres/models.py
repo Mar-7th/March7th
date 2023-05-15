@@ -12,6 +12,7 @@ from .config import plugin_config
 
 plugin_data_dir: Path = get_plugin_data().data_dir
 index_dir = plugin_data_dir / "index"
+font_dir = plugin_data_dir / "font"
 
 
 ResFiles = {
@@ -33,6 +34,7 @@ ResFiles = {
 }
 
 NicknameFile = "nickname.json"
+FontFile = "SDK_SC_Web.ttf"
 
 
 class StarRailRes:
@@ -175,6 +177,9 @@ class StarRailRes:
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
         return None
 
+    def get_font(self) -> str:
+        return str(plugin_data_dir / "font" / FontFile)
+
     def reload(self) -> None:
         for k in ResFiles.keys():
             self.ResIndex[k] = {}
@@ -191,6 +196,7 @@ class StarRailRes:
 
     async def update(self, update_index: bool = False) -> bool:
         status: bool = True
+        # index
         logger.info("正在检查索引文件是否完整")
         if not index_dir.exists():
             index_dir.mkdir(parents=True)
@@ -225,4 +231,21 @@ class StarRailRes:
         logger.info("索引文件检查完毕")
         if status:
             self.reload()
+        # font
+        logger.info("正在检查字体文件是否完整")
+        if not font_dir.exists():
+            font_dir.mkdir(parents=True)
+        file_name = FontFile
+        if not (font_dir / file_name).exists() or update_index:
+            logger.debug(f"Downloading index {file_name}...")
+            data = await self.download(
+                self.proxy_url(f"{plugin_config.sr_wiki_url}/font/{file_name}")
+            )
+            if not data:
+                logger.error(f"Failed to download {file_name}.")
+                status = False
+            else:
+                with open(font_dir / file_name, "wb") as f:
+                    f.write(data)
+        logger.info("字体文件检查完毕")
         return status

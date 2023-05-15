@@ -19,7 +19,7 @@ BLACK = (0, 0, 0)
 STAR5 = (194, 152, 99)
 STAR4 = (128, 85, 194)
 
-fontname = "HYRunYuan-65W"
+fontname = srres.get_font()
 
 T = TypeVar("T")
 
@@ -182,9 +182,9 @@ async def get_srinfo_img(
                     (20, 20, 40, 40), outline=GRAY2, radius=5, width=2
                 )
                 item_image.draw_text(
-                    (20, 20, 40, 40),
+                    (21, 22, 40, 40),
                     str(rank),
-                    max_fontsize=24,
+                    max_fontsize=22,
                     fontname=fontname,
                     fill=GRAY2,
                 )

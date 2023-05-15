@@ -16,7 +16,7 @@ GRAY3 = (75, 75, 75)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
-fontname = "HYRunYuan-65W"
+fontname = srres.get_font()
 
 
 def time_fmt(sec: int) -> str:
