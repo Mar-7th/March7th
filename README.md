@@ -16,8 +16,6 @@
 
 配置运行环境参数（可复制 `.env` 文件到 `.env.prod` 后填入参数）。
 
-安装 [汉仪润圆-65W](https://www.hanyi.com.cn/productdetail?id=657) 字体，若不安装则使用系统已安装字体制图，但响应较慢。
-
 使用 `nb run` 运行 Bot 程序。
 
 发送命令 `srhelp` 即可查看命令列表。
@@ -28,13 +26,6 @@
 
   - 只有添加公共 cookie 后才可以不需要用户绑定 cookie 就能查询 `srinfo`
   - 添加公共 cookie 需要 `SUPERUSER` 权限，发送 `srpck [cookie]`
-
-- 安装字体后仍显示为原字体：可删掉 `matplotlib` 字体缓存文件重新运行
-  缓存文件位置：
-
-  - Windows: `C:\Users\<username>\.matplotlib\fontlist-xxx.json`
-  - Linux: `~/.cache/matplotlib/fontlist-xxx.json`
-  - Mac: `~/Library/Caches/matplotlib/fontlist-xxx.json`
 
 ## 链接
 
