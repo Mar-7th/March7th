@@ -176,7 +176,9 @@ async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
             cookie=f"account_id={mys_id};cookie_token={cookie_token}",
             mys_id=mys_id,
         ):
-            if not game_info["list"]:
+            if isinstance(game_info, int):
+                msg = f"绑定失败，请稍后重试（错误代码 {game_info}）"
+            elif not game_info["list"]:
                 msg = "该账号尚未绑定任何游戏，请确认账号无误~"
             elif not (
                 sr_games := [
@@ -350,7 +352,14 @@ async def check_qrcode():
                         cookie=f"account_id={mys_id};cookie_token={cookie_token}",
                         mys_id=mys_id,
                     ):
-                        if not game_info["list"]:
+                        if isinstance(game_info, int):
+                            msg_builder = MessageFactory(
+                                [
+                                    Mention(user_id),
+                                    Text(f"绑定失败，请稍后重试（错误代码 {game_info}）"),
+                                ]
+                            )
+                        elif not game_info["list"]:
                             msg_builder = MessageFactory(
                                 [Mention(user_id), Text("该账号尚未绑定任何游戏，请确认扫码的账号无误")]
                             )

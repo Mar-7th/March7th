@@ -4,7 +4,7 @@ import random
 import string
 import time
 import uuid
-from typing import Any, Dict, Literal, Optional
+from typing import Any, Dict, Literal, Optional, Union
 
 import httpx
 from nonebot.log import logger
@@ -273,7 +273,7 @@ async def call_mihoyo_api(
     cookie: str,
     role_uid: str = "0",
     **kwargs,
-) -> Optional[Dict]:
+) -> Union[Dict, int, None]:
     # cookie check
     if not cookie:
         return None
@@ -345,15 +345,17 @@ async def call_mihoyo_api(
         data = None
     # debug log
     # parse data
-    try:
-        retcode = data.json()["retcode"] if data else None
-        if retcode != 0 and data is not None:
-            logger.warning(f"mys api ({api}) failed: {data.json()}")
-            logger.warning(f"params: {params}")
+    if data is not None:
+        try:
+            retcode = int(data.json()["retcode"])
+            if retcode != 0:
+                logger.warning(f"mys api ({api}) failed: {data.json()}")
+                logger.warning(f"params: {params}")
+                data = retcode
+            else:
+                data = dict(data.json()["data"])
+        except (json.JSONDecodeError, KeyError):
             data = None
-        data = dict(data.json()["data"]) if data else None
-    except (json.JSONDecodeError, KeyError):
-        data = None
     if data is None:
         logger.warning(f"mys api ({api}) error")
     logger.debug(data)

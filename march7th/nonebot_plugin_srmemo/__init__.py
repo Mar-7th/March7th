@@ -70,6 +70,16 @@ async def _(bot: Bot, event: Event):
         api="sr_basic_info", cookie=cookie, role_uid=sr_uid
     )
     sr_note = await call_mihoyo_api(api="sr_note", cookie=cookie, role_uid=sr_uid)
+    if isinstance(sr_basic_info, int):
+        msg = f"查询失败，请稍后重试（错误代码 {sr_basic_info}）"
+        msg_builder = MessageFactory([Text(str(msg))])
+        await msg_builder.send(at_sender=True)
+        await srmemo.finish()
+    if isinstance(sr_note, int):
+        msg = f"查询失败，请稍后重试（错误代码 {sr_note}）"
+        msg_builder = MessageFactory([Text(str(msg))])
+        await msg_builder.send(at_sender=True)
+        await srmemo.finish()
     if not sr_basic_info or not sr_note:
         msg = "疑似cookie失效，请重新使用`srck [cookie]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
@@ -107,6 +117,16 @@ async def _(bot: Bot, event: Event):
     sr_month = await call_mihoyo_api(
         api="sr_month_info", cookie=cookie, role_uid=sr_uid
     )
+    if isinstance(sr_basic_info, int):
+        msg = f"查询失败，请稍后重试（错误代码 {sr_basic_info}）"
+        msg_builder = MessageFactory([Text(str(msg))])
+        await msg_builder.send(at_sender=True)
+        await srmonth.finish()
+    if isinstance(sr_month, int):
+        msg = f"查询失败，请稍后重试（错误代码 {sr_month}）"
+        msg_builder = MessageFactory([Text(str(msg))])
+        await msg_builder.send(at_sender=True)
+        await srmonth.finish()
     if not sr_basic_info or not sr_month:
         msg = "疑似cookie失效，请重新使用`srck [cookie]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])

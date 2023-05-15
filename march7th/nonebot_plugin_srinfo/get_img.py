@@ -198,9 +198,10 @@ async def get_srinfo_img(
                         (94, 174, 114, 194), outline=GRAY2, radius=5, width=2
                     )
                     item_image.draw_text(
-                        (94, 174, 114, 194),
+                        (95, 176, 114, 194),
                         str(equip["rank"]),
                         fontname=fontname,
+                        max_fontsize=22,
                         fill=GRAY2,
                     )
                     item_image.draw_text(

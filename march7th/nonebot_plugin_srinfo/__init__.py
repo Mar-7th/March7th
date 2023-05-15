@@ -69,6 +69,11 @@ async def _(bot: Bot, event: Event):
         api="sr_basic_info", cookie=cookie, role_uid=sr_uid
     )
     sr_index = await call_mihoyo_api(api="sr_index", cookie=cookie, role_uid=sr_uid)
+    if isinstance(sr_index, int):
+        msg = f"查询失败，错误代码 {sr_index}"
+        msg_builder = MessageFactory([Text(str(msg))])
+        await msg_builder.send(at_sender=True)
+        await srinfo.finish()
     try:
         avatar_id = sr_index["avatar_list"][0]["id"] if sr_index else None
     except (KeyError, IndexError):
