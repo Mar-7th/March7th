@@ -127,23 +127,25 @@ class StarRailRes:
                     return plugin_data_dir / icon_file
         return None
 
-    async def get_character_preview_url(self, name: str) -> Optional[str]:
+    async def get_character_preview(self, name: str) -> Optional[str]:
         id = self.NicknameRev[name]
         if id in self.ResIndex["characters"]:
             preview = self.ResIndex["characters"][name].get("preview")
             if preview:
-                return f"{plugin_config.sr_wiki_url}/{preview}"
+                if await self.cache(preview):
+                    return plugin_data_dir / preview
         return None
 
-    async def get_character_portrait_url(self, name: str) -> Optional[str]:
+    async def get_character_portrait(self, name: str) -> Optional[str]:
         id = self.NicknameRev[name]
         if id in self.ResIndex["characters"]:
             portrait = self.ResIndex["characters"][id].get("portrait")
             if portrait:
-                return self.proxy_url(f"{plugin_config.sr_wiki_url}/{portrait}")
+                if await self.cache(portrait):
+                    return plugin_data_dir / portrait
         return None
 
-    async def get_character_overview_url(self, name: str) -> Optional[str]:
+    def get_character_overview_url(self, name: str) -> Optional[str]:
         id = self.NicknameRev[name]
         if id in self.ResIndex["characters"]:
             overview = self.ResIndex["characters"][id].get("character_overview")
@@ -153,7 +155,7 @@ class StarRailRes:
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
         return None
 
-    async def get_character_material_url(self, name: str) -> Optional[str]:
+    def get_character_material_url(self, name: str) -> Optional[str]:
         id = self.NicknameRev[name]
         if id in self.ResIndex["characters"]:
             material = self.ResIndex["characters"][id].get("character_material")
@@ -163,7 +165,7 @@ class StarRailRes:
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{material}")
         return None
 
-    async def get_light_cone_overview_url(self, name: str) -> Optional[str]:
+    def get_light_cone_overview_url(self, name: str) -> Optional[str]:
         id = self.NicknameRev[name]
         if id in self.ResIndex["light_cones"]:
             overview = self.ResIndex["light_cones"][id].get("light_cone_overview")
