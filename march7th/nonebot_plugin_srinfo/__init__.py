@@ -82,7 +82,7 @@ async def _(bot: Bot, event: Event):
         else:
             # await set_cookie_expire(bot.self_id, event.get_user_id(), sr_uid)
             # logger.info(f"已删除SRUID『{sr_uid}』的过期cookie")
-            msg = "你的cookie疑似失效了，请重新使用`srqr`扫码绑定"
+            msg = "疑似cookie失效，请重新使用`srck [cookie]`绑定或`srqr`扫码绑定"
             msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.send(at_sender=True)
         await srinfo.finish()

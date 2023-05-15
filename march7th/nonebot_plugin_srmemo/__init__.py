@@ -71,7 +71,7 @@ async def _(bot: Bot, event: Event):
     )
     sr_note = await call_mihoyo_api(api="sr_note", cookie=cookie, role_uid=sr_uid)
     if not sr_basic_info or not sr_note:
-        msg = "查询失败，请稍后重试"
+        msg = "疑似cookie失效，请重新使用`srck [cookie]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.send(at_sender=True)
         await srmemo.finish()
@@ -108,7 +108,7 @@ async def _(bot: Bot, event: Event):
         api="sr_month_info", cookie=cookie, role_uid=sr_uid
     )
     if not sr_basic_info or not sr_month:
-        msg = "查询失败，请稍后重试"
+        msg = "疑似cookie失效，请重新使用`srck [cookie]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.send(at_sender=True)
         await srmonth.finish()
