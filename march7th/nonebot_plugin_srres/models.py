@@ -148,32 +148,38 @@ class StarRailRes:
         return None
 
     def get_character_overview_url(self, name: str) -> Optional[str]:
+        if name not in self.NicknameRev:
+            return None
         id = self.NicknameRev[name]
         if id in self.ResIndex["characters"]:
             overview = self.ResIndex["characters"][id].get("guide_overview")
-            if isinstance(overview, list):
-                overview = random.choice(overview)
             if overview:
+                if isinstance(overview, list):
+                    overview = random.choice(overview)
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
         return None
 
     def get_character_material_url(self, name: str) -> Optional[str]:
+        if name not in self.NicknameRev:
+            return None
         id = self.NicknameRev[name]
         if id in self.ResIndex["characters"]:
             material = self.ResIndex["characters"][id].get("guide_material")
-            if isinstance(material, list):
-                material = random.choice(material)
             if material:
+                if isinstance(material, list):
+                    material = random.choice(material)
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{material}")
         return None
 
     def get_light_cone_overview_url(self, name: str) -> Optional[str]:
+        if name not in self.NicknameRev:
+            return None
         id = self.NicknameRev[name]
         if id in self.ResIndex["light_cones"]:
             overview = self.ResIndex["light_cones"][id].get("guide_overview")
-            if isinstance(overview, list):
-                overview = random.choice(overview)
             if overview:
+                if isinstance(overview, list):
+                    overview = random.choice(overview)
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
         return None
 
