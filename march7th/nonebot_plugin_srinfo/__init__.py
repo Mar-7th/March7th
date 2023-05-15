@@ -68,6 +68,11 @@ async def _(bot: Bot, event: Event):
     sr_basic_info = await call_mihoyo_api(
         api="sr_basic_info", cookie=cookie, role_uid=sr_uid
     )
+    if isinstance(sr_basic_info, int):
+        msg = f"查询失败，错误代码 {sr_basic_info}"
+        msg_builder = MessageFactory([Text(str(msg))])
+        await msg_builder.send(at_sender=True)
+        await srinfo.finish()
     sr_index = await call_mihoyo_api(api="sr_index", cookie=cookie, role_uid=sr_uid)
     if isinstance(sr_index, int):
         msg = f"查询失败，错误代码 {sr_index}"
@@ -94,6 +99,11 @@ async def _(bot: Bot, event: Event):
     sr_avatar_info = await call_mihoyo_api(
         api="sr_avatar_info", cookie=cookie, role_uid=sr_uid, avatar_id=avatar_id
     )
+    if isinstance(sr_avatar_info, int):
+        msg = f"查询失败，请稍后重试（错误代码 {sr_avatar_info}）"
+        msg_builder = MessageFactory([Text(str(msg))])
+        await msg_builder.send(at_sender=True)
+        await srinfo.finish()
     if not sr_basic_info or not sr_index or not sr_avatar_info:
         msg = "查询失败，请稍后重试"
         msg_builder = MessageFactory([Text(str(msg))])
