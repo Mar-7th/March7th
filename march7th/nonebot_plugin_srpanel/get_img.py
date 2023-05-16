@@ -152,6 +152,8 @@ async def get_srpanel_img(player_info, character_info) -> Optional[BytesIO]:
             y_index = y_index + 58
     # skill
     x_index = 100
+    if len(skill) > 5:
+        skill = skill[:5]
     for skill_item in skill:
         image_res.draw_rounded_rectangle(
             (x_index, 850, x_index + 172, 940), radius=15, outline=GRAY, width=2
