@@ -31,12 +31,16 @@ def get_skill_info_by_level_up_skills(info, level_up_skills):
                     "icon": srres.ResIndex["character_skills"][skill]["icon"],
                 }
             )
-    for skill in level_up_skills:
-        for i in skill_info:
-            if i["name"] == srres.ResIndex["character_skills"][skill["id"]]["name"]:
-                skill_info[skill_info.index(i)]["level"] = int(i["level"]) + int(
-                    skill["num"]
+    for level_up_skill in level_up_skills:
+        for i in range(len(skill_info)):
+            if (
+                skill_info[i]["name"]
+                == srres.ResIndex["character_skills"][level_up_skill["id"]]["name"]
+            ):
+                skill_info[i]["level"] = int(skill_info[i]["level"]) + int(
+                    level_up_skill["num"]
                 )
+                break
     return skill_info
 
 
@@ -106,7 +110,7 @@ def get_promotions_from_light_cone(info, promotions):
         info = info["EquipmentID"]
         id = str(info["ID"])
         level = info["Level"]
-        promotion = info["Promotion"]
+        promotion = info["Promotion"] if "Promotion" in info else 0
         values = srres.ResIndex["light_cone_promotions"][id]["values"][promotion]
         for k, v in values.items():
             promotions[k] += v["base"] + v["step"] * (level - 1)
@@ -134,7 +138,7 @@ def get_relic_info(info):
                 "value": main_affix["base"] + main_affix["step"] * level,
             }
             sub_affix_group = srres.ResIndex["relics"][id]["sub_affix_id"]
-            sub_affixs = info["RelicSubAffix"]
+            sub_affixs = info["RelicSubAffix"] if "RelicSubAffix" in info else []
             sub_property = []
             for sub_affix in sub_affixs:
                 sub_affix_id = str(sub_affix["SubAffixID"])
@@ -345,8 +349,7 @@ def parse_character(info):
     level_up_skills = []
     level_up_skills += get_level_up_skills_from_character_rank(info)
     level_up_skills += get_level_up_skills_from_character_skill_tree(info)
-    skill_info = get_skill_info_by_level_up_skills(info, level_up_skills)
-    character_info["skill"] = skill_info
+    character_info["skill"] = get_skill_info_by_level_up_skills(info, level_up_skills)
     promotions = get_promotions_from_character(info)
     promotions = get_promotions_from_light_cone(info, promotions)
     character_info["light_cone"] = parse_light_cone(info)
