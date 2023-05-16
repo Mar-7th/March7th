@@ -186,6 +186,9 @@ class StarRailRes:
     def get_font(self) -> str:
         return str(plugin_data_dir / "font" / FontFile)
 
+    def get_data_folder(self) -> Path:
+        return plugin_data_dir
+
     def reload(self) -> None:
         for k in ResFiles.keys():
             self.ResIndex[k] = {}
