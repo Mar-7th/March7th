@@ -113,5 +113,6 @@ async def update_srpanel(bot_id: str, user_id: str, sr_uid: str) -> Optional[str
         await set_user_srpanel(character_panel)
     ret_msg = ""
     for name in name_set:
+        name.replace("{NICKNAME}", player["name"])
         ret_msg += f"{name} "
     return ret_msg.strip()
