@@ -243,7 +243,15 @@ async def get_srpanel_img(player_info, character_info) -> Optional[BytesIO]:
                 (590, y_index + 63 * i, 680, y_index + 63 * i + 54),
                 relic_set[i]["desc"],
                 fontname=fontname,
-                max_fontsize=36,
+                max_fontsize=32,
+                fill=WHITE,
+            )
+        else:
+            image_res.draw_text(
+                (540, y_index + 63 * i, 680, y_index + 63 * i + 54),
+                "未激活套装",
+                fontname=fontname,
+                max_fontsize=32,
                 fill=WHITE,
             )
     # relic score
