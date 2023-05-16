@@ -34,7 +34,7 @@ def get_skill_info_by_level_up_skills(info, level_up_skills):
     for skill in level_up_skills:
         for i in skill_info:
             if i["name"] == srres.ResIndex["character_skills"][skill["id"]]["name"]:
-                skill_info[skill_info.index(i)]["level"] = i["level"] + int(
+                skill_info[skill_info.index(i)]["level"] = int(i["level"]) + int(
                     skill["num"]
                 )
     return skill_info

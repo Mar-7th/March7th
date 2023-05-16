@@ -152,11 +152,11 @@ async def get_srpanel_img(player_info, character_info) -> Optional[BytesIO]:
             y_index = y_index + 58
     # skill
     x_index = 100
-    for item in skill:
+    for skill_item in skill:
         image_res.draw_rounded_rectangle(
             (x_index, 850, x_index + 172, 940), radius=15, outline=GRAY, width=2
         )
-        item_icon = await get_image(item["icon"])
+        item_icon = await get_image(skill_item["icon"])
         if item_icon:
             item_icon = (
                 BuildImage(item_icon)
@@ -165,7 +165,7 @@ async def get_srpanel_img(player_info, character_info) -> Optional[BytesIO]:
                 .image
             )
             image_res.paste(item_icon, (x_index + 8, 863), alpha=True)
-        name = str(item["name"])
+        name = str(skill_item["name"])
         if len(name) > 5:
             name = name[:3] + "..."
         image_res.draw_text(
@@ -177,7 +177,7 @@ async def get_srpanel_img(player_info, character_info) -> Optional[BytesIO]:
         )
         image_res.draw_text(
             (x_index + 80, 890, x_index + 162, 930),
-            f'Lv.{item["level"]}',
+            f'Lv.{int(skill_item["level"])}',
             fontname=fontname,
             max_fontsize=36,
             fill=WHITE,
