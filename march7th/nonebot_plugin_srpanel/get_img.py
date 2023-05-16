@@ -313,7 +313,7 @@ async def get_srpanel_img(player_info, character_info) -> Optional[BytesIO]:
             outline=GRAY,
             width=2,
         )
-        if len(relic_set) >= i:
+        if len(relic_set) > i:
             set_icon = relic_set[i]["icon"]
             set_image = await get_image(set_icon)
             if set_image:
