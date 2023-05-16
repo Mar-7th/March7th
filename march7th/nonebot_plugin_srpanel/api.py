@@ -1,5 +1,7 @@
 import math
 
+from nonebot.utils import run_sync
+
 try:
     from march7th.nonebot_plugin_srres import srres
 except ModuleNotFoundError:
@@ -37,11 +39,9 @@ def get_skill_info_by_level_up_skills(info, level_up_skills):
                 skill_info[i]["name"]
                 == srres.ResIndex["character_skills"][level_up_skill["id"]]["name"]
             ):
-                if isinstance(level_up_skill["num"], int):
-                    skill_info[i]["level"] = int(skill_info[i]["level"]) + int(
-                        level_up_skill["num"]
-                    )
-                break
+                skill_info[i]["level"] = int(skill_info[i]["level"]) + int(
+                    level_up_skill["num"]
+                )
     return skill_info
 
 
@@ -50,10 +50,12 @@ def get_level_up_skills_from_character_skill_tree(info):
     skill_tree_list = info["BehaviorList"]
     for item in skill_tree_list:
         id = str(item["BehaviorID"])
-        level = item["Level"]
-        skill_list = srres.ResIndex["character_skill_trees"][id]["level_up_skills"]
+        level = item["Level"] if "Level" in item else 0
+        skill_list = []
+        for i in srres.ResIndex["character_skill_trees"][id]["level_up_skills"]:
+            skill_list.append(i)
         for skill in skill_list:
-            skill["num"] *= level
+            skill["num"] = level
             level_up_skills.append(skill)
     return level_up_skills
 
@@ -369,6 +371,7 @@ def parse_character(info):
     return character_info
 
 
+@run_sync
 def parse(response):
     result = {}
     result["player"] = {}
