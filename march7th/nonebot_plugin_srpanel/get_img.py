@@ -21,7 +21,7 @@ roman_dict = {5: "V", 4: "IV", 3: "III", 2: "II", 1: "I"}
 
 
 async def get_image(file: str) -> Optional[Image.Image]:
-    if await srres.cache(file):
+    if file and await srres.cache(file):
         return Image.open(folder / file).convert("RGBA")
     return None
 
@@ -185,7 +185,7 @@ async def get_srpanel_img(player_info, character_info) -> Optional[BytesIO]:
         x_index = x_index + 182
     # light cone
     image_res.draw_rounded_rectangle(
-        (100, 970, 540, 1150), radius=15, outline=GRAY, width=2
+        (100, 970, 500, 1150), radius=15, outline=GRAY, width=2
     )
     if light_cone:
         light_cone_image = await get_image(light_cone["icon"])
@@ -193,7 +193,7 @@ async def get_srpanel_img(player_info, character_info) -> Optional[BytesIO]:
             light_cone_image = light_cone_image.resize((156, 156))
             image_res.paste(light_cone_image, (110, 982), alpha=True)
         image_res.draw_text(
-            (276, 990, 525, 1050),
+            (276, 990, 485, 1050),
             light_cone["name"],
             fontname=fontname,
             max_fontsize=32,
@@ -207,10 +207,10 @@ async def get_srpanel_img(player_info, character_info) -> Optional[BytesIO]:
             fill=WHITE,
         )
         image_res.draw_text(
-            (310, 1050, 370, 1130), "·", fontname=fontname, max_fontsize=48, fill=WHITE
+            (310, 1050, 350, 1130), "·", fontname=fontname, max_fontsize=48, fill=WHITE
         )
         image_res.draw_text(
-            (370, 1050, 520, 1130),
+            (350, 1050, 480, 1130),
             f'Lv.{light_cone["level"]}',
             fontname=fontname,
             max_fontsize=48,
@@ -218,28 +218,50 @@ async def get_srpanel_img(player_info, character_info) -> Optional[BytesIO]:
         )
     else:
         image_res.draw_text(
-            (100, 970, 540, 1150),
+            (100, 970, 500, 1150),
             "未装备光锥",
             fontname=fontname,
             max_fontsize=36,
             fill=WHITE,
         )
+    # relic set
+    y_index = 970
+    for i in range(3):
+        image_res.draw_rounded_rectangle(
+            (520, y_index + 63 * i, 700, y_index + 63 * i + 54),
+            radius=15,
+            outline=GRAY,
+            width=2,
+        )
+        if len(relic_set) > i:
+            set_icon = relic_set[i]["icon"]
+            set_image = await get_image(set_icon)
+            if set_image:
+                set_image = set_image.resize((40, 40))
+                image_res.paste(set_image, (535, y_index + 63 * i + 7), alpha=True)
+            image_res.draw_text(
+                (590, y_index + 63 * i, 680, y_index + 63 * i + 54),
+                relic_set[i]["desc"],
+                fontname=fontname,
+                max_fontsize=36,
+                fill=WHITE,
+            )
     # relic score
     image_res.draw_rounded_rectangle(
-        (560, 970, 1000, 1150), radius=15, outline=GRAY, width=2
+        (720, 970, 1000, 1150), radius=15, outline=GRAY, width=2
     )
     image_res.draw_text(
-        (580, 1000, 980, 1080), "🥰", fontname=fontname, max_fontsize=72, fill=WHITE
+        (740, 1000, 980, 1080), "🥰", fontname=fontname, max_fontsize=72, fill=WHITE
     )
     image_res.draw_text(
-        (580, 1080, 980, 1130),
+        (740, 1080, 980, 1130),
         "遗器评级（暂无）",
         fontname=fontname,
         max_fontsize=36,
         fill=WHITE,
     )
     # relic
-    for i in range(1, 6):
+    for i in range(0, 6):
         x_index = 100 + 305 * (i % 3)
         y_index = 1180 + 320 * int(i / 3)
         image_res.draw_rounded_rectangle(
@@ -248,7 +270,7 @@ async def get_srpanel_img(player_info, character_info) -> Optional[BytesIO]:
             outline=GRAY,
             width=2,
         )
-        type_str = str(i)
+        type_str = str(i + 1)
         if type_str not in relic:
             image_res.draw_text(
                 (x_index + 20, y_index + 20, x_index + 270, y_index + 280),
@@ -304,28 +326,6 @@ async def get_srpanel_img(player_info, character_info) -> Optional[BytesIO]:
                     fill=WHITE,
                 )
                 y_index_item = y_index_item + 30
-    # relic set
-    y_index = 1180
-    for i in range(3):
-        image_res.draw_rounded_rectangle(
-            (100, y_index + 105 * i, 390, y_index + 105 * i + 90),
-            radius=15,
-            outline=GRAY,
-            width=2,
-        )
-        if len(relic_set) > i:
-            set_icon = relic_set[i]["icon"]
-            set_image = await get_image(set_icon)
-            if set_image:
-                set_image = set_image.resize((64, 64))
-                image_res.paste(set_image, (130, y_index + 105 * i + 13), alpha=True)
-            image_res.draw_text(
-                (220, y_index + 105 * i, 370, y_index + 105 * i + 90),
-                relic_set[i]["desc"],
-                fontname=fontname,
-                max_fontsize=36,
-                fill=WHITE,
-            )
     image_res.draw_text(
         (80, 1820, 1020, 1870),
         f"Created by Mar-7th/March7th & Mihomo API @ {time}",
