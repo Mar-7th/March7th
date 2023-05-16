@@ -37,9 +37,10 @@ def get_skill_info_by_level_up_skills(info, level_up_skills):
                 skill_info[i]["name"]
                 == srres.ResIndex["character_skills"][level_up_skill["id"]]["name"]
             ):
-                skill_info[i]["level"] = int(skill_info[i]["level"]) + int(
-                    level_up_skill["num"]
-                )
+                if isinstance(level_up_skill["num"], int):
+                    skill_info[i]["level"] = int(skill_info[i]["level"]) + int(
+                        level_up_skill["num"]
+                    )
                 break
     return skill_info
 
