@@ -70,7 +70,7 @@ async def get_srpanel_info(
 
 
 async def request(url: str):
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(headers={"User-Agent": "Mar-7th/March7th"}) as client:
         data = await client.get(
             url=url,
             timeout=10,

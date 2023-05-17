@@ -129,6 +129,7 @@ def generate_headers(cookie: str, q="", b=None) -> Dict[str, str]:
         "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS "
         "X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1",
         "x-rpc-client_type": "5",
+        "x-rpc-device_id": uuid.uuid4().hex,
         "Referer": "https://webstatic.mihoyo.com/",
     }
 

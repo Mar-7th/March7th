@@ -42,6 +42,12 @@ __plugin_meta__ = PluginMetadata(
     },
 )
 
+
+error_code_msg = {
+    1034: "查询遇验证码，请手动在米游社验证后查询",
+    10001: "绑定cookie失效，请重新绑定",
+}
+
 srinfo = on_command("srinfo", aliases={"星铁信息", "星铁账号信息"}, priority=2, block=True)
 
 
@@ -75,7 +81,10 @@ async def _(bot: Bot, event: Event):
         await srinfo.finish()
     sr_index = await call_mihoyo_api(api="sr_index", cookie=cookie, role_uid=sr_uid)
     if isinstance(sr_index, int):
-        msg = f"查询失败，错误代码 {sr_index}"
+        if sr_index in error_code_msg:
+            msg = error_code_msg[sr_index]
+        else:
+            msg = f"查询失败，请稍后重试（错误代码 {sr_index}）"
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.send(at_sender=True)
         await srinfo.finish()
@@ -100,11 +109,8 @@ async def _(bot: Bot, event: Event):
         api="sr_avatar_info", cookie=cookie, role_uid=sr_uid, avatar_id=avatar_id
     )
     if isinstance(sr_avatar_info, int):
-        msg = f"查询失败，请稍后重试（错误代码 {sr_avatar_info}）"
-        msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.send(at_sender=True)
-        await srinfo.finish()
-    if not sr_basic_info or not sr_index or not sr_avatar_info:
+        sr_avatar_info = None
+    if not sr_basic_info or not sr_index:
         msg = "查询失败，请稍后重试"
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.send(at_sender=True)

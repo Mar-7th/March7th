@@ -63,7 +63,7 @@ async def get_srinfo_img(
     avatars = sr_index["avatar_list"]  # 角色信息 list
     equips: Dict[int, Dict[str, str]] = {}  # 装备信息 dict
 
-    details = sr_avatar_info["avatar_list"]
+    details = sr_avatar_info["avatar_list"] if sr_avatar_info else []
     for detail in details:
         equip = detail["equip"]
         if equip is not None:
@@ -212,8 +212,9 @@ async def get_srinfo_img(
                         fill=GRAY2,
                     )
             else:
+                text = "未装备光锥" if sr_avatar_info else "未获取光锥信息"
                 item_image.draw_text(
-                    (30, 180, 130, 220), "未装备光锥", fontname=fontname, fill=GRAY2
+                    (20, 180, 140, 220), text, fontname=fontname, fill=GRAY2
                 )
             item_image.draw_rounded_rectangle(
                 (0, 0, 160, 240), radius=10, outline=GRAY2, width=3
