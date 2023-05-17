@@ -39,6 +39,11 @@ __plugin_meta__ = PluginMetadata(
     },
 )
 
+error_code_msg = {
+    1034: "查询遇验证码，请手动在米游社验证后查询",
+    10001: "绑定cookie失效，请重新绑定",
+}
+
 srmemo = on_command(
     "srmemo",
     aliases={"srnote", "星铁体力", "星铁每日", "星铁开拓力", "星铁便笺", "星铁实时便笺"},
@@ -71,12 +76,18 @@ async def _(bot: Bot, event: Event):
     )
     sr_note = await call_mihoyo_api(api="sr_note", cookie=cookie, role_uid=sr_uid)
     if isinstance(sr_basic_info, int):
-        msg = f"查询失败，请稍后重试（错误代码 {sr_basic_info}）"
+        if sr_basic_info in error_code_msg:
+            msg = error_code_msg[sr_basic_info]
+        else:
+            msg = f"查询失败，请稍后重试（错误代码 {sr_basic_info}）"
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.send(at_sender=True)
         await srmemo.finish()
     if isinstance(sr_note, int):
-        msg = f"查询失败，请稍后重试（错误代码 {sr_note}）"
+        if sr_note in error_code_msg:
+            msg = error_code_msg[sr_note]
+        else:
+            msg = f"查询失败，请稍后重试（错误代码 {sr_note}）"
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.send(at_sender=True)
         await srmemo.finish()
@@ -118,12 +129,18 @@ async def _(bot: Bot, event: Event):
         api="sr_month_info", cookie=cookie, role_uid=sr_uid
     )
     if isinstance(sr_basic_info, int):
-        msg = f"查询失败，请稍后重试（错误代码 {sr_basic_info}）"
+        if sr_basic_info in error_code_msg:
+            msg = error_code_msg[sr_basic_info]
+        else:
+            msg = f"查询失败，请稍后重试（错误代码 {sr_basic_info}）"
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.send(at_sender=True)
         await srmonth.finish()
     if isinstance(sr_month, int):
-        msg = f"查询失败，请稍后重试（错误代码 {sr_month}）"
+        if sr_month in error_code_msg:
+            msg = error_code_msg[sr_month]
+        else:
+            msg = f"查询失败，请稍后重试（错误代码 {sr_month}）"
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.send(at_sender=True)
         await srmonth.finish()
