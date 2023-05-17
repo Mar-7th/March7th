@@ -130,6 +130,10 @@ def generate_headers(cookie: str, q="", b=None) -> Dict[str, str]:
         "X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.50.1",
         "X-Rquested-With": "com.mihoyo.hyperion",
         "x-rpc-client_type": "5",
+        "x-rpc-device_id": uuid.uuid4().hex,
+        "x-rpc-device_fp": "".join(
+            random.choices((string.ascii_letters + string.digits), k=13)
+        ),
         "x-rpc-app_version": "2.50.1",
     }
 
