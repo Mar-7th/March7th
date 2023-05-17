@@ -103,11 +103,14 @@ async def update_srpanel(bot_id: str, user_id: str, sr_uid: str) -> Optional[str
         time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         character["time"] = time
         name_set.add(character["name"])
+        cid = character["id"]
+        if str(cid).startswith("80"):
+            cid = "8000"
         character_panel = UserPanel(
             bot_id=bot_id,
             user_id=user_id,
             sr_uid=sr_uid,
-            cid=character["id"],
+            cid=cid,
             info=character,
         )
         await set_user_srpanel(character_panel)

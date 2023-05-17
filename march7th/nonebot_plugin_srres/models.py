@@ -96,6 +96,8 @@ class StarRailRes:
         return None
 
     async def get_icon_character(self, id: str) -> Optional[Path]:
+        if id == "8000":
+            id = "8002"
         if id in self.ResIndex["characters"]:
             icon_file = self.ResIndex["characters"][id].get("icon")
             if icon_file:
@@ -131,6 +133,8 @@ class StarRailRes:
 
     async def get_character_preview(self, name: str) -> Optional[str]:
         id = self.NicknameRev[name]
+        if id == "8000":
+            id = "8002"
         if id in self.ResIndex["characters"]:
             preview = self.ResIndex["characters"][name].get("preview")
             if preview:
@@ -140,6 +144,8 @@ class StarRailRes:
 
     async def get_character_portrait(self, name: str) -> Optional[str]:
         id = self.NicknameRev[name]
+        if id == "8000":
+            id = "8002"
         if id in self.ResIndex["characters"]:
             portrait = self.ResIndex["characters"][id].get("portrait")
             if portrait:
@@ -151,6 +157,8 @@ class StarRailRes:
         if name not in self.NicknameRev:
             return None
         id = self.NicknameRev[name]
+        if id == "8000":
+            id = "8002"
         if id in self.ResIndex["characters"]:
             overview = self.ResIndex["characters"][id].get("guide_overview")
             if overview:
@@ -163,6 +171,8 @@ class StarRailRes:
         if name not in self.NicknameRev:
             return None
         id = self.NicknameRev[name]
+        if id == "8000":
+            id = "8002"
         if id in self.ResIndex["characters"]:
             material = self.ResIndex["characters"][id].get("guide_material")
             if material:
@@ -229,7 +239,7 @@ class StarRailRes:
         if not (index_dir / file_name).exists() or update_index:
             logger.debug(f"Downloading index {file_name}...")
             data = await self.download(
-                self.proxy_url(f"{plugin_config.sr_wiki_url}/index/cn/{file_name}")
+                self.proxy_url(f"{plugin_config.sr_wiki_url}/index_min/cn/{file_name}")
             )
             if not data:
                 logger.error(f"Failed to download {file_name}.")
