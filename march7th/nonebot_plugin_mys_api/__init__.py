@@ -125,20 +125,20 @@ def generate_headers(cookie: str, q="", b=None) -> Dict[str, str]:
         "DS": get_ds(q, b),
         "Origin": "https://webstatic.mihoyo.com",
         "Cookie": cookie,
-        "x-rpc-app_version": "2.11.1",
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS "
-        "X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1",
-        "x-rpc-client_type": "5",
-        "x-rpc-device_id": uuid.uuid4().hex,
         "Referer": "https://webstatic.mihoyo.com/",
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS "
+        "X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.50.1",
+        "X-Rquested-With": "com.mihoyo.hyperion",
+        "x-rpc-client_type": "5",
+        "x-rpc-app_version": "2.50.1",
     }
 
 
 async def get_stoken_by_login_ticket(login_ticket: str, mys_id: str):
     async with httpx.AsyncClient(
         headers={
-            "x-rpc-app_version": "2.11.2",
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1",
+            "x-rpc-app_version": "2.50.1",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.50.1",
             "x-rpc-client_type": "5",
             "Referer": "https://webstatic.mihoyo.com/",
             "Origin": "https://webstatic.mihoyo.com",
@@ -163,8 +163,8 @@ async def get_stoken_by_login_ticket(login_ticket: str, mys_id: str):
 async def get_cookie_token_by_stoken(stoken: str, mys_id: str):
     async with httpx.AsyncClient(
         headers={
-            "x-rpc-app_version": "2.11.2",
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1",
+            "x-rpc-app_version": "2.50.1",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.50.1",
             "x-rpc-client_type": "5",
             "Referer": "https://webstatic.mihoyo.com/",
             "Origin": "https://webstatic.mihoyo.com",
