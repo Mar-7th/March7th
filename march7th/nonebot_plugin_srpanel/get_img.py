@@ -31,7 +31,7 @@ async def get_srpanel_img(player_info, character_info) -> Optional[BytesIO]:
     time = character_info["time"]
     color = character_info["color"]
     name = character_info["name"]
-    name.replace("{NICKNAME}", player_info["name"])
+    name = name.replace("{NICKNAME}", player_info["name"])
     level = character_info["level"]
     path = character_info["path"]
     element = character_info["element"]
