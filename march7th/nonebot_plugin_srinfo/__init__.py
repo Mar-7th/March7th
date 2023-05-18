@@ -11,14 +11,14 @@ require("nonebot_plugin_srres")
 from nonebot_plugin_saa import Image, MessageFactory, Text
 
 try:
-    from march7th.nonebot_plugin_mys_api import call_mihoyo_api
+    from march7th.nonebot_plugin_mys_api import mys_api
     from march7th.nonebot_plugin_srbind import get_user_srbind
     from march7th.nonebot_plugin_srbind.cookie import (  # set_cookie_expire,
         get_public_cookie,
         get_user_cookie,
     )
 except ModuleNotFoundError:
-    from nonebot_plugin_mys_api import call_mihoyo_api
+    from nonebot_plugin_mys_api import mys_api
     from nonebot_plugin_srbind import get_user_srbind
     from nonebot_plugin_srbind.cookie import (
         get_public_cookie,
@@ -71,7 +71,7 @@ async def _(bot: Bot, event: Event):
         await msg_builder.send(at_sender=True)
         await srinfo.finish()
     logger.info(f"正在查询SRUID『{sr_uid}』信息")
-    sr_basic_info = await call_mihoyo_api(
+    sr_basic_info = await mys_api.call_mihoyo_api(
         api="sr_basic_info", cookie=cookie, role_uid=sr_uid
     )
     if isinstance(sr_basic_info, int):
@@ -79,7 +79,9 @@ async def _(bot: Bot, event: Event):
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.send(at_sender=True)
         await srinfo.finish()
-    sr_index = await call_mihoyo_api(api="sr_index", cookie=cookie, role_uid=sr_uid)
+    sr_index = await mys_api.call_mihoyo_api(
+        api="sr_index", cookie=cookie, role_uid=sr_uid
+    )
     if isinstance(sr_index, int):
         if sr_index in error_code_msg:
             msg = error_code_msg[sr_index]
@@ -105,7 +107,7 @@ async def _(bot: Bot, event: Event):
             msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.send(at_sender=True)
         await srinfo.finish()
-    sr_avatar_info = await call_mihoyo_api(
+    sr_avatar_info = await mys_api.call_mihoyo_api(
         api="sr_avatar_info", cookie=cookie, role_uid=sr_uid, avatar_id=avatar_id
     )
     if isinstance(sr_avatar_info, int):

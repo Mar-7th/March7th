@@ -28,25 +28,9 @@ from nonebot_plugin_saa import (
 )
 
 try:
-    from march7th.nonebot_plugin_mys_api import (
-        call_mihoyo_api,
-        check_login_qr,
-        create_login_qr,
-        get_cookie_by_game_token,
-        get_cookie_token_by_stoken,
-        get_stoken_by_game_token,
-        get_stoken_by_login_ticket,
-    )
+    from march7th.nonebot_plugin_mys_api import mys_api
 except ModuleNotFoundError:
-    from nonebot_plugin_mys_api import (
-        call_mihoyo_api,
-        get_stoken_by_login_ticket,
-        get_cookie_token_by_stoken,
-        create_login_qr,
-        check_login_qr,
-        get_cookie_by_game_token,
-        get_stoken_by_game_token,
-    )
+    from nonebot_plugin_mys_api import mys_api
 
 from .models import (
     UserBind,
@@ -163,15 +147,15 @@ async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
         logger.debug(f"login_ticket: {login_ticket}")
         if login_ticket and not stoken:
             # 如果有login_ticket但没有stoken，就通过login_ticket获取stoken
-            stoken = await get_stoken_by_login_ticket(login_ticket, mys_id)
+            stoken = await mys_api.get_stoken_by_login_ticket(login_ticket, mys_id)
             logger.debug(f"stoken: {stoken}")
         if stoken and not cookie_token:
             # 如果有stoken但没有cookie_token，就通过stoken获取cookie_token
-            cookie_token = await get_cookie_token_by_stoken(stoken, mys_id)
+            cookie_token = await mys_api.get_cookie_token_by_stoken(stoken, mys_id)
             logger.debug(f"cookie_token: {cookie_token}")
         if not cookie_token:
             msg = "cookie无效，缺少cookie_token或login_ticket字段\n获取cookie的教程：\ndocs.qq.com/doc/DQ3JLWk1vQVllZ2Z1"
-        elif game_info := await call_mihoyo_api(
+        elif game_info := await mys_api.call_mihoyo_api(
             api="game_record",
             cookie=f"account_id={mys_id};cookie_token={cookie_token}",
             mys_id=mys_id,
@@ -236,11 +220,11 @@ async def _(bot: Bot, arg: Message = CommandArg()):
         logger.debug(f"login_ticket: {login_ticket}")
         if login_ticket and not stoken:
             # 如果有login_ticket但没有stoken，就通过login_ticket获取stoken
-            stoken = await get_stoken_by_login_ticket(login_ticket, mys_id)
+            stoken = await mys_api.get_stoken_by_login_ticket(login_ticket, mys_id)
             logger.debug(f"stoken: {stoken}")
         if stoken and not cookie_token:
             # 如果有stoken但没有cookie_token，就通过stoken获取cookie_token
-            cookie_token = await get_cookie_token_by_stoken(stoken, mys_id)
+            cookie_token = await mys_api.get_cookie_token_by_stoken(stoken, mys_id)
             logger.debug(f"cookie_token: {cookie_token}")
         if not cookie_token:
             msg = "cookie无效，缺少cookie_token或login_ticket字段\n获取cookie的教程：\ndocs.qq.com/doc/DQ3JLWk1vQVllZ2Z1"
@@ -301,7 +285,7 @@ async def _(bot: Bot, event: Event):
         msg_builder = MessageFactory([Text("你已经在绑定中了，请扫描上一次的二维码")])
         await msg_builder.send(at_sender=True)
         await srdel.finish()
-    login_data = await create_login_qr(8)
+    login_data = await mys_api.create_login_qr(8)
     qr_img: BytesIO = generate_qrcode(login_data["url"])
     qrbind_buffer[user_id] = login_data
     qrbind_buffer[user_id]["bot_id"] = bot.self_id
@@ -326,7 +310,7 @@ async def check_qrcode():
         for user_id, data in qrbind_buffer.items():
             logger.debug(f"Check qr result of {user_id}")
             try:
-                status_data = await check_login_qr(data)
+                status_data = await mys_api.check_login_qr(data)
                 logger.debug(status_data)
                 if status_data["retcode"] != 0:
                     qrbind_buffer.pop(user_id)
@@ -335,10 +319,10 @@ async def check_qrcode():
                     )
                 elif status_data["data"]["stat"] == "Confirmed":
                     game_token = json.loads(status_data["data"]["payload"]["raw"])
-                    cookie_token_data = await get_cookie_by_game_token(
+                    cookie_token_data = await mys_api.get_cookie_by_game_token(
                         int(game_token["uid"]), game_token["token"]
                     )
-                    stoken_data = await get_stoken_by_game_token(
+                    stoken_data = await mys_api.get_stoken_by_game_token(
                         int(game_token["uid"]), game_token["token"]
                     )
                     if not cookie_token_data or not stoken_data:
@@ -347,7 +331,7 @@ async def check_qrcode():
                     # mid = stoken_data['data']['user_info']['mid']
                     cookie_token = cookie_token_data["data"]["cookie_token"]
                     stoken = stoken_data["data"]["token"]["token"]
-                    if game_info := await call_mihoyo_api(
+                    if game_info := await mys_api.call_mihoyo_api(
                         api="game_record",
                         cookie=f"account_id={mys_id};cookie_token={cookie_token}",
                         mys_id=mys_id,
