@@ -113,27 +113,27 @@ def get_ds(
     return f"{t},{r},{c}"
 
 
-def generate_headers(cookie: str, q="", b=None) -> Dict[str, str]:
+def generate_headers(cookie: str, q="", b=None, p=None, r=None) -> Dict[str, str]:
     """
     生成米游社headers
         :param cookie: cookie
         :param q: 查询
         :param b: 请求体
+        :param p: x-rpc-page
         :return: headers
     """
     return {
         "DS": get_ds(q, b),
         "Origin": "https://webstatic.mihoyo.com",
         "Cookie": cookie,
-        "Referer": "https://webstatic.mihoyo.com/",
+        "Referer": r if r else "https://webstatic.mihoyo.com/",
         "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS "
         "X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.50.1",
         "X-Rquested-With": "com.mihoyo.hyperion",
+        "x-rpc-page": p if p else "",
         "x-rpc-client_type": "5",
-        "x-rpc-device_id": uuid.uuid4().hex,
-        "x-rpc-device_fp": "".join(
-            random.choices((string.ascii_letters + string.digits), k=13)
-        ),
+        "x-rpc-device_id": str(uuid.uuid4()),
+        "x-rpc-device_fp": random_hex(13).lower(),
         "x-rpc-app_version": "2.50.1",
     }
 
@@ -287,6 +287,9 @@ async def call_mihoyo_api(
     # default params: uid, server_id, role_id
     params: Dict[str, Any] = {}
     params_str: str = ""
+    page: str = ""
+    headers: Dict[str, str] = {}
+    refer: str = None
     # fill headers and params by api
     if api == "game_record":
         # extra params: mys_id
@@ -298,8 +301,10 @@ async def call_mihoyo_api(
         params_str = f"uid={mys_id}"
     elif api == "sr_basic_info":
         url = STAR_RAIL_ROLE_BASIC_INFO_API
+        page = "3.1.3_#/rpg"
     elif api == "sr_index":
         url = STAR_RAIL_INDEX_API
+        page = "3.1.3_#/rpg"
     elif api == "sr_avatar_info":
         # extra params: avatar_id
         url = STAR_RAIL_AVATAR_INFO_API
@@ -309,15 +314,16 @@ async def call_mihoyo_api(
         server_id = RECOGNIZE_SERVER.get(role_uid[0])
         params = {
             "id": avatar_id,
-            "need_wiki": "false",
+            "need_wiki": "true",
             "role_id": role_uid,
             "server": server_id,
         }
-        params_str = (
-            f"id={avatar_id}&need_wiki=false&role_id={role_uid}&server={server_id}"
-        )
+        params_str = "&".join([f"{k}={v}" for k, v in params.items()])
+        page = "3.1.3_#/rpg/role"
+        refer = "https://webstatic.mihoyo.com/app/community-game-records/rpg/?bbs_presentation_style=fullscreen"
     elif api == "sr_note":
         url = STAR_RAIL_NOTE_API
+        page = "3.1.3_#/rpg"
     elif api == "sr_month_info":
         url = STAR_RAIL_MONTH_INFO_API
         params = {
@@ -326,6 +332,7 @@ async def call_mihoyo_api(
             "uid": role_uid,
             "lang": "zh-cn",
         }
+        page = "3.1.3_#/rpg"
     else:  # api not found
         url = None
     if url is not None:  # send request
@@ -339,7 +346,8 @@ async def call_mihoyo_api(
         if not params:
             params = {"role_id": role_uid, "server": server_id}
         # generate headers
-        headers = generate_headers(cookie=cookie, q=params_str)
+        if not headers:
+            headers = generate_headers(cookie=cookie, q=params_str, p=page, r=refer)
         async with httpx.AsyncClient(headers=headers) as client:
             data = await client.get(
                 url=url,
