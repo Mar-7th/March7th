@@ -18,12 +18,12 @@ __plugin_meta__ = PluginMetadata(
     name="StarRailWiki",
     description="崩坏：星穹铁道百科",
     usage="""\
-查询Wiki:   xxx(角色|光锥)(攻略|材料)
+查询Wiki:   xxx(角色|光锥|遗器)(攻略|材料)
 """,
     extra={
         "version": "1.0",
         "srhelp": """\
-查询Wiki: [u]xxx[/u](角色|光锥)(攻略|材料)
+查询Wiki: [u]xxx[/u](角色|光锥|遗器)(攻略|材料)
 """,
     },
 )
@@ -33,6 +33,7 @@ BASE_TYPE = [
     "光锥",
     "武器",
     "装备",
+    "遗器",
 ]
 BASE_TYPE_RE = "(" + "|".join(BASE_TYPE) + ")"
 WIKI_TYPE = ["图鉴", "攻略", "材料"]
@@ -60,6 +61,8 @@ async def _(regex_dict: dict = RegexDict()):
         wiki_type_1 = "character"
     elif "光锥" in wiki_type or "武器" in wiki_type or "装备" in wiki_type:
         wiki_type_1 = "light_cone"
+    elif "遗器" in wiki_type:
+        wiki_type_1 = "relic_set"
     else:
         wiki_type_1 = "all"
     if "材料" in wiki_type:
@@ -77,6 +80,8 @@ async def _(regex_dict: dict = RegexDict()):
         pic_content = srres.get_character_material_url(wiki_name)
     if not pic_content and wiki_type_1 in {"all", "light_cone"}:
         pic_content = srres.get_light_cone_overview_url(wiki_name)
+    if not pic_content and wiki_type_1 in {"all", "relic_set"}:
+        pic_content = srres.get_relic_set_overview_url(wiki_name)
     if pic_content:
         msg_builder = MessageFactory([Image(pic_content)])
         await msg_builder.send(at_sender=True)

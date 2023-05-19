@@ -93,6 +93,8 @@ class StarRailRes:
                 return await self.get_icon_character(id)
             if id in self.ResIndex["light_cones"]:
                 return await self.get_icon_light_cone(id)
+            if id in self.ResIndex["relic_set"]:
+                return await self.get_icon_relic_set(id)
         return None
 
     async def get_icon_character(self, id: str) -> Optional[Path]:
@@ -108,6 +110,14 @@ class StarRailRes:
     async def get_icon_light_cone(self, id: str) -> Optional[Path]:
         if id in self.ResIndex["light_cones"]:
             icon_file = self.ResIndex["light_cones"][id].get("icon")
+            if icon_file:
+                if await self.cache(icon_file):
+                    return plugin_data_dir / icon_file
+        return None
+
+    async def get_icon_relic_set(self, id: str) -> Optional[Path]:
+        if id in self.ResIndex["relic_sets"]:
+            icon_file = self.ResIndex["relic_sets"][id].get("icon")
             if icon_file:
                 if await self.cache(icon_file):
                     return plugin_data_dir / icon_file
@@ -193,6 +203,18 @@ class StarRailRes:
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
         return None
 
+    def get_relic_set_overview_url(self, name: str) -> Optional[str]:
+        if name not in self.NicknameRev:
+            return None
+        id = self.NicknameRev[name]
+        if id in self.ResIndex["relic_sets"]:
+            overview = self.ResIndex["relic_sets"][id].get("guide_overview")
+            if overview:
+                if isinstance(overview, list):
+                    overview = random.choice(overview)
+                return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
+        return None
+
     def get_font(self) -> str:
         return str(plugin_data_dir / "font" / FontFile)
 
@@ -206,12 +228,11 @@ class StarRailRes:
                 self.ResIndex[k] = json.load(f)
         with open(index_dir / NicknameFile, "r", encoding="utf-8") as f:
             self.Nickname = json.load(f)
-        for k, v in dict(self.Nickname["characters"]).items():
-            for v_item in list(v):
-                self.NicknameRev[v_item] = k
-        for k, v in dict(self.Nickname["light_cones"]).items():
-            for v_item in list(v):
-                self.NicknameRev[v_item] = k
+        for type in {"characters", "light_cones", "relic_sets"}:
+            if type in self.Nickname.keys():
+                for k, v in dict(self.Nickname[type]).items():
+                    for v_item in list(v):
+                        self.NicknameRev[v_item] = k
 
     async def update(self, update_index: bool = False) -> bool:
         status: bool = True
