@@ -109,8 +109,8 @@ def get_properties_from_light_cone_rank(info):
 
 
 def get_promotions_from_light_cone(info, promotions):
-    if "EquipmentID" in info:
-        info = info["EquipmentID"]
+    info = info["EquipmentID"] if "EquipmentID" in info else {}
+    if "ID" in info:
         id = str(info["ID"])
         level = info["Level"]
         promotion = info["Promotion"] if "Promotion" in info else 0
