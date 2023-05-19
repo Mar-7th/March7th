@@ -146,7 +146,7 @@ class MysApi:
             "Origin": "https://webstatic.mihoyo.com",
         }
         async with httpx.AsyncClient(headers=headers) as client:
-            data = await client.get(
+            data = await client.post(
                 url=GET_FP_API,
                 params={
                     "device_id": device_id,
