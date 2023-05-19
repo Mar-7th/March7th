@@ -26,7 +26,7 @@ async def _():
     logger.info("Device id & fp refreshed")
 
 
-@scheduler.scheduled_job("interval", minutes=15, id="refresh_device")
+@scheduler.scheduled_job("interval", minutes=5, id="refresh_device")
 async def refresh_device():
     await mys_api.init_device()
     logger.info("Device id & fp refreshed")
