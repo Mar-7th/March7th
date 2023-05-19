@@ -24,7 +24,7 @@ NEW_URL = "https://api-takumi-record.mihoyo.com"
 HK4_SDK_URL = "https://hk4e-sdk.mihoyo.com"
 TAKUMI_HOST = "https://api-takumi.mihoyo.com"
 PASSPORT_HOST = "https://passport-api.mihoyo.com"
-PUBLIC_DATA_HOST = "https://public-data-api.mihoyo.com/"
+PUBLIC_DATA_HOST = "https://public-data-api.mihoyo.com"
 
 # 米游社
 GAME_RECORD_API = f"{NEW_URL}/game_record/card/wapi/getGameRecordCard"  # 游戏记录
@@ -164,6 +164,7 @@ class MysApi:
                 return str(data["data"]["device_fp"])
             except (json.JSONDecodeError, KeyError):
                 logger.warning("Failed to get device fp, use random")
+                logger.warning(f"Response: {data}")
                 return random_hex(13).lower()
 
     async def get_stoken_by_login_ticket(self, login_ticket: str, mys_id: str):

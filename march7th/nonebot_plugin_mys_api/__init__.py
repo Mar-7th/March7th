@@ -1,6 +1,9 @@
-from nonebot import get_driver
+from nonebot import get_driver, require
 from nonebot.log import logger
 from nonebot.plugin import PluginMetadata
+
+require("nonebot_plugin_apscheduler")
+from nonebot_plugin_apscheduler import scheduler
 
 from .api import MysApi
 
@@ -19,5 +22,11 @@ driver = get_driver()
 
 @driver.on_startup
 async def _():
+    await mys_api.init_device()
+    logger.info("Device id & fp refreshed")
+
+
+@scheduler.scheduled_job("interval", minutes=15, id="refresh_device")
+async def refresh_device():
     await mys_api.init_device()
     logger.info("Device id & fp refreshed")
