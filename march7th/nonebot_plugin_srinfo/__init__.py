@@ -75,7 +75,10 @@ async def _(bot: Bot, event: Event):
         api="sr_basic_info", cookie=cookie, role_uid=sr_uid
     )
     if isinstance(sr_basic_info, int):
-        msg = f"查询失败，错误代码 {sr_basic_info}"
+        if sr_basic_info in error_code_msg:
+            msg = error_code_msg[sr_basic_info]
+        else:
+            msg = f"查询失败，错误代码 {sr_basic_info}"
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.send(at_sender=True)
         await srinfo.finish()
