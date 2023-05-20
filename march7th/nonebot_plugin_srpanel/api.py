@@ -89,12 +89,13 @@ def parse_light_cone(info):
     light_cone_info = {}
     if "EquipmentID" in info:
         info = info["EquipmentID"]
-        id = str(info["ID"])
-        light_cone_info["name"] = srres.ResIndex["light_cones"][id]["name"]
-        light_cone_info["rarity"] = srres.ResIndex["light_cones"][id]["rarity"]
-        light_cone_info["rank"] = info["Rank"]
-        light_cone_info["level"] = info["Level"]
-        light_cone_info["icon"] = srres.ResIndex["light_cones"][id]["icon"]
+        if "ID" in info:
+            id = str(info["ID"])
+            light_cone_info["name"] = srres.ResIndex["light_cones"][id]["name"]
+            light_cone_info["rarity"] = srres.ResIndex["light_cones"][id]["rarity"]
+            light_cone_info["rank"] = info["Rank"]
+            light_cone_info["level"] = info["Level"]
+            light_cone_info["icon"] = srres.ResIndex["light_cones"][id]["icon"]
     return light_cone_info
 
 
