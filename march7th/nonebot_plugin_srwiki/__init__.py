@@ -7,7 +7,7 @@ from nonebot.plugin import PluginMetadata
 require("nonebot_plugin_saa")
 require("nonebot_plugin_srres")
 
-from nonebot_plugin_saa import Image, MessageFactory
+from nonebot_plugin_saa import Image, MessageFactory, Text
 
 try:
     from march7th.nonebot_plugin_srres import srres
@@ -18,12 +18,13 @@ __plugin_meta__ = PluginMetadata(
     name="StarRailWiki",
     description="崩坏：星穹铁道百科",
     usage="""\
-查询Wiki:   xxx(角色|光锥|遗器)(攻略|材料)
+查询Wiki:   xxx(角色|光锥|遗器)(攻略|材料|测评)
 """,
     extra={
         "version": "1.0",
         "srhelp": """\
-查询Wiki: [u]xxx[/u](角色|光锥|遗器)(攻略|材料)
+查询Wiki: [u]xxx[/u]角色攻略
+支持 角色攻略/材料/测评 光锥/遗器图鉴
 """,
     },
 )
@@ -36,7 +37,7 @@ BASE_TYPE = [
     "遗器",
 ]
 BASE_TYPE_RE = "(" + "|".join(BASE_TYPE) + ")"
-WIKI_TYPE = ["图鉴", "攻略", "材料"]
+WIKI_TYPE = ["图鉴", "攻略", "材料", "测评", "评测"]
 WIKI_TYPE_RE = "(" + "|".join(WIKI_TYPE) + ")"
 
 WIKI_RE = (
@@ -67,9 +68,12 @@ async def _(regex_dict: dict = RegexDict()):
         wiki_type_1 = "all"
     if "材料" in wiki_type:
         wiki_type_2 = "material"
+    elif "测评" in wiki_type or "评测" in wiki_type:
+        wiki_type_2 = "evaluation"
     else:
         wiki_type_2 = "overview"
-    pic_content = ""
+    pic_content = None
+    extra_text = None
     if wiki_type_1 in {"all", "character"} and wiki_type_2 == "overview":
         pic_content = srres.get_character_overview_url(wiki_name)
     if (
@@ -78,11 +82,23 @@ async def _(regex_dict: dict = RegexDict()):
         and wiki_type_2 == "material"
     ):
         pic_content = srres.get_character_material_url(wiki_name)
+    if (
+        not pic_content
+        and wiki_type_1 in {"all", "character"}
+        and wiki_type_2 == "evaluation"
+    ):
+        res_tuple = srres.get_character_evaluation_url_and_link(wiki_name)
+        if res_tuple:
+            pic_content, extra_text = res_tuple
     if not pic_content and wiki_type_1 in {"all", "light_cone"}:
         pic_content = srres.get_light_cone_overview_url(wiki_name)
     if not pic_content and wiki_type_1 in {"all", "relic_set"}:
         pic_content = srres.get_relic_set_overview_url(wiki_name)
     if pic_content:
-        msg_builder = MessageFactory([Image(pic_content)])
+        if extra_text:
+            extra_text = f"\n链接：{extra_text}"
+            msg_builder = MessageFactory([Image(pic_content), Text(extra_text)])
+        else:
+            msg_builder = MessageFactory([Image(pic_content)])
         await msg_builder.send(at_sender=True)
     await wiki_search.finish()

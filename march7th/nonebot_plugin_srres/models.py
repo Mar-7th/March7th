@@ -2,7 +2,7 @@ import asyncio
 import json
 import random
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 
 import httpx
 from nonebot.log import logger
@@ -44,7 +44,10 @@ class StarRailRes:
 
     def proxy_url(self, url: str) -> str:
         if plugin_config.github_proxy:
-            return f"{plugin_config.github_proxy}/{url}"
+            github_proxy = plugin_config.github_proxy
+            if github_proxy.endswith("/"):
+                github_proxy = github_proxy[:-1]
+            return f"{github_proxy}/{url}"
         return url
 
     async def download(self, url: str) -> Optional[bytes]:
@@ -189,6 +192,26 @@ class StarRailRes:
                 if isinstance(material, list):
                     material = random.choice(material)
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{material}")
+        return None
+
+    def get_character_evaluation_url_and_link(
+        self, name: str
+    ) -> Optional[Tuple[str, str]]:
+        if name not in self.NicknameRev:
+            return None
+        id = self.NicknameRev[name]
+        if id == "8000":
+            id = "8002"
+        if id in self.ResIndex["characters"]:
+            evaluation = self.ResIndex["characters"][id].get("guide_evaluation")
+            if evaluation:
+                if isinstance(evaluation, list):
+                    evaluation = random.choice(evaluation)
+                if "image" not in evaluation or "link" not in evaluation:
+                    return None
+                url = f"{plugin_config.sr_wiki_url}/{evaluation['image']}"
+                link = str(evaluation["link"])
+                return self.proxy_url(url), link
         return None
 
     def get_light_cone_overview_url(self, name: str) -> Optional[str]:
