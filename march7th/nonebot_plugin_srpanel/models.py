@@ -87,7 +87,10 @@ async def update_srpanel(bot_id: str, user_id: str, sr_uid: str) -> Optional[str
     data = await request(url)
     if not data:
         return None
-    parsed_data = await parse(data)
+    try:
+        parsed_data = await parse(data)
+    except KeyError:
+        return None
     player = parsed_data["player"]
     panel = UserPanel(
         bot_id=bot_id,
