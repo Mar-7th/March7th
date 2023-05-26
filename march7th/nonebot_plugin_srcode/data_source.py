@@ -1,6 +1,6 @@
 import json
 from datetime import datetime, timedelta, timezone
-from re import findall
+from re import compile, findall, sub
 from time import time
 from typing import Dict, List, Union
 
@@ -103,20 +103,15 @@ async def get_code(version: str, act_id: str) -> Union[Dict, List[Dict]]:
     ret = await get_data("code", {"version": version, "actId": act_id})
     if ret.get("error") or ret.get("retcode") != 0:
         return {"error": ret.get("error") or "兑换码数据异常"}
-
     code_data = []
     for code_info in ret["data"]["code_list"]:
-        gifts = findall(
-            r">\s*([\u4e00-\u9fa5]+|\*[0-9]+)\s*\*<",
-            code_info["title"].replace("&nbsp;", " "),
-        )
+        remove_tag = compile("<.*?>")
         code_data.append(
             {
-                "items": "+".join(g for g in gifts if not g[-1].isdigit()),
+                "items": sub(remove_tag, "", code_info["title"]),
                 "code": code_info["code"],
             }
         )
-
     return code_data
 
 
@@ -136,6 +131,8 @@ async def get_code_msg() -> str:
         return code_data["error"]
 
     code_msg = (
-        str(live_data["title"]) + ":\n" + "\n".join(code["code"] for code in code_data)
+        str(live_data["title"])
+        + "\n"
+        + "\n".join(f'{code["items"]}:\n{code["code"]}' for code in code_data)
     )
     return code_msg
