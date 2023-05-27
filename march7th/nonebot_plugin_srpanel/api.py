@@ -134,22 +134,22 @@ def get_relic_info(info):
             relic_info[type]["rarity"] = srres.ResIndex["relics"][id]["rarity"]
             main_affix_group = srres.ResIndex["relics"][id]["main_affix_id"]
             main_affix_id = str(info["MainAffixID"])
-            main_affix = srres.ResIndex["relic_main_affixs"][main_affix_group][
-                "affixs"
+            main_affix = srres.ResIndex["relic_main_affixes"][main_affix_group][
+                "affixes"
             ][main_affix_id]
             main_property = {
                 "type": main_affix["property"],
                 "value": main_affix["base"] + main_affix["step"] * level,
             }
             sub_affix_group = srres.ResIndex["relics"][id]["sub_affix_id"]
-            sub_affixs = info["RelicSubAffix"] if "RelicSubAffix" in info else []
+            sub_affixes = info["RelicSubAffix"] if "RelicSubAffix" in info else []
             sub_property = []
-            for sub_affix in sub_affixs:
+            for sub_affix in sub_affixes:
                 sub_affix_id = str(sub_affix["SubAffixID"])
                 cnt = sub_affix["Cnt"]
                 step = sub_affix["Step"] if "Step" in sub_affix else 0
-                sub_affix = srres.ResIndex["relic_sub_affixs"][sub_affix_group][
-                    "affixs"
+                sub_affix = srres.ResIndex["relic_sub_affixes"][sub_affix_group][
+                    "affixes"
                 ][sub_affix_id]
                 sub_property.append(
                     {
