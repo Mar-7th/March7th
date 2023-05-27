@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 
 import httpx
+from nonebot.log import logger
 from nonebot_plugin_datastore import create_session, get_plugin_data
 from sqlalchemy import JSON, String, select, update
 from sqlalchemy.orm import Mapped, mapped_column
@@ -89,6 +90,7 @@ async def update_srpanel(bot_id: str, user_id: str, sr_uid: str) -> Optional[str
         return None
     try:
         parsed_data = await parse(data)
+        logger.info(f"Can not parse: {data}")
     except KeyError:
         return None
     player = parsed_data["player"]
