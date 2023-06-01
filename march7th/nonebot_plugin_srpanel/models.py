@@ -90,8 +90,8 @@ async def update_srpanel(bot_id: str, user_id: str, sr_uid: str) -> Optional[str
         return None
     try:
         parsed_data = await parse(data)
-        logger.info(f"Can not parse: {data}")
-    except KeyError:
+    except KeyError as e:
+        logger.info(f"Can not parse: {data}, error: {e}")
         return None
     player = parsed_data["player"]
     panel = UserPanel(
