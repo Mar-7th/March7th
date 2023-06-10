@@ -19,7 +19,7 @@ except ModuleNotFoundError:
     from nonebot_plugin_srres import srres
 
 from .get_img import get_srpanel_img
-from .models import get_srpanel_info, update_srpanel
+from .models import get_srpanel_character, get_srpanel_player, update_srpanel
 
 __plugin_meta__ = PluginMetadata(
     name="StarRailPanel",
@@ -87,18 +87,21 @@ async def _(bot: Bot, event: Event, regex_dict: dict = RegexDict()):
     sr_uid = user_list[0].sr_uid
     if str(cid).startswith("80"):
         cid = "8000"
-    info = await get_srpanel_info(bot.self_id, event.get_user_id(), sr_uid, cid)
+    info = await get_srpanel_character(bot.self_id, event.get_user_id(), sr_uid, cid)
     if not info:
         name = srres.ResIndex["characters"][cid]["name"] if cid != "8000" else "开拓者"
         msg = f"未找到『{name}』的面板，请使用`srpu`更新面板"
         msg_builder = MessageFactory([Text(msg)])
         await msg_builder.send(at_sender=True)
         await srpanel.finish()
-    player_info = await get_srpanel_info(bot.self_id, event.get_user_id(), sr_uid, "0")
-    img = await get_srpanel_img(player_info, info)
+    player_info = await get_srpanel_player(bot.self_id, event.get_user_id(), sr_uid)
+    if player_info:
+        img = await get_srpanel_img(player_info, info)
+    else:
+        img = None
     if img:
         msg_builder = MessageFactory([Image(img)])
     else:
-        msg_builder = MessageFactory([Text("制图出错")])
+        msg_builder = MessageFactory([Text("绘图出错，请使用`srpu`更新面板")])
     await msg_builder.send(at_sender=True)
     await srpanel.finish()
