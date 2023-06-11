@@ -1,7 +1,8 @@
-from nonebot import on_command, on_regex, require
+from nonebot import get_driver, on_command, on_regex, require
 from nonebot.adapters import Bot, Event
 from nonebot.log import logger
 from nonebot.params import RegexDict
+from nonebot.permission import SUPERUSER
 from nonebot.plugin import PluginMetadata
 
 require("nonebot_plugin_saa")
@@ -19,7 +20,13 @@ except ModuleNotFoundError:
     from nonebot_plugin_srres import srres
 
 from .get_img import get_srpanel_img
-from .models import get_srpanel_character, get_srpanel_player, update_srpanel
+from .models import (
+    ScoreFile,
+    get_srpanel_character,
+    get_srpanel_player,
+    update_score_file,
+    update_srpanel,
+)
 
 __plugin_meta__ = PluginMetadata(
     name="StarRailPanel",
@@ -36,6 +43,42 @@ __plugin_meta__ = PluginMetadata(
 """,
     },
 )
+
+score: ScoreFile = {}
+
+driver = get_driver()
+
+
+@driver.on_startup
+async def _():
+    global score
+    score_file = await update_score_file()
+    if score_file:
+        score = score_file
+        logger.info("『崩坏：星穹铁道』遗器评分标准加载完成")
+    else:
+        logger.error("『崩坏：星穹铁道』遗器评分标准加载失败，请检查网络连接和插件配置")
+
+
+srsupdate = on_command(
+    "srsupdate", aliases={"更新星铁评分标准"}, permission=SUPERUSER, block=True
+)
+
+
+@srsupdate.handle()
+async def _():
+    global score
+    msg_builder = MessageFactory([Text("开始更新『崩坏：星穹铁道』遗器评分标准")])
+    await msg_builder.send()
+    score_file = await update_score_file()
+    if not score_file:
+        msg_builder = MessageFactory([Text("『崩坏：星穹铁道』遗器评分标准更新失败，请检查网络连接和插件配置")])
+    else:
+        score = score_file
+        msg_builder = MessageFactory([Text("『崩坏：星穹铁道』遗器评分标准更新完成")])
+    await msg_builder.send()
+    await srsupdate.finish()
+
 
 srpu = on_command(
     "srpu",
@@ -96,12 +139,17 @@ async def _(bot: Bot, event: Event, regex_dict: dict = RegexDict()):
         await srpanel.finish()
     player_info = await get_srpanel_player(bot.self_id, event.get_user_id(), sr_uid)
     if player_info:
-        img = await get_srpanel_img(player_info, info)
+        try:
+            global score
+            img = await get_srpanel_img(player_info, info, score)
+        except Exception:
+            img = None
     else:
         img = None
     if img:
         msg_builder = MessageFactory([Image(img)])
+        await msg_builder.send()
     else:
         msg_builder = MessageFactory([Text("绘图出错，请使用`srpu`更新面板")])
-    await msg_builder.send(at_sender=True)
+        await msg_builder.send(at_sender=True)
     await srpanel.finish()

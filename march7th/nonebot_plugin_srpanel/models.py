@@ -14,6 +14,9 @@ from .config import plugin_config
 plugin_data = get_plugin_data()
 Model = plugin_data.Model
 
+plugin_data_dir = plugin_data.data_dir
+score_file = plugin_data_dir / "score.json"
+
 
 class LevelInfo(BaseModel):
     id: str
@@ -73,6 +76,11 @@ class AttributeInfo(BaseModel):
     percent: bool
 
 
+class SubAffixInfo(PropertyInfo):
+    count: int
+    step: int
+
+
 class RelicInfo(BaseModel):
     id: str
     name: str
@@ -82,7 +90,7 @@ class RelicInfo(BaseModel):
     level: int
     icon: str
     main_affix: Optional[PropertyInfo] = None
-    sub_affix: List[PropertyInfo] = []
+    sub_affix: List[SubAffixInfo] = []
 
 
 class RelicSetInfo(BaseModel):
@@ -164,6 +172,15 @@ class FormattedApiInfo(BaseModel):
     characters: List[CharacterInfo] = []
 
 
+class ScoreItem(BaseModel):
+    weight: Dict[str, float]
+    main: Dict[str, Dict[str, float]]
+    max: int
+
+
+ScoreFile = Dict[str, ScoreItem]
+
+
 class UserPanel(Model):
     __table_args__ = {"extend_existing": True}
 
@@ -234,7 +251,7 @@ async def get_srpanel_character(
     return None
 
 
-async def request(url: str):
+async def request(url: str) -> Optional[Dict]:
     async with httpx.AsyncClient(headers={"User-Agent": "Mar-7th/March7th"}) as client:
         data = await client.get(
             url=url,
@@ -245,6 +262,29 @@ async def request(url: str):
             return data
         except (json.JSONDecodeError, KeyError):
             return None
+
+
+async def update_score_file() -> Optional[ScoreFile]:
+    url = plugin_config.sr_score_url
+    if not url:
+        logger.error("Cannot get config: sr_score_url")
+        return None
+    if (
+        url.startswith("https://raw.githubusercontent.com")
+        and plugin_config.github_proxy
+    ):
+        url = plugin_config.github_proxy + "/" + url
+    sr_score_data = await request(url)
+    if not sr_score_data:
+        if not score_file.exists():
+            return None
+        logger.warning("Cannot get local score.json")
+        with open(score_file, "r", encoding="utf-8") as f:
+            sr_score_data = json.load(f)
+    score = {k: ScoreItem.parse_obj(v) for k, v in sr_score_data.items()}
+    with open(score_file, "w", encoding="utf-8") as f:
+        f.write(json.dumps(sr_score_data))
+    return score
 
 
 async def update_srpanel(bot_id: str, user_id: str, sr_uid: str) -> Optional[str]:

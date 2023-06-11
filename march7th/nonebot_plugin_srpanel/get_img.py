@@ -1,5 +1,5 @@
 from io import BytesIO
-from typing import List, Optional, Set
+from typing import Dict, List, Optional, Set
 
 from PIL import Image, ImageEnhance
 from pil_utils import BuildImage
@@ -9,7 +9,7 @@ try:
 except ModuleNotFoundError:
     from nonebot_plugin_srres import srres
 
-from .models import CharacterInfo, PlayerInfo
+from .models import CharacterInfo, PlayerInfo, ScoreFile
 
 fontname = srres.get_font()
 folder = srres.get_data_folder()
@@ -29,7 +29,7 @@ async def get_image(file: str) -> Optional[Image.Image]:
 
 
 async def get_srpanel_img(
-    player_info: PlayerInfo, character_info: CharacterInfo
+    player_info: PlayerInfo, character_info: CharacterInfo, score: ScoreFile
 ) -> Optional[BytesIO]:
     uid = player_info.uid
     time = character_info.time
@@ -264,20 +264,9 @@ async def get_srpanel_img(
                 max_fontsize=32,
                 fill=WHITE,
             )
-    # relic score
-    image_res.draw_rounded_rectangle(
-        (720, 970, 1000, 1150), radius=15, outline=GRAY, width=2
-    )
-    image_res.draw_text(
-        (740, 1000, 980, 1080), "🥰", fontname=fontname, max_fontsize=72, fill=WHITE
-    )
-    image_res.draw_text(
-        (740, 1080, 980, 1130),
-        "遗器评级（暂无）",
-        fontname=fontname,
-        max_fontsize=36,
-        fill=WHITE,
-    )
+    # relic score cal
+    relic_score: Dict[str, float] = {}
+    cid = character_info.id
     # relic
     for i in range(0, 6):
         x_index = 100 + 305 * (i % 3)
@@ -298,6 +287,7 @@ async def get_srpanel_img(
             )
         else:
             relic_info = relic[i]
+            relic_type = relic_info.id[-1]
             relic_icon = relic_info.icon
             relic_image = await get_image(relic_icon)
             if relic_image:
@@ -336,7 +326,15 @@ async def get_srpanel_img(
                 fill=WHITE,
             )
             y_index_item = y_index + 165
+            relic_item_score = 0
             for affix in relic_info.sub_affix:
+                FILL = (127, 127, 127)
+                if cid in score.keys() and affix.type in score[cid].weight.keys():
+                    relic_item_score += score[cid].weight[affix.type] * (
+                        affix.count + 0.1 * affix.step
+                    )
+                    weight = 127 + int(128 * score[cid].weight[affix.type])
+                    FILL = (weight, weight, weight)
                 affix_image = await get_image(affix.icon)
                 if affix_image:
                     affix_image = affix_image.resize((32, 32))
@@ -344,20 +342,67 @@ async def get_srpanel_img(
                         affix_image, (x_index + 30, y_index_item), alpha=True
                     )
                 image_res.draw_text(
-                    (x_index + 75, y_index_item),
+                    (x_index + 70, y_index_item),
                     affix.name,
                     fontname=fontname,
                     fontsize=24,
-                    fill=WHITE,
+                    fill=FILL,
                 )
+                if affix.count > 1:
+                    image_res.draw_text(
+                        (x_index + 175, y_index_item + 10),
+                        f"x{affix.count}",
+                        fontname=fontname,
+                        fontsize=14,
+                        fill=FILL,
+                    )
                 image_res.draw_text(
                     (x_index + 200, y_index_item),
                     affix.display,
                     fontname=fontname,
                     fontsize=24,
-                    fill=WHITE,
+                    fill=FILL,
                 )
                 y_index_item = y_index_item + 30
+            if cid in score.keys() and relic_info.main_affix:
+                if relic_type in {"1", "2"}:
+                    relic_item_score = relic_item_score / score[cid].max
+                else:
+                    relic_item_score = (
+                        relic_item_score / score[cid].max * 0.5
+                        + score[cid].main[relic_type][relic_info.main_affix.type]
+                        * ((relic_info.level + 1) / 16)
+                        * 0.5
+                    )
+                relic_score[relic_info.id] = relic_item_score
+    relic_score_all = format(sum(relic_score.values()) / 6 * 10, ".1f")
+    # relic score
+    image_res.draw_rounded_rectangle(
+        (720, 970, 1000, 1150), radius=15, outline=GRAY, width=2
+    )
+    if not relic_score_all.startswith("0"):
+        image_res.draw_text(
+            (740, 1000, 980, 1080),
+            f"{relic_score_all}/10",
+            fontname=fontname,
+            max_fontsize=72,
+            fill=WHITE,
+        )
+    else:
+        image_res.draw_text(
+            (740, 1000, 980, 1080),
+            "--",
+            fontname=fontname,
+            max_fontsize=72,
+            fill=WHITE,
+        )
+    image_res.draw_text(
+        (740, 1080, 980, 1130),
+        "遗器评分",
+        fontname=fontname,
+        max_fontsize=36,
+        fill=WHITE,
+    )
     image_res.draw_text(
         (80, 1820, 1020, 1870),
         f"Created by Mar-7th/March7th & Mihomo API @ {time}",
