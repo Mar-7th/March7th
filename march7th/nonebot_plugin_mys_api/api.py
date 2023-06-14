@@ -111,8 +111,11 @@ class MysApi:
             "X-Rquested-With": "com.mihoyo.hyperion",
             "x-rpc-page": p if p else "",
             "x-rpc-client_type": "5",
+            "x-rpc-device_name": "iPhone14Pro",
             "x-rpc-device_id": self.device_id,
             "x-rpc-device_fp": self.device_fp,
+            "x-rpc-sys_version": "12",
+            "x-rpc-client_type": "5",
             "x-rpc-app_version": "2.50.1",
         }
 
@@ -327,10 +330,10 @@ class MysApi:
             params_str = f"uid={mys_id}"
         elif api == "sr_basic_info":
             url = STAR_RAIL_ROLE_BASIC_INFO_API
-            page = "3.1.3_#/rpg"
+            page = "3.7.3_#/rpg"
         elif api == "sr_index":
             url = STAR_RAIL_INDEX_API
-            page = "3.1.3_#/rpg"
+            page = "3.7.3_#/rpg"
         elif api == "sr_avatar_info":
             # extra params: avatar_id
             url = STAR_RAIL_AVATAR_INFO_API
@@ -345,11 +348,11 @@ class MysApi:
                 "server": server_id,
             }
             params_str = "&".join([f"{k}={v}" for k, v in params.items()])
-            page = "3.1.3_#/rpg/role"
+            page = "3.7.3_#/rpg/role"
             refer = "https://webstatic.mihoyo.com/app/community-game-records/rpg/?bbs_presentation_style=fullscreen"
         elif api == "sr_note":
             url = STAR_RAIL_NOTE_API
-            page = "3.1.3_#/rpg"
+            page = "3.7.3_#/rpg"
         elif api == "sr_month_info":
             url = STAR_RAIL_MONTH_INFO_API
             params = {
@@ -358,7 +361,7 @@ class MysApi:
                 "uid": role_uid,
                 "lang": "zh-cn",
             }
-            page = "3.1.3_#/rpg"
+            page = "3.7.3_#/rpg"
         else:  # api not found
             url = None
         if url is not None:  # send request
