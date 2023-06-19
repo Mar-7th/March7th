@@ -328,7 +328,7 @@ async def check_qrcode():
                     if not cookie_token_data or not stoken_data:
                         continue
                     mys_id = stoken_data["data"]["user_info"]["aid"]
-                    # mid = stoken_data['data']['user_info']['mid']
+                    mid = stoken_data["data"]["user_info"]["mid"]
                     cookie_token = cookie_token_data["data"]["cookie_token"]
                     stoken = stoken_data["data"]["token"]["token"]
                     if game_info := await mys_api.call_mihoyo_api(
@@ -374,7 +374,7 @@ async def check_qrcode():
                                     mys_id=mys_id,
                                     sr_uid=info["uid"],
                                     cookie=f"account_id={mys_id};cookie_token={cookie_token}",
-                                    stoken=f"stuid={mys_id};stoken={stoken};"
+                                    stoken=f"stuid={mys_id};stoken={stoken};mid={mid};"
                                     if stoken
                                     else None,
                                 )

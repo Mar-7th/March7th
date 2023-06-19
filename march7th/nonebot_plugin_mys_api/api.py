@@ -52,6 +52,7 @@ STAR_RAIL_INDEX_API = f"{NEW_URL}/game_record/app/hkrpg/api/index"  # 崩坏：�
 STAR_RAIL_AVATAR_INFO_API = (
     f"{NEW_URL}/game_record/app/hkrpg/api/avatar/info"  # 崩坏：星穹铁道角色详细信息
 )
+STAR_RAIL_WIDGET_API = f"{NEW_URL}/game_record/app/hkrpg/aapi/widget"  # 崩坏：星穹铁道桌面组件
 STAR_RAIL_NOTE_API = f"{NEW_URL}/game_record/app/hkrpg/api/note"  # 崩坏：星穹铁道实时便笺
 STAR_RAIL_MONTH_INFO_API = f"{OLD_URL}/event/srledger/month_info"  # 崩坏：星穹铁道开拓月历
 
@@ -91,7 +92,13 @@ class MysApi:
         self.device_fp = await self.get_fp(self.device_id)
 
     async def generate_headers(
-        self, cookie: str, q="", b=None, p=None, r=None
+        self,
+        cookie: str,
+        q="",
+        b=None,
+        p=None,
+        r=None,
+        ds2: bool = False,
     ) -> Dict[str, str]:
         """
         生成米游社headers
@@ -101,43 +108,58 @@ class MysApi:
             :param p: x-rpc-page
             :return: headers
         """
+        if ds2:
+            ds = self.get_ds(q, b, ds2=True)
+        else:
+            ds = self.get_ds(q, b)
         return {
-            "DS": self.get_ds(q, b),
-            "Origin": "https://webstatic.mihoyo.com",
-            "Cookie": cookie,
-            "Referer": r if r else "https://webstatic.mihoyo.com/",
+            "DS": ds,
+            "cookie": cookie,
+            "Origin": "https://webstatic.mihoyo.com"
+            if not ds2
+            else "https://app.mihoyo.com/",
+            "Referer": r
+            if r
+            else (
+                "https://webstatic.mihoyo.com/"
+                if not ds2
+                else "https://app.mihoyo.com/"
+            ),
             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS "
             "X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.50.1",
-            "X-Rquested-With": "com.mihoyo.hyperion",
             "x-rpc-page": p if p else "",
-            "x-rpc-client_type": "5",
+            "x-rpc-client_type": "5" if not ds2 else "2",
             "x-rpc-device_name": "iPhone14Pro",
+            "x-rpc-device_model": "14Pro",
             "x-rpc-device_id": self.device_id,
             "x-rpc-device_fp": self.device_fp,
             "x-rpc-sys_version": "12",
-            "x-rpc-client_type": "5",
             "x-rpc-app_version": "2.50.1",
         }
 
     def get_ds(
-        self, query: str = "", body: Optional[Dict] = None, mhy_bbs_sign: bool = False
+        self,
+        query: str = "",
+        body: Optional[Dict] = None,
+        ds2: bool = False,
     ) -> str:
         """
         生成米游社headers的ds_token
 
         :param query: 查询
         :param body: 请求体
-        :param mhy_bbs_sign: 是否为米游社讨论区签到
+        :param ds2: 是否使用ds2
         :return: ds_token
         """
         b = json.dumps(body) if body else ""
-        if mhy_bbs_sign:
-            s = "t0qEgfub6cvueAPgR5m9aQWWVciEer7v"
+        if ds2:
+            salt = "t0qEgfub6cvueAPgR5m9aQWWVciEer7v"
         else:
-            s = "xV8v4Qu54lUKrEYFZkJhB8cuOh9Asafs"
+            salt = "xV8v4Qu54lUKrEYFZkJhB8cuOh9Asafs"
         t = str(int(time.time()))
         r = str(random.randint(100000, 200000))
-        c = md5(f"salt={s}&t={t}&r={r}&b={b}&q={query}")
+        s = f"salt={salt}&t={t}&r={r}&b={b}&q={query}"
+        c = md5(s)
         return f"{t},{r},{c}"
 
     async def get_fp(self, device_id: str):
@@ -301,6 +323,7 @@ class MysApi:
             "sr_basic_info",
             "sr_index",
             "sr_avatar_info",
+            "sr_widget",
             "sr_note",
             "sr_month_info",
         ],
@@ -314,11 +337,14 @@ class MysApi:
         # request params
         # fill params by api, or keep empty to use default params
         # default params: uid, server_id, role_id
-        params: Dict[str, Any] = {}
-        params_str: str = ""
+        params: Optional[Dict[str, Any]] = None
+        params_str: Optional[str] = None
         page: str = ""
         headers: Dict[str, str] = {}
+        headers_extra: Dict[str, str] = {}
         refer: str = ""
+        # flags
+        ds2 = False
         # fill headers and params by api
         if api == "game_record":
             # extra params: mys_id
@@ -350,6 +376,12 @@ class MysApi:
             params_str = "&".join([f"{k}={v}" for k, v in params.items()])
             page = "3.7.3_#/rpg/role"
             refer = "https://webstatic.mihoyo.com/app/community-game-records/rpg/?bbs_presentation_style=fullscreen"
+        elif api == "sr_widget":
+            url = STAR_RAIL_WIDGET_API
+            # page = "3.7.3_#/rpg"
+            params = {}
+            params_str = ""
+            ds2 = True
         elif api == "sr_note":
             url = STAR_RAIL_NOTE_API
             page = "3.7.3_#/rpg"
@@ -368,19 +400,22 @@ class MysApi:
             # get server_id by role_uid
             server_id = RECOGNIZE_SERVER.get(role_uid[0])
             # fill deault params
-            if not params_str:
-                params_str = "&".join([f"{k}={v}" for k, v in params.items()])
+            if params_str is None:
+                params_str = (
+                    "&".join([f"{k}={v}" for k, v in params.items()]) if params else ""
+                )
                 params_fixed = f"role_id={role_uid}&server={server_id}"
                 params_str = (
                     f"{params_str}&{params_fixed}" if params_str else params_fixed
                 )
-            if not params:
+            if params is None:
                 params = {"role_id": role_uid, "server": server_id}
             # generate headers
             if not headers:
                 headers = await self.generate_headers(
-                    cookie=cookie, q=params_str, p=page, r=refer
+                    cookie=cookie, q=params_str, p=page, r=refer, ds2=ds2
                 )
+                headers.update(headers_extra)
             async with httpx.AsyncClient(headers=headers) as client:
                 data = await client.get(
                     url=url,
@@ -396,6 +431,7 @@ class MysApi:
                 retcode = int(data.json()["retcode"])
                 if retcode != 0:
                     logger.warning(f"mys api ({api}) failed: {data.json()}")
+                    logger.warning(f"headers: {headers}")
                     logger.warning(f"params: {params}")
                     data = retcode
                 else:

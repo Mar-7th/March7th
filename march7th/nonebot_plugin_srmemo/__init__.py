@@ -13,13 +13,11 @@ from nonebot_plugin_saa import Image, MessageFactory, Text
 try:
     from march7th.nonebot_plugin_mys_api import mys_api
     from march7th.nonebot_plugin_srbind import get_user_srbind
-    from march7th.nonebot_plugin_srbind.cookie import get_user_cookie
+    from march7th.nonebot_plugin_srbind.cookie import get_user_cookie, get_user_stoken
 except ModuleNotFoundError:
     from nonebot_plugin_mys_api import mys_api
     from nonebot_plugin_srbind import get_user_srbind
-    from nonebot_plugin_srbind.cookie import (
-        get_user_cookie,
-    )
+    from nonebot_plugin_srbind.cookie import get_user_cookie, get_user_stoken
 
 from .get_img import get_srmemo_img, get_srmonth_img
 
@@ -42,6 +40,7 @@ __plugin_meta__ = PluginMetadata(
 error_code_msg = {
     1034: "查询遇验证码，请手动在米游社验证后查询",
     10001: "绑定cookie失效，请重新绑定",
+    -10001: "请求出错，请尝试重新使用`srqr`绑定",
 }
 
 srmemo = on_command(
@@ -65,7 +64,8 @@ async def _(bot: Bot, event: Event):
         await srmemo.finish()
     sr_uid = user_list[0].sr_uid
     cookie = await get_user_cookie(bot.self_id, event.get_user_id(), sr_uid)
-    if not cookie:
+    stoken = await get_user_stoken(bot.self_id, event.get_user_id(), sr_uid)
+    if not cookie or not stoken:
         msg = "未绑定cookie，请使用`srck [cookie]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.send(at_sender=True)
@@ -75,7 +75,7 @@ async def _(bot: Bot, event: Event):
         api="sr_basic_info", cookie=cookie, role_uid=sr_uid
     )
     sr_note = await mys_api.call_mihoyo_api(
-        api="sr_note", cookie=cookie, role_uid=sr_uid
+        api="sr_widget", cookie=stoken, role_uid=sr_uid
     )
     if isinstance(sr_basic_info, int):
         if sr_basic_info in error_code_msg:
