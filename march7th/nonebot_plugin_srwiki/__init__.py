@@ -75,25 +75,25 @@ async def _(regex_dict: dict = RegexDict()):
     pic_content = None
     extra_text = None
     if wiki_type_1 in {"all", "character"} and wiki_type_2 == "overview":
-        pic_content = srres.get_character_overview_url(wiki_name)
+        pic_content = await srres.get_character_overview(wiki_name)
     if (
         not pic_content
         and wiki_type_1 in {"all", "character"}
         and wiki_type_2 == "material"
     ):
-        pic_content = srres.get_character_material_url(wiki_name)
+        pic_content = await srres.get_character_material(wiki_name)
     if (
         not pic_content
         and wiki_type_1 in {"all", "character"}
         and wiki_type_2 == "evaluation"
     ):
-        res_tuple = srres.get_character_evaluation_url_and_link(wiki_name)
+        res_tuple = await srres.get_character_evaluation(wiki_name)
         if res_tuple:
             pic_content, extra_text = res_tuple
     if not pic_content and wiki_type_1 in {"all", "light_cone"}:
-        pic_content = srres.get_light_cone_overview_url(wiki_name)
+        pic_content = await srres.get_light_cone_overview(wiki_name)
     if not pic_content and wiki_type_1 in {"all", "relic_set"}:
-        pic_content = srres.get_relic_set_overview_url(wiki_name)
+        pic_content = await srres.get_relic_set_overview(wiki_name)
     if pic_content:
         if extra_text:
             extra_text = f"\n链接：{extra_text}"

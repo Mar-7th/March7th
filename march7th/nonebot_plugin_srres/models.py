@@ -166,6 +166,21 @@ class StarRailRes:
                     return plugin_data_dir / portrait
         return None
 
+    async def get_character_overview(self, name: str) -> Optional[str]:
+        if name not in self.NicknameRev:
+            return None
+        id = self.NicknameRev[name]
+        if id == "8000":
+            id = "8002"
+        if id in self.ResIndex["characters"]:
+            overview = self.ResIndex["characters"][id].get("guide_overview")
+            if overview:
+                if isinstance(overview, list):
+                    overview = random.choice(overview)
+                if await self.cache(overview):
+                    return plugin_data_dir / overview
+        return None
+
     def get_character_overview_url(self, name: str) -> Optional[str]:
         if name not in self.NicknameRev:
             return None
@@ -178,6 +193,21 @@ class StarRailRes:
                 if isinstance(overview, list):
                     overview = random.choice(overview)
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
+        return None
+
+    async def get_character_material(self, name: str) -> Optional[str]:
+        if name not in self.NicknameRev:
+            return None
+        id = self.NicknameRev[name]
+        if id == "8000":
+            id = "8002"
+        if id in self.ResIndex["characters"]:
+            material = self.ResIndex["characters"][id].get("guide_material")
+            if material:
+                if isinstance(material, list):
+                    material = random.choice(material)
+                if await self.cache(material):
+                    return plugin_data_dir / material
         return None
 
     def get_character_material_url(self, name: str) -> Optional[str]:
@@ -193,6 +223,26 @@ class StarRailRes:
                     material = random.choice(material)
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{material}")
         return None
+
+    async def get_character_evaluation(
+        self, name: str
+    ) -> Tuple[Optional[str], Optional[str]]:
+        if name not in self.NicknameRev:
+            return None, None
+        id = self.NicknameRev[name]
+        if id == "8000":
+            id = "8002"
+        if id in self.ResIndex["characters"]:
+            evaluation = self.ResIndex["characters"][id].get("guide_evaluation")
+            if evaluation:
+                if isinstance(evaluation, list):
+                    evaluation = random.choice(evaluation)
+                if "image" not in evaluation or "link" not in evaluation:
+                    return None, None
+                link = str(evaluation["link"])
+                if await self.cache(evaluation["image"]):
+                    return plugin_data_dir / evaluation["image"], link
+        return None, None
 
     def get_character_evaluation_url_and_link(
         self, name: str
@@ -214,6 +264,19 @@ class StarRailRes:
                 return self.proxy_url(url), link
         return None
 
+    async def get_light_cone_overview(self, name: str) -> Optional[str]:
+        if name not in self.NicknameRev:
+            return None
+        id = self.NicknameRev[name]
+        if id in self.ResIndex["light_cones"]:
+            overview = self.ResIndex["light_cones"][id].get("guide_overview")
+            if overview:
+                if isinstance(overview, list):
+                    overview = random.choice(overview)
+                if await self.cache(overview):
+                    return plugin_data_dir / overview
+        return None
+
     def get_light_cone_overview_url(self, name: str) -> Optional[str]:
         if name not in self.NicknameRev:
             return None
@@ -224,6 +287,19 @@ class StarRailRes:
                 if isinstance(overview, list):
                     overview = random.choice(overview)
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
+        return None
+
+    async def get_relic_set_overview(self, name: str) -> Optional[str]:
+        if name not in self.NicknameRev:
+            return None
+        id = self.NicknameRev[name]
+        if id in self.ResIndex["relic_sets"]:
+            overview = self.ResIndex["relic_sets"][id].get("guide_overview")
+            if overview:
+                if isinstance(overview, list):
+                    overview = random.choice(overview)
+                if await self.cache(overview):
+                    return plugin_data_dir / overview
         return None
 
     def get_relic_set_overview_url(self, name: str) -> Optional[str]:
