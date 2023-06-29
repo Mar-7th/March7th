@@ -303,8 +303,8 @@ async def get_srpanel_img(
                 stroke_ratio=0.03,
             )
             image_res.draw_text(
-                (x_index + 110, y_index + 20, x_index + 270, y_index + 80),
-                relic_info.main_affix.display if relic_info.main_affix else "",
+                (x_index + 130, y_index + 20, x_index + 270, y_index + 80),
+                relic_info.main_affix.display if relic_info.main_affix else "--",
                 fontname=fontname,
                 max_fontsize=52,
                 fill=WHITE,
@@ -365,17 +365,22 @@ async def get_srpanel_img(
                 )
                 y_index_item = y_index_item + 30
             if cid in score.keys() and relic_info.main_affix:
-                if relic_type in {"1", "2"}:
-                    relic_item_score = relic_item_score / score[cid].max
-                else:
-                    relic_item_score = (
-                        relic_item_score / score[cid].max * 0.5
-                        + score[cid].main[relic_type][relic_info.main_affix.type]
-                        * ((relic_info.level + 1) / 16)
-                        * 0.5
-                    )
-                relic_score[relic_info.id] = relic_item_score
-    relic_score_all = format(sum(relic_score.values()) / 6 * 10, ".1f")
+                relic_item_score = (
+                    relic_item_score / score[cid].max * 0.5
+                    + score[cid].main[relic_type][relic_info.main_affix.type]
+                    * ((relic_info.level + 1) / 16)
+                    * 0.5
+                )
+                relic_score[relic_info.id] = relic_item_score * 10
+                score_disp = format(relic_score[relic_info.id], ".1f")
+                image_res.draw_text(
+                    (x_index + 98, y_index + 20, x_index + 128, y_index + 48),
+                    score_disp,
+                    fontname=fontname,
+                    max_fontsize=16,
+                    fill=WHITE,
+                )
+    relic_score_all = format(sum(relic_score.values()) / 6, ".1f")
     # relic score
     image_res.draw_rounded_rectangle(
         (720, 970, 1000, 1150), radius=15, outline=GRAY, width=2
@@ -398,14 +403,14 @@ async def get_srpanel_img(
         )
     image_res.draw_text(
         (740, 1080, 980, 1130),
-        "遗器评分",
+        "SRS-N 评分",
         fontname=fontname,
         max_fontsize=36,
         fill=WHITE,
     )
     image_res.draw_text(
         (80, 1820, 1020, 1870),
-        f"Created by Mar-7th/March7th & Mihomo API @ {time}",
+        f"Created by Mar-7th/March7th & MiHoMo API @ {time}",
         fontname=fontname,
         max_fontsize=36,
         fill=WHITE,
