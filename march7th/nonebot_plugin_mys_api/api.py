@@ -95,11 +95,10 @@ class MysApi:
     async def generate_headers(
         self,
         cookie: str,
-        q="",
-        b=None,
-        p=None,
-        r=None,
-        extra_headers: dict = None,
+        q: Optional[str] = None,
+        b: Optional[Dict[str, Any]] = None,
+        p: Optional[str] = None,
+        r: Optional[str] = None,
         ds2: bool = False,
     ) -> Dict[str, str]:
         """
@@ -108,7 +107,6 @@ class MysApi:
             :param q: 查询
             :param b: 请求体
             :param p: x-rpc-page
-            :param extra_headers: 额外的header请求参数
             :return: headers
         """
         if ds2:
@@ -139,15 +137,12 @@ class MysApi:
             "x-rpc-sys_version": "12",
             "x-rpc-app_version": "2.50.1",
         }
-        if extra_headers is not None:
-            for each in extra_headers:
-                result[each] = extra_headers[each]
         return result
 
     def get_ds(
         self,
-        query: str = "",
-        body: Optional[Dict] = None,
+        query: Optional[str] = None,
+        body: Optional[Dict[str, Any]] = None,
         ds2: bool = False,
     ) -> str:
         """
@@ -159,6 +154,7 @@ class MysApi:
         :param ds2: 是否使用ds2
         :return: ds_token
         """
+        q = query if query else ""
         b = json.dumps(body) if body else ""
         if ds2:
             salt = "t0qEgfub6cvueAPgR5m9aQWWVciEer7v"  # 6X
@@ -166,7 +162,7 @@ class MysApi:
             salt = "xV8v4Qu54lUKrEYFZkJhB8cuOh9Asafs"  # 4X
         t = str(int(time.time()))
         r = str(random.randint(100000, 200000))
-        s = f"salt={salt}&t={t}&r={r}&b={b}&q={query}"
+        s = f"salt={salt}&t={t}&r={r}&b={b}&q={q}"
         c = md5(s)
         return f"{t},{r},{c}"
 
@@ -334,9 +330,11 @@ class MysApi:
             "sr_widget",
             "sr_note",
             "sr_month_info",
+            "sr_sign",
         ],
         cookie: str,
         role_uid: str = "0",
+        extra_headers: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> Union[Dict, int, None]:
         # cookie check
@@ -347,12 +345,13 @@ class MysApi:
         # default params: uid, server_id, role_id
         params: Optional[Dict[str, Any]] = None
         params_str: Optional[str] = None
+        body: Optional[Dict[str, Any]] = None
         page: str = ""
         headers: Dict[str, str] = {}
-        headers_extra: Dict[str, str] = {}
         refer: str = ""
         # flags
         ds2 = False
+        post = False
         # fill headers and params by api
         if api == "game_record":
             # extra params: mys_id
@@ -402,34 +401,53 @@ class MysApi:
                 "lang": "zh-cn",
             }
             page = "3.7.3_#/rpg"
+        elif api == "sr_sign":
+            url = STAR_RAIL_SIGN_API
+            body = {
+                "act_id": "e202304121516551",
+                "region": RECOGNIZE_SERVER.get(role_uid[0]),
+                "uid": role_uid,
+                "lang": "zh-cn",
+            }
+            post = True
+            ds2 = True
+            refer = "https://webstatic.mihoyo.com/bbs/event/signin/hkrpg/index.html?bbs_auth_required=true&act_id=e202304121516551&bbs_auth_required=true&bbs_presentation_style=fullscreen&utm_source=bbs&utm_medium=mys&utm_campaign=icon"
         else:  # api not found
             url = None
         if url is not None:  # send request
-            # get server_id by role_uid
-            server_id = RECOGNIZE_SERVER.get(role_uid[0])
-            # fill deault params
-            if params_str is None:
-                params_str = (
-                    "&".join([f"{k}={v}" for k, v in params.items()]) if params else ""
-                )
-                params_fixed = f"role_id={role_uid}&server={server_id}"
-                params_str = (
-                    f"{params_str}&{params_fixed}" if params_str else params_fixed
-                )
-            if params is None:
-                params = {"role_id": role_uid, "server": server_id}
+            if not post:
+                # get server_id by role_uid
+                server_id = RECOGNIZE_SERVER.get(role_uid[0])
+                # fill deault params
+                if params_str is None:
+                    params_str = (
+                        "&".join([f"{k}={v}" for k, v in params.items()])
+                        if params
+                        else ""
+                    )
+                    params_fixed = f"role_id={role_uid}&server={server_id}"
+                    params_str = (
+                        f"{params_str}&{params_fixed}" if params_str else params_fixed
+                    )
+                if params is None:
+                    params = {"role_id": role_uid, "server": server_id}
             # generate headers
             if not headers:
                 headers = await self.generate_headers(
-                    cookie=cookie, q=params_str, p=page, r=refer, ds2=ds2
+                    cookie=cookie,
+                    q=params_str,
+                    b=body,
+                    p=page,
+                    r=refer,
+                    ds2=ds2,
                 )
-                headers.update(headers_extra)
+                if extra_headers:
+                    headers.update(extra_headers)
             async with httpx.AsyncClient(headers=headers) as client:
-                data = await client.get(
-                    url=url,
-                    params=params,
-                    timeout=10,
-                )
+                if not post:
+                    data = await client.get(url=url, params=params, timeout=10)
+                else:
+                    data = await client.post(url=url, json=body, timeout=10)
         else:  # url is None
             data = None
         # debug log
@@ -448,39 +466,5 @@ class MysApi:
                 data = None
         if data is None:
             logger.warning(f"mys api ({api}) error")
-        logger.debug(data)
-        return data
-
-    async def call_mihoyo_sign(
-        self, cookie: str, role_uid: str = "0", extra_headers: dict = None, **kwargs
-    ):
-        url = STAR_RAIL_SIGN_API
-        body = {
-            "act_id": "e202304121516551",
-            "region": RECOGNIZE_SERVER.get(role_uid[0]),
-            "uid": role_uid,
-            "lang": "zh-cn",
-        }
-        headers = await self.generate_headers(
-            cookie=cookie,
-            b=body,
-            r="webstatic.mihoyo.com",
-            ds2=True,
-            extra_headers=extra_headers,
-        )
-        async with httpx.AsyncClient(headers=headers) as client:
-            data = await client.post(url=url, json=body, headers=headers, timeout=10)
-        if data is not None:
-            try:
-                retcode = int(data.json()["retcode"])
-                if retcode != 0:
-                    logger.warning(f"mys api (sr_sign) failed: {data.json()}")
-                    logger.warning(f"headers: {headers}")
-                    logger.warning(f"params: {body}")
-            except (json.JSONDecodeError, KeyError):
-                data = None
-        if data is None:
-            logger.warning(f"mys api (sr_sign) error")
-        data = data.json()
         logger.debug(data)
         return data
