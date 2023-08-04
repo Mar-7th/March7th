@@ -55,7 +55,7 @@ STAR_RAIL_AVATAR_INFO_API = (
 STAR_RAIL_WIDGET_API = f"{NEW_URL}/game_record/app/hkrpg/aapi/widget"  # 崩坏：星穹铁道桌面组件
 STAR_RAIL_NOTE_API = f"{NEW_URL}/game_record/app/hkrpg/api/note"  # 崩坏：星穹铁道实时便笺
 STAR_RAIL_MONTH_INFO_API = f"{OLD_URL}/event/srledger/month_info"  # 崩坏：星穹铁道开拓月历
-STAR_RAIL_SIGN_API = f'{OLD_URL}/event/luna/sign'
+STAR_RAIL_SIGN_API = f"{OLD_URL}/event/luna/sign"
 
 
 def md5(text: str) -> str:
@@ -71,7 +71,7 @@ def random_hex(length: int) -> str:
     """
     生成指定长度的随机16进制字符串
     """
-    result = hex(random.randint(0, 16 ** length)).replace("0x", "").upper()
+    result = hex(random.randint(0, 16**length)).replace("0x", "").upper()
     if len(result) < length:
         result = "0" * (length - len(result)) + result
     return result
@@ -93,14 +93,14 @@ class MysApi:
         self.device_fp = await self.get_fp(self.device_id)
 
     async def generate_headers(
-            self,
-            cookie: str,
-            q="",
-            b=None,
-            p=None,
-            r=None,
-            extra_headers: dict = None,
-            ds2: bool = False,
+        self,
+        cookie: str,
+        q="",
+        b=None,
+        p=None,
+        r=None,
+        extra_headers: dict = None,
+        ds2: bool = False,
     ) -> Dict[str, str]:
         """
         生成米游社headers
@@ -129,7 +129,7 @@ class MysApi:
                 else "https://app.mihoyo.com/"
             ),
             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS "
-                          "X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.50.1",
+            "X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.50.1",
             "x-rpc-page": p if p else "",
             "x-rpc-client_type": "5" if not ds2 else "2",
             "x-rpc-device_name": "iPhone14Pro",
@@ -145,10 +145,10 @@ class MysApi:
         return result
 
     def get_ds(
-            self,
-            query: str = "",
-            body: Optional[Dict] = None,
-            ds2: bool = False,
+        self,
+        query: str = "",
+        body: Optional[Dict] = None,
+        ds2: bool = False,
     ) -> str:
         """
         生成米游社headers的ds_token
@@ -202,13 +202,13 @@ class MysApi:
 
     async def get_stoken_by_login_ticket(self, login_ticket: str, mys_id: str):
         async with httpx.AsyncClient(
-                headers={
-                    "x-rpc-app_version": "2.50.1",
-                    "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.50.1",
-                    "x-rpc-client_type": "5",
-                    "Referer": "https://webstatic.mihoyo.com/",
-                    "Origin": "https://webstatic.mihoyo.com",
-                }
+            headers={
+                "x-rpc-app_version": "2.50.1",
+                "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.50.1",
+                "x-rpc-client_type": "5",
+                "Referer": "https://webstatic.mihoyo.com/",
+                "Origin": "https://webstatic.mihoyo.com",
+            }
         ) as client:
             data = await client.get(
                 url=GET_TOKENS_BY_LT_API,
@@ -227,14 +227,14 @@ class MysApi:
 
     async def get_cookie_token_by_stoken(self, stoken: str, mys_id: str):
         async with httpx.AsyncClient(
-                headers={
-                    "x-rpc-app_version": "2.50.1",
-                    "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.50.1",
-                    "x-rpc-client_type": "5",
-                    "Referer": "https://webstatic.mihoyo.com/",
-                    "Origin": "https://webstatic.mihoyo.com",
-                    "Cookie": f"stuid={mys_id};stoken={stoken}",
-                }
+            headers={
+                "x-rpc-app_version": "2.50.1",
+                "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.50.1",
+                "x-rpc-client_type": "5",
+                "Referer": "https://webstatic.mihoyo.com/",
+                "Origin": "https://webstatic.mihoyo.com",
+                "Cookie": f"stuid={mys_id};stoken={stoken}",
+            }
         ) as client:
             data = await client.get(
                 url=GET_COOKIE_BY_STOKEN_API,
@@ -451,26 +451,25 @@ class MysApi:
         logger.debug(data)
         return data
 
-    async def call_mihoyo_sign(self,
-                               cookie: str,
-                               role_uid: str = "0",
-                               extra_headers: dict = None,
-                               **kwargs):
+    async def call_mihoyo_sign(
+        self, cookie: str, role_uid: str = "0", extra_headers: dict = None, **kwargs
+    ):
         url = STAR_RAIL_SIGN_API
         body = {
             "act_id": "e202304121516551",
             "region": RECOGNIZE_SERVER.get(role_uid[0]),
             "uid": role_uid,
-            "lang": "zh-cn"
+            "lang": "zh-cn",
         }
-        headers = await self.generate_headers(cookie=cookie, b=body, r="webstatic.mihoyo.com", ds2=True, extra_headers=extra_headers)
+        headers = await self.generate_headers(
+            cookie=cookie,
+            b=body,
+            r="webstatic.mihoyo.com",
+            ds2=True,
+            extra_headers=extra_headers,
+        )
         async with httpx.AsyncClient(headers=headers) as client:
-            data = await client.post(
-                url=url,
-                json=body,
-                headers=headers,
-                timeout=10
-            )
+            data = await client.post(url=url, json=body, headers=headers, timeout=10)
         if data is not None:
             try:
                 retcode = int(data.json()["retcode"])
