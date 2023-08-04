@@ -47,14 +47,14 @@ async def _(bot: Bot, event: Event):
     global msg, error_message
     user_list = await get_user_srbind(bot.self_id, event.get_user_id())
     if not user_list:
-        msg = "未绑定SRUID，请使用`sruid [uid]`绑定或`srqr`扫码绑定"
+        msg = "未绑定cookie，请使用`srck [cookie]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.send(at_sender=True)
         await srsign.finish()
     sr_uid = user_list[0].sr_uid
     cookie = await get_user_cookie(bot.self_id, event.get_user_id(), sr_uid)
     if not cookie:
-        msg = "未绑定cookie，请使用`srck [cookie]`绑定或`srqr`扫码绑定"
+        msg = "请使用`srdel`删除已绑定的SRUID，然后重新使用`srck [cookie]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.send(at_sender=True)
         await srsign.finish()
