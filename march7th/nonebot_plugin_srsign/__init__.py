@@ -78,8 +78,8 @@ async def _(bot: Bot, event: Event):
 
     if isinstance(sr_sign_info, dict):
         retcode = sr_sign_info["retcode"]
-        is_risk = sr_sign_info["data"]["is_risk"]
         if retcode == 0:
+            is_risk = sr_sign_info["data"]["is_risk"]
             if is_risk:
                 sr_sign_info, error_message = await geetest_handle(sign_data=sr_sign_info, cookie=cookie, role_uid=sr_uid)
                 if isinstance(error_message, dict):
