@@ -1,3 +1,4 @@
+from typing import List
 from nonebot import require
 from nonebot import on_command
 from nonebot.adapters import Bot, Event
@@ -37,50 +38,45 @@ error_code_msg = {
     -5003: "今日已签到",
 }
 
-srsign = on_command(
-    "srsign", aliases={"星铁签到", "星铁每日签到", "米游社签到"}, priority=2, block=True
-)
+srsign = on_command("srsign", aliases={"星铁签到", "星铁每日签到"}, priority=2, block=True)
 
 
 @srsign.handle()
 async def _(bot: Bot, event: Event):
-    global msg, error_message
-    user_list = await get_user_srbind(bot.self_id, event.get_user_id())
+    user_id = event.get_user_id()
+    user_list = await get_user_srbind(bot.self_id, user_id)
     if not user_list:
-        msg = "未绑定cookie，请使用`srck [cookie]`绑定或`srqr`扫码绑定"
-        msg_builder = MessageFactory([Text(str(msg))])
+        err = "未绑定SRUID，请使用`srck [cookie]`绑定或`srqr`扫码绑定"
+        msg_builder = MessageFactory([Text(err)])
         await msg_builder.send(at_sender=True)
         await srsign.finish()
-    sr_uid = user_list[0].sr_uid
-    cookie = await get_user_cookie(bot.self_id, event.get_user_id(), sr_uid)
-    if not cookie:
-        msg = "请使用`srdel`删除已绑定的SRUID，然后重新使用`srck [cookie]`绑定或`srqr`扫码绑定"
-        msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.send(at_sender=True)
-        await srsign.finish()
-    logger.info(f"开始为SRUID『{sr_uid}』签到")
-    await srsign.send(f"开始为SRUID『{sr_uid}』签到")
-    sr_sign = await mys_api.call_mihoyo_api("sr_sign", cookie=cookie, role_uid=sr_uid)
-    if isinstance(sr_sign, int):
-        if sr_sign in error_code_msg:
-            msg = error_code_msg[sr_sign]
+    msg: List[str] = []
+    for user in user_list:
+        sr_uid = user.sr_uid
+        cookie = await get_user_cookie(bot.self_id, user_id, sr_uid)
+        if not cookie:
+            msg.append(f"UID{sr_uid}: 未绑定cookie，请使用`srck [cookie]`绑定或`srqr`扫码绑定")
+            continue
+        logger.info(f"开始为SRUID『{sr_uid}』签到")
+        sr_sign = await mys_api.call_mihoyo_api(
+            "sr_sign", cookie=cookie, role_uid=sr_uid
+        )
+        if not sr_sign:
+            msg.append(f"UID{sr_uid}: 疑似cookie失效，请重新使用`srck [cookie]`绑定或`srqr`扫码绑定")
+            msg_builder = MessageFactory([Text(str(msg))])
+            await msg_builder.send(at_sender=True)
+            await srsign.finish()
+        if isinstance(sr_sign, int):
+            if sr_sign in error_code_msg:
+                msg.append(f"UID{sr_uid}: {error_code_msg[sr_sign]}")
+            else:
+                msg.append(f"UID{sr_uid}: 签到失败（错误代码 {sr_sign}）")
+            continue
+        is_risk = sr_sign.get("is_risk")
+        if is_risk is True:
+            msg.append(f"UID{sr_uid}: 签到遇验证码，请手动签到")
         else:
-            msg = f"签到失败，请稍后重试（错误代码 {sr_sign}）"
-        msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.send(at_sender=True)
-        await srsign.finish()
-    if not sr_sign:
-        msg = "疑似cookie失效，请重新使用`srck [cookie]`绑定或`srqr`扫码绑定"
-        msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.send(at_sender=True)
-        await srsign.finish()
-    is_risk = sr_sign.get("is_risk")
-    if is_risk is True:
-        msg = "签到遇验证码，请手动签到"
-        msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.send(at_sender=True)
-        await srsign.finish()
-    msg = "签到成功"
-    msg_builder = MessageFactory([Text(str(msg))])
+            msg.append(f"UID{sr_uid}: 签到成功")
+    msg_builder = MessageFactory([Text("\n" + "\n".join(msg))])
     await msg_builder.send(at_sender=True)
     await srsign.finish()
