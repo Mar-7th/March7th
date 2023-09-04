@@ -36,6 +36,7 @@ error_code_msg = {
     10001: "绑定cookie失效，请重新绑定",
     -10001: "请求出错，请尝试重新使用`srqr`绑定",
     -5003: "今日已签到",
+    -100: "请重新使用`srqr`绑定账号",
 }
 
 srsign = on_command("srsign", aliases={"星铁签到", "星铁每日签到"}, priority=2, block=True)
