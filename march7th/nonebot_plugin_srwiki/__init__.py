@@ -24,7 +24,7 @@ __plugin_meta__ = PluginMetadata(
         "version": "1.0",
         "srhelp": """\
 查询Wiki: [u]xxx[/u]角色攻略
-支持 角色攻略/材料/测评 光锥/遗器图鉴
+支持 角色攻略/材料 光锥/遗器图鉴
 """,
     },
 )
@@ -68,12 +68,9 @@ async def _(regex_dict: dict = RegexDict()):
         wiki_type_1 = "all"
     if "材料" in wiki_type:
         wiki_type_2 = "material"
-    elif "测评" in wiki_type or "评测" in wiki_type:
-        wiki_type_2 = "evaluation"
     else:
         wiki_type_2 = "overview"
     pic_content = None
-    extra_text = None
     if wiki_type_1 in {"all", "character"} and wiki_type_2 == "overview":
         pic_content = await srres.get_character_overview(wiki_name)
     if (
@@ -82,23 +79,11 @@ async def _(regex_dict: dict = RegexDict()):
         and wiki_type_2 == "material"
     ):
         pic_content = await srres.get_character_material(wiki_name)
-    if (
-        not pic_content
-        and wiki_type_1 in {"all", "character"}
-        and wiki_type_2 == "evaluation"
-    ):
-        res_tuple = await srres.get_character_evaluation(wiki_name)
-        if res_tuple:
-            pic_content, extra_text = res_tuple
     if not pic_content and wiki_type_1 in {"all", "light_cone"}:
         pic_content = await srres.get_light_cone_overview(wiki_name)
     if not pic_content and wiki_type_1 in {"all", "relic_set"}:
         pic_content = await srres.get_relic_set_overview(wiki_name)
     if pic_content:
-        if extra_text:
-            extra_text = f"\n链接：{extra_text}"
-            msg_builder = MessageFactory([Image(pic_content), Text(extra_text)])
-        else:
-            msg_builder = MessageFactory([Image(pic_content)])
+        msg_builder = MessageFactory([Image(pic_content)])
         await msg_builder.send(at_sender=True)
     await wiki_search.finish()

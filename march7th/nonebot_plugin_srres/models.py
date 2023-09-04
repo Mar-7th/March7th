@@ -224,26 +224,6 @@ class StarRailRes:
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{material}")
         return None
 
-    async def get_character_evaluation(
-        self, name: str
-    ) -> Tuple[Optional[str], Optional[str]]:
-        if name not in self.NicknameRev:
-            return None, None
-        id = self.NicknameRev[name]
-        if id == "8000":
-            id = "8002"
-        if id in self.ResIndex["characters"]:
-            evaluation = self.ResIndex["characters"][id].get("guide_evaluation")
-            if evaluation:
-                if isinstance(evaluation, list):
-                    evaluation = random.choice(evaluation)
-                if "image" not in evaluation or "link" not in evaluation:
-                    return None, None
-                link = str(evaluation["link"])
-                if await self.cache(evaluation["image"]):
-                    return plugin_data_dir / evaluation["image"], link
-        return None, None
-
     def get_character_evaluation_url_and_link(
         self, name: str
     ) -> Optional[Tuple[str, str]]:
