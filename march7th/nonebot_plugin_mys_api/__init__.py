@@ -16,8 +16,8 @@ __plugin_meta__ = PluginMetadata(
     },
 )
 
-mys_api = MysApi()
 driver = get_driver()
+mys_api = MysApi(driver)
 
 
 @driver.on_startup

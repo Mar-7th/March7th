@@ -2,10 +2,11 @@ import json
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-import httpx
+from nonebot import get_driver
 from nonebot.log import logger
+from nonebot.drivers import Request, HTTPClientMixin
 from nonebot_plugin_datastore import create_session, get_plugin_data
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 from sqlalchemy import JSON, String, select, update
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -16,6 +17,11 @@ Model = plugin_data.Model
 
 plugin_data_dir = plugin_data.data_dir
 score_file = plugin_data_dir / "score.json"
+
+
+driver = get_driver()
+if not isinstance(driver, HTTPClientMixin):
+    raise RuntimeError(f"当前驱动配置 {driver} 无法进行 HTTP 请求，请在 DRIVER 配置项末尾添加 +~httpx")
 
 
 class LevelInfo(BaseModel):
@@ -252,16 +258,18 @@ async def get_srpanel_character(
 
 
 async def request(url: str) -> Optional[Dict]:
-    async with httpx.AsyncClient(headers={"User-Agent": "Mar-7th/March7th"}) as client:
-        data = await client.get(
-            url=url,
-            timeout=10,
-        )
-        try:
-            data = data.json()
-            return data
-        except (json.JSONDecodeError, KeyError):
-            return None
+    request = Request(
+        "GET",
+        url,
+        headers={"User-Agent": "Mar-7th/March7th"},
+        timeout=10,
+    )
+    response = await driver.request(request)
+    try:
+        data = json.loads(response.content or "{}")
+        return data
+    except (json.JSONDecodeError, KeyError):
+        return None
 
 
 async def update_score_file() -> Optional[ScoreFile]:
@@ -294,7 +302,7 @@ async def update_srpanel(bot_id: str, user_id: str, sr_uid: str) -> Optional[str
         return None
     try:
         parsed_data = FormattedApiInfo.parse_obj(data)
-    except KeyError as e:
+    except (ValidationError, KeyError) as e:
         logger.info(f"Can not parse: {data}, error: {e}")
         return None
     player = parsed_data.player

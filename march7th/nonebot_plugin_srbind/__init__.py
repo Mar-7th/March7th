@@ -286,6 +286,14 @@ async def _(bot: Bot, event: Event):
         await msg_builder.send(at_sender=True)
         await srdel.finish()
     login_data = await mys_api.create_login_qr(8)
+    if login_data is None:
+        msg_builder = MessageFactory(
+            [
+                Mention(user_id),
+                Text("生成二维码失败，请稍后重试"),
+            ]
+        )
+        await msg_builder.finish()
     qr_img: BytesIO = generate_qrcode(login_data["url"])
     qrbind_buffer[user_id] = login_data
     qrbind_buffer[user_id]["bot_id"] = bot.self_id
@@ -294,14 +302,14 @@ async def _(bot: Bot, event: Event):
     msg_builder = MessageFactory(
         [
             Image(qr_img),
+            Text("\n"),
             Mention(user_id),
             Text(
                 f"\n请在3分钟内使用米游社扫码并确认进行绑定。\n注意：1.扫码即代表你同意将cookie信息授权给Bot使用\n2.扫码时会提示登录游戏，但不会挤掉账号\n3.其他人请不要乱扫，否则会将你的账号绑到TA身上！"
             ),
         ]
     )
-    await msg_builder.send()
-    await srqr.finish()
+    await msg_builder.finish()
 
 
 @scheduler.scheduled_job("cron", second="*/10", misfire_grace_time=10)
@@ -311,84 +319,122 @@ async def check_qrcode():
             logger.debug(f"Check qr result of {user_id}")
             try:
                 status_data = await mys_api.check_login_qr(data)
+                if status_data is None:
+                    logger.warning(f"Check of user_id {user_id} failed")
+                    msg_builder = MessageFactory(
+                        [Mention(user_id), Text("绑定二维码已失效，请重新发送扫码绑定指令")]
+                    )
+                    target = PlatformTarget.deserialize(data["target"])
+                    bot = get_bot(self_id=data["bot_id"])
+                    await msg_builder.send_to(target=target, bot=bot)
+                    qrbind_buffer.pop(user_id)
+                    continue
                 logger.debug(status_data)
                 if status_data["retcode"] != 0:
+                    logger.debug(f"QR code of user_id {user_id} expired")
                     qrbind_buffer.pop(user_id)
                     msg_builder = MessageFactory(
                         [Mention(user_id), Text("绑定二维码已过期，请重新发送扫码绑定指令")]
                     )
-                elif status_data["data"]["stat"] == "Confirmed":
-                    game_token = json.loads(status_data["data"]["payload"]["raw"])
-                    cookie_token_data = await mys_api.get_cookie_by_game_token(
-                        int(game_token["uid"]), game_token["token"]
+                    target = PlatformTarget.deserialize(data["target"])
+                    bot = get_bot(self_id=data["bot_id"])
+                    await msg_builder.send_to(target=target, bot=bot)
+                    qrbind_buffer.pop(user_id)
+                    continue
+                if status_data["data"]["stat"] != "Confirmed":
+                    continue
+                logger.debug(f"QR code of user_id {user_id} confirmed")
+                game_token = json.loads(status_data["data"]["payload"]["raw"])
+                cookie_data = await mys_api.get_cookie_by_game_token(
+                    int(game_token["uid"]), game_token["token"]
+                )
+                stoken_data = await mys_api.get_stoken_by_game_token(
+                    int(game_token["uid"]), game_token["token"]
+                )
+                if not cookie_data or not stoken_data:
+                    logger.debug(f"Get cookie and stoken failed of user_id {user_id}")
+                    msg_builder = MessageFactory(
+                        [
+                            Mention(user_id),
+                            Text(f"获取cookie失败，请稍后重试"),
+                        ]
                     )
-                    stoken_data = await mys_api.get_stoken_by_game_token(
-                        int(game_token["uid"]), game_token["token"]
+                    target = PlatformTarget.deserialize(data["target"])
+                    bot = get_bot(self_id=data["bot_id"])
+                    await msg_builder.send_to(target=target, bot=bot)
+                    qrbind_buffer.pop(user_id)
+                    continue
+                mys_id = stoken_data["data"]["user_info"]["aid"]
+                mid = stoken_data["data"]["user_info"]["mid"]
+                cookie_token = cookie_data["data"]["cookie_token"]
+                stoken = stoken_data["data"]["token"]["token"]
+                game_info = await mys_api.call_mihoyo_api(
+                    api="game_record",
+                    cookie=f"account_id={mys_id};cookie_token={cookie_token}",
+                    mys_id=mys_id,
+                )
+                logger.debug(f"Game info: {game_info}")
+                if game_info is None:
+                    msg_builder = MessageFactory(
+                        [
+                            Mention(user_id),
+                            Text(f"获取游戏信息失败，请稍后重试"),
+                        ]
                     )
-                    if not cookie_token_data or not stoken_data:
-                        continue
-                    mys_id = stoken_data["data"]["user_info"]["aid"]
-                    mid = stoken_data["data"]["user_info"]["mid"]
-                    cookie_token = cookie_token_data["data"]["cookie_token"]
-                    stoken = stoken_data["data"]["token"]["token"]
-                    if game_info := await mys_api.call_mihoyo_api(
-                        api="game_record",
-                        cookie=f"account_id={mys_id};cookie_token={cookie_token}",
-                        mys_id=mys_id,
-                    ):
-                        if isinstance(game_info, int):
-                            msg_builder = MessageFactory(
-                                [
-                                    Mention(user_id),
-                                    Text(f"绑定失败，请稍后重试（错误代码 {game_info}）"),
-                                ]
-                            )
-                        elif not game_info["list"]:
-                            msg_builder = MessageFactory(
-                                [Mention(user_id), Text("该账号尚未绑定任何游戏，请确认扫码的账号无误")]
-                            )
-                        elif not (
-                            sr_games := [
-                                {
-                                    "uid": game["game_role_id"],
-                                    "nickname": game["nickname"],
-                                }
-                                for game in game_info["list"]
-                                if game["game_id"] == 6
-                            ]
-                        ):
-                            msg_builder = MessageFactory(
-                                [Mention(user_id), Text("该账号尚未绑定星穹铁道，请确认扫码的账号无误")]
-                            )
-                        else:
-                            msg_builder = MessageFactory(
-                                [Mention(user_id), Text(f"成功绑定星穹铁道账号:\n")]
-                            )
-                            for info in sr_games:
-                                msg_builder += MessageFactory(
-                                    [Text(f"{info['nickname']} ({info['uid']})")]
-                                )
-                                user = UserBind(
-                                    bot_id=data["bot_id"],
-                                    user_id=str(user_id),
-                                    mys_id=mys_id,
-                                    sr_uid=info["uid"],
-                                    cookie=f"account_id={mys_id};cookie_token={cookie_token}",
-                                    stoken=f"stuid={mys_id};stoken={stoken};mid={mid};"
-                                    if stoken
-                                    else None,
-                                )
-                                await set_user_srbind(user)
-                        # send message to origin target
-                        target = PlatformTarget.deserialize(data["target"])
-                        bot = get_bot(self_id=data["bot_id"])
-                        await msg_builder.send_to(target=target, bot=bot)
-                        qrbind_buffer.pop(user_id)
-                        logger.debug(f"Check of user_id {user_id} success")
-                    else:
-                        pass
+                    logger.debug(f"Get game record failed of user_id {user_id}")
+                elif isinstance(game_info, int):
+                    msg_builder = MessageFactory(
+                        [
+                            Mention(user_id),
+                            Text(f"绑定失败，请稍后重试（错误代码 {game_info}）"),
+                        ]
+                    )
+                    logger.debug(f"Get game record failed of user_id {user_id}")
+                elif not game_info["list"]:
+                    msg_builder = MessageFactory(
+                        [Mention(user_id), Text("该账号尚未绑定任何游戏，请确认扫码的账号无误")]
+                    )
+                    logger.debug(f"No game record of user_id {user_id}")
+                elif not (
+                    sr_games := [
+                        {
+                            "uid": game["game_role_id"],
+                            "nickname": game["nickname"],
+                        }
+                        for game in game_info["list"]
+                        if game["game_id"] == 6
+                    ]
+                ):
+                    msg_builder = MessageFactory(
+                        [Mention(user_id), Text("该账号尚未绑定星穹铁道，请确认扫码的账号无误")]
+                    )
+                    logger.debug(f"No hsr game record of user_id {user_id}")
                 else:
-                    pass
+                    logger.debug(f"Found game record of user_id {user_id}: {sr_games}")
+                    msg_builder = MessageFactory(
+                        [Mention(user_id), Text(f"成功绑定星穹铁道账号:\n")]
+                    )
+                    for info in sr_games:
+                        msg_builder += MessageFactory(
+                            [Text(f"{info['nickname']} ({info['uid']})")]
+                        )
+                        user = UserBind(
+                            bot_id=data["bot_id"],
+                            user_id=str(user_id),
+                            mys_id=mys_id,
+                            sr_uid=info["uid"],
+                            cookie=f"account_id={mys_id};cookie_token={cookie_token}",
+                            stoken=f"stuid={mys_id};stoken={stoken};mid={mid};"
+                            if stoken
+                            else None,
+                        )
+                        await set_user_srbind(user)
+                # send message to origin target
+                target = PlatformTarget.deserialize(data["target"])
+                bot = get_bot(self_id=data["bot_id"])
+                await msg_builder.send_to(target=target, bot=bot)
+                qrbind_buffer.pop(user_id)
+                logger.debug(f"Check of user_id {user_id} success")
                 if not qrbind_buffer:
                     break
             except Exception:

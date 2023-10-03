@@ -6,8 +6,8 @@ import time
 import uuid
 from typing import Any, Dict, Literal, Optional, Union
 
-import httpx
 from nonebot.log import logger
+from nonebot.drivers import Driver, Request, HTTPClientMixin
 
 RECOGNIZE_SERVER = {
     "1": "prod_gf_cn",
@@ -87,6 +87,14 @@ def random_text(length: int) -> str:
 class MysApi:
     device_id: str
     device_fp: str
+    driver: HTTPClientMixin
+
+    def __init__(self, driver: Driver) -> None:
+        if not isinstance(driver, HTTPClientMixin):
+            raise RuntimeError(
+                f"当前驱动配置 {driver} 无法进行 HTTP 请求，请在 DRIVER 配置项末尾添加 +~httpx"
+            )
+        self.driver = driver
 
     async def init_device(self):
         self.device_id = str(uuid.uuid4())
@@ -174,55 +182,58 @@ class MysApi:
             "Referer": "https://webstatic.mihoyo.com/",
             "Origin": "https://webstatic.mihoyo.com",
         }
-        async with httpx.AsyncClient(headers=headers) as client:
-            data = await client.post(
-                url=GET_FP_API,
-                params={
-                    "device_id": device_id,
-                    "seed_id": random_hex(16).lower(),
-                    "seed_time": str(round(time.time() * 1000)),
-                    "platform": "5",
-                    "device_fp": random_hex(13).lower(),
-                    "app_name": "account_cn",
-                    "ext_fields": f"{{\"userAgent\":\"{headers['User-Agent']}\",\"browserScreenSize\":329280,\"maxTouchPoints\":5,\"isTouchSupported\":true,\"browserLanguage\":\"zh-CN\",\"browserPlat\":\"Linux i686\",\"browserTimeZone\":\"Asia/Shanghai\",\"webGlRender\":\"Adreno (TM) 640\",\"webGlVendor\":\"Qualcomm\",\"numOfPlugins\":0,\"listOfPlugins\":\"unknown\",\"screenRatio\":3.75,\"deviceMemory\":\"4\",\"hardwareConcurrency\":\"4\",\"cpuClass\":\"unknown\",\"ifNotTrack\":\"unknown\",\"ifAdBlock\":0,\"hasLiedResolution\":1,\"hasLiedOs\":0,\"hasLiedBrowser\":0}}",
-                },
-                timeout=10,
-            )
-            try:
-                data = data.json()
-                return str(data["data"]["device_fp"])
-            except (json.JSONDecodeError, KeyError):
-                logger.warning("Failed to get device fp, use random")
-                logger.warning(f"Response: {data}")
-                return random_hex(13).lower()
+        request = Request(
+            "POST",
+            GET_FP_API,
+            params={
+                "device_id": device_id,
+                "seed_id": random_hex(16).lower(),
+                "seed_time": str(round(time.time() * 1000)),
+                "platform": "5",
+                "device_fp": random_hex(13).lower(),
+                "app_name": "account_cn",
+                "ext_fields": f"{{\"userAgent\":\"{headers['User-Agent']}\",\"browserScreenSize\":329280,\"maxTouchPoints\":5,\"isTouchSupported\":true,\"browserLanguage\":\"zh-CN\",\"browserPlat\":\"Linux i686\",\"browserTimeZone\":\"Asia/Shanghai\",\"webGlRender\":\"Adreno (TM) 640\",\"webGlVendor\":\"Qualcomm\",\"numOfPlugins\":0,\"listOfPlugins\":\"unknown\",\"screenRatio\":3.75,\"deviceMemory\":\"4\",\"hardwareConcurrency\":\"4\",\"cpuClass\":\"unknown\",\"ifNotTrack\":\"unknown\",\"ifAdBlock\":0,\"hasLiedResolution\":1,\"hasLiedOs\":0,\"hasLiedBrowser\":0}}",
+            },
+            timeout=10,
+        )
+        response = await self.driver.request(request)
+        try:
+            data = json.loads(response.content or "{}")
+            return str(data["data"]["device_fp"])
+        except (json.JSONDecodeError, KeyError):
+            logger.warning("Failed to get device fp, use random")
+            logger.warning(f"Response: {response.status_code} {response.content}")
+            return random_hex(13).lower()
 
     async def get_stoken_by_login_ticket(self, login_ticket: str, mys_id: str):
-        async with httpx.AsyncClient(
+        request = Request(
+            "GET",
+            GET_TOKENS_BY_LT_API,
             headers={
                 "x-rpc-app_version": "2.50.1",
                 "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.50.1",
                 "x-rpc-client_type": "5",
                 "Referer": "https://webstatic.mihoyo.com/",
                 "Origin": "https://webstatic.mihoyo.com",
-            }
-        ) as client:
-            data = await client.get(
-                url=GET_TOKENS_BY_LT_API,
-                params={
-                    "login_ticket": login_ticket,
-                    "token_types": "3",
-                    "uid": mys_id,
-                },
-                timeout=10,
-            )
-            try:
-                data = data.json()
-                return data["data"]["list"][0]["token"]
-            except (json.JSONDecodeError, KeyError):
-                return None
+            },
+            params={
+                "login_ticket": login_ticket,
+                "token_types": "3",
+                "uid": mys_id,
+            },
+            timeout=10,
+        )
+        response = await self.driver.request(request)
+        try:
+            data = json.loads(response.content or "{}")
+            return data["data"]["list"][0]["token"]
+        except (json.JSONDecodeError, KeyError):
+            return None
 
     async def get_cookie_token_by_stoken(self, stoken: str, mys_id: str):
-        async with httpx.AsyncClient(
+        request = Request(
+            "GET",
+            GET_COOKIE_BY_STOKEN_API,
             headers={
                 "x-rpc-app_version": "2.50.1",
                 "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.50.1",
@@ -230,57 +241,63 @@ class MysApi:
                 "Referer": "https://webstatic.mihoyo.com/",
                 "Origin": "https://webstatic.mihoyo.com",
                 "Cookie": f"stuid={mys_id};stoken={stoken}",
-            }
-        ) as client:
-            data = await client.get(
-                url=GET_COOKIE_BY_STOKEN_API,
-                params={"uid": mys_id, "stoken": stoken},
-                timeout=10,
-            )
-            try:
-                data = data.json()
-                return data["data"]["cookie_token"]
-            except (json.JSONDecodeError, KeyError):
-                return None
+            },
+            params={"uid": mys_id, "stoken": stoken},
+            timeout=10,
+        )
+        response = await self.driver.request(request)
+        try:
+            data = json.loads(response.content or "{}")
+            return data["data"]["cookie_token"]
+        except (json.JSONDecodeError, KeyError):
+            logger.warning("Failed to get cookie token by stoken")
+            logger.warning(f"Response: {response.status_code} {response.content}")
+            return None
 
     async def get_cookie_by_game_token(self, uid: int, game_token: str):
-        async with httpx.AsyncClient() as client:
-            data = await client.get(
-                url=GET_COOKIE_BY_GAME_TOKEN_API,
-                params={"game_token": game_token, "account_id": uid},
-                timeout=10,
-            )
-            try:
-                return data.json()
-            except json.JSONDecodeError:
-                return None
+        request = Request(
+            "GET",
+            GET_COOKIE_BY_GAME_TOKEN_API,
+            params={"game_token": game_token, "account_id": uid},
+            timeout=10,
+        )
+        response = await self.driver.request(request)
+        try:
+            return json.loads(response.content or "{}")
+        except json.JSONDecodeError:
+            logger.warning("Failed to get cookie by game token")
+            logger.warning(f"Response: {response.status_code} {response.content}")
+            return None
 
     async def get_stoken_by_game_token(self, uid: int, game_token: str):
-        data = {"account_id": uid, "game_token": game_token}
-        headers = {
-            "DS": self.get_ds(body=data),
-            "x-rpc-aigis": "",
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "x-rpc-game_biz": "bbs_cn",
-            "x-rpc-sys_version": "11",
-            "x-rpc-device_id": self.device_id,
-            "x-rpc-device_fp": self.device_fp,
-            "x-rpc-device_name": "Chrome 108.0.0.0",
-            "x-rpc-device_model": "Windows 10 64-bit",
-            "x-rpc-app_id": "bll8iq97cem8",
-            "User-Agent": "okhttp/4.8.0",
-        }
-        async with httpx.AsyncClient(headers=headers) as client:
-            data = await client.post(
-                url=GET_STOKEN_BY_GAME_TOKEN_API,
-                params=data,
-                timeout=10,
-            )
-            try:
-                return data.json()
-            except json.JSONDecodeError:
-                return None
+        params = {"account_id": uid, "game_token": game_token}
+        request = Request(
+            "POST",
+            GET_STOKEN_BY_GAME_TOKEN_API,
+            headers={
+                "DS": self.get_ds(body=params),
+                "x-rpc-aigis": "",
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "x-rpc-game_biz": "bbs_cn",
+                "x-rpc-sys_version": "11",
+                "x-rpc-device_id": self.device_id,
+                "x-rpc-device_fp": self.device_fp,
+                "x-rpc-device_name": "Chrome 108.0.0.0",
+                "x-rpc-device_model": "Windows 10 64-bit",
+                "x-rpc-app_id": "bll8iq97cem8",
+                "User-Agent": "okhttp/4.8.0",
+            },
+            params=params,
+            timeout=10,
+        )
+        response = await self.driver.request(request)
+        try:
+            return json.loads(response.content or "{}")
+        except json.JSONDecodeError:
+            logger.warning("Failed to get stoken by game stoken")
+            logger.warning(f"Response: {response.status_code} {response.content}")
+            return None
 
     async def create_login_qr(self, app_id: int):
         """
@@ -289,36 +306,49 @@ class MysApi:
             1-崩坏3, 2-未定事件簿, 4-原神, 5-平台应用, 7-崩坏学园2,
             8-星穹铁道, 9-云游戏, 10-3NNN, 11-PJSH, 12-绝区零, 13-HYG
         """
-        params = {"app_id": str(app_id), "device": self.device_id}
-        async with httpx.AsyncClient() as client:
-            data = await client.get(
-                url=CREATE_QRCODE_API,
-                params=params,
-                timeout=10,
-            )
-        url = data.json()["data"]["url"]
-        ticket = url.split("ticket=")[1]
-        ret_data = {
-            "app_id": app_id,
-            "ticket": ticket,
-            "device": self.device_id,
-            "url": url,
-        }
-        return ret_data
+        request = Request(
+            "GET",
+            CREATE_QRCODE_API,
+            params={"app_id": str(app_id), "device": self.device_id},
+            timeout=10,
+        )
+        response = await self.driver.request(request)
+        try:
+            data = json.loads(response.content or "{}")
+            url = data["data"]["url"]
+            ticket = url.split("ticket=")[1]
+            ret_data = {
+                "app_id": app_id,
+                "ticket": ticket,
+                "device": self.device_id,
+                "url": url,
+            }
+            return ret_data
+        except (json.JSONDecodeError, KeyError):
+            return None
 
-    async def check_login_qr(self, login_data: Dict):
-        params = {
-            "app_id": login_data["app_id"],
-            "ticket": login_data["ticket"],
-            "device": login_data["device"],
-        }
-        async with httpx.AsyncClient() as client:
-            data = await client.get(
-                url=CHECK_QRCODE_API,
-                params=params,
-                timeout=10,
-            )
-        return data.json()
+    async def check_login_qr(self, login_data: Dict[str, Any]):
+        try:
+            assert "app_id" in login_data
+            assert "ticket" in login_data
+            assert "device" in login_data
+        except AssertionError:
+            return None
+        request = Request(
+            "GET",
+            CHECK_QRCODE_API,
+            params={
+                "app_id": login_data["app_id"],
+                "ticket": login_data["ticket"],
+                "device": login_data["device"],
+            },
+            timeout=10,
+        )
+        response = await self.driver.request(request)
+        try:
+            return json.loads(response.content or "{}")
+        except json.JSONDecodeError:
+            return None
 
     async def call_mihoyo_api(
         self,
@@ -414,6 +444,8 @@ class MysApi:
             refer = "https://webstatic.mihoyo.com/bbs/event/signin/hkrpg/index.html?bbs_auth_required=true&act_id=e202304121516551&bbs_auth_required=true&bbs_presentation_style=fullscreen&utm_source=bbs&utm_medium=mys&utm_campaign=icon"
         else:  # api not found
             url = None
+        logger.debug(f"Mys API call: {api}")
+        logger.debug(f"URL: {url}")
         if url is not None:  # send request
             if not post:
                 # get server_id by role_uid
@@ -443,28 +475,46 @@ class MysApi:
                 )
                 if extra_headers:
                     headers.update(extra_headers)
-            async with httpx.AsyncClient(headers=headers) as client:
-                if not post:
-                    data = await client.get(url=url, params=params, timeout=10)
-                else:
-                    data = await client.post(url=url, json=body, timeout=10)
+            if post:
+                request = Request(
+                    "POST",
+                    url,
+                    headers=headers,
+                    json=body,
+                    timeout=10,
+                )
+            else:
+                request = Request(
+                    "GET",
+                    url,
+                    headers=headers,
+                    params=params,
+                    timeout=10,
+                )
+            response = await self.driver.request(request)
+            try:
+                data = json.loads(response.content or "{}")
+            except json.JSONDecodeError:
+                logger.warning(f"API call failed")
+                logger.warning(f"Response: {response.status_code} {response.content}")
+                data = None
         else:  # url is None
             data = None
         # debug log
         # parse data
         if data is not None:
             try:
-                retcode = int(data.json()["retcode"])
+                retcode = int(data["retcode"])
                 if retcode != 0:
-                    logger.warning(f"mys api ({api}) failed: {data.json()}")
-                    logger.warning(f"headers: {headers}")
-                    logger.warning(f"params: {params}")
+                    logger.warning(f"Mys API {api} failed: {data}")
+                    logger.warning(f"with headers: {headers}")
+                    logger.warning(f"with params: {params}")
                     data = retcode
                 else:
-                    data = dict(data.json()["data"])
+                    logger.debug(f"Mys API {api} response: {data}")
+                    data = dict(data["data"])
             except (json.JSONDecodeError, KeyError):
                 data = None
         if data is None:
-            logger.warning(f"mys api ({api}) error")
-        logger.debug(data)
+            logger.warning(f"Mys API {api} error")
         return data
