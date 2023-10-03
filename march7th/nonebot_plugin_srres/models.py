@@ -96,7 +96,7 @@ class StarRailRes:
                 return await self.get_icon_character(id)
             if id in self.ResIndex["light_cones"]:
                 return await self.get_icon_light_cone(id)
-            if id in self.ResIndex["relic_set"]:
+            if id in self.ResIndex["relic_sets"]:
                 return await self.get_icon_relic_set(id)
         return None
 
