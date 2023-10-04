@@ -63,6 +63,15 @@ class SkillInfo(BaseModel):
     icon: str
 
 
+class SkillTreeInfo(BaseModel):
+    id: str
+    level: int
+    max_level: int
+    anchor: str
+    icon: str
+    parent: Optional[str] = None
+
+
 class PropertyInfo(BaseModel):
     type: str
     field: str
@@ -163,6 +172,7 @@ class CharacterInfo(BaseModel):
     path: Optional[PathInfo] = None
     element: Optional[ElementInfo] = None
     skills: List[SkillInfo] = []
+    skill_trees: List[SkillTreeInfo] = []
     light_cone: Optional[LightConeInfo] = None
     relics: List[RelicInfo] = []
     relic_sets: List[RelicSetInfo] = []

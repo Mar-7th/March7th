@@ -42,17 +42,12 @@ async def get_srpanel_img(
     element = character_info.element.name if character_info.element else None
     attributes = character_info.attributes
     additions = character_info.additions
-    skill = character_info.skills
+    properties = character_info.properties
+    skills = character_info.skills
+    skill_trees = character_info.skill_trees
     light_cone = character_info.light_cone
     relic = character_info.relics
     relic_set = character_info.relic_sets
-    preview_image = await get_image(character_info.preview)
-    path_image = (
-        await get_image(character_info.path.icon) if character_info.path else None
-    )
-    element_image = (
-        await get_image(character_info.element.icon) if character_info.element else None
-    )
     rank_icons = list(character_info.rank_icons)
     rank_images: List[Image.Image] = []
     for i in range(len(rank_icons)):
@@ -68,36 +63,59 @@ async def get_srpanel_img(
                 alpha = ImageEnhance.Brightness(rank_image)
                 rank_image = alpha.enhance(0.3)
             rank_images.append(rank_image)
-    image_res = BuildImage.new("RGBA", (1080, 1900), BLACK)
-    image_res.draw_text((100, 100), f"角色面板", fontsize=92, fontname=fontname, fill=WHITE)
+    image_res = BuildImage.new("RGBA", (1720, 1650), BLACK)
+    # title
+    title_image_bg = await get_image("icon/logo/bg.png")
+    title_image = await get_image("icon/logo/cn.png")
+    if title_image_bg and title_image:
+        title_image_bg = title_image_bg.resize((300, 150))
+        image_res.paste(title_image_bg, (700, 40), alpha=True)
+        title_image = title_image.resize((300, 150))
+        image_res.paste(title_image, (700, 40), alpha=True)
+    image_res.draw_text((100, 180), f"角色面板", fontsize=92, fontname=fontname, fill=WHITE)
+    # uid
     image_res.draw_text(
-        (100, 220), f"UID:{uid}", fontsize=48, fontname=fontname, fill=WHITE
+        (550, 224), f"UID:{uid}", fontsize=48, fontname=fontname, fill=WHITE
     )
+    # path
+    path_image = (
+        await get_image(character_info.path.icon) if character_info.path else None
+    )
+    if path_image:
+        path_image = path_image.resize((64, 64))
+        image_res.paste(path_image, (950, 220), alpha=True)
+        image_res.draw_text(
+            (1030, 228), str(path), fontname=fontname, fontsize=48, fill=WHITE
+        )
+    # element
+    element_image = (
+        await get_image(character_info.element.icon) if character_info.element else None
+    )
+    if element_image:
+        element_image = element_image.resize((64, 64))
+        image_res.paste(element_image, (1170, 220), alpha=True)
+        image_res.draw_text(
+            (1250, 228), str(element), fontname=fontname, fontsize=48, fill=WHITE
+        )
+        image_res.draw_text(
+            (1250, 228), str(element), fontname=fontname, fontsize=48, fill=f"{color}88"
+        )
     # level
     image_res.draw_text(
-        (800, 120), f"Lv.{level}", fontname=fontname, fontsize=72, fill=WHITE
+        (1420, 200),
+        f"Lv.{level}",
+        fontname=fontname,
+        fontsize=72,
+        fill=WHITE,
     )
     # preview
     image_res.draw_rounded_rectangle(
         (100, 300, 480, 818), radius=30, outline=GRAY, width=3
     )
+    preview_image = await get_image(character_info.preview)
     if preview_image:
         preview_image = preview_image.resize((374, 512))
         image_res.paste(preview_image, (103, 303), alpha=True)
-    # path
-    if path_image:
-        path_image = path_image.resize((64, 64))
-        image_res.paste(path_image, (600, 220), alpha=True)
-        image_res.draw_text(
-            (680, 228), str(path), fontname=fontname, fontsize=48, fill=WHITE
-        )
-    # element
-    if element_image:
-        element_image = element_image.resize((64, 64))
-        image_res.paste(element_image, (820, 220), alpha=True)
-        image_res.draw_text(
-            (900, 228), str(element), fontname=fontname, fontsize=48, fill=str(color)
-        )
     image_res.draw_text(
         (110, 728, 470, 808), name, max_fontsize=52, fontname=fontname, fill=WHITE
     )
@@ -107,35 +125,56 @@ async def get_srpanel_img(
         image_res.paste(image, (500, y_index), alpha=True)
         y_index = y_index + 86
     # attributes
-    attr_set: Set[str] = set()
+    x_index = 600
     y_index = 305
+    attr_set: Set[str] = set()
     for attr in attributes:
         image_res.draw_rounded_rectangle(
-            (600, y_index, 1000, y_index + 50), radius=15, outline=GRAY, width=2
+            (x_index, y_index, x_index + 400, y_index + 50),
+            radius=15,
+            outline=GRAY,
+            width=2,
         )
         image_res.draw_text(
-            (620, y_index + 12),
+            (x_index + 20, y_index + 12),
             attr.name,
             fontname=fontname,
             fontsize=24,
             fill=WHITE,
         )
+        # basic value
+        if not attr.percent:
+            image_res.draw_text(
+                (x_index + 250, y_index + 6),
+                attr.display,
+                fontname=fontname,
+                fontsize=20,
+                fill=WHITE,
+            )
+        # boost value
+        boost = 0
+        for addi in additions:
+            if addi.name == attr.name:
+                boost = addi.value
+                image_res.draw_text(
+                    (x_index + 300, y_index + 20),
+                    f"+{addi.display}",
+                    fontname=fontname,
+                    fontsize=20,
+                    fill=GREEN,
+                )
+        # total value
+        total = attr.value + boost
+        total_str = (
+            str(int(total)) if not attr.percent else f"{format(total*100,'.1f')}%"
+        )
         image_res.draw_text(
-            (760, y_index + 12),
-            attr.display,
+            (x_index + 160, y_index + 12),
+            total_str,
             fontname=fontname,
             fontsize=24,
             fill=WHITE,
         )
-        for addi in additions:
-            if addi.name == attr.name:
-                image_res.draw_text(
-                    (860, y_index + 12),
-                    f"+{addi.display}",
-                    fontname=fontname,
-                    fontsize=24,
-                    fill=GREEN,
-                )
         attr_set.add(attr.name)
         y_index = y_index + 58
     for addi in additions:
@@ -145,13 +184,20 @@ async def get_srpanel_img(
         if name not in attr_set:
             name = name.replace("属性伤害提高", "增伤")
             image_res.draw_rounded_rectangle(
-                (600, y_index, 1000, y_index + 50), radius=15, outline=GRAY, width=2
+                (x_index, y_index, x_index + 400, y_index + 50),
+                radius=15,
+                outline=GRAY,
+                width=2,
             )
             image_res.draw_text(
-                (620, y_index + 12), name, fontname=fontname, fontsize=24, fill=WHITE
+                (x_index + 20, y_index + 12),
+                name,
+                fontname=fontname,
+                fontsize=24,
+                fill=WHITE,
             )
             image_res.draw_text(
-                (760, y_index + 12),
+                (x_index + 220, y_index + 12),
                 addi.display,
                 fontname=fontname,
                 fontsize=24,
@@ -160,13 +206,26 @@ async def get_srpanel_img(
             y_index = y_index + 58
     # skill
     x_index = 100
-    if len(skill) > 5:
-        skill = [skill[0], skill[1], skill[2], skill[3], skill[5]]
-    for skill_item in skill:
+    y_index = 850
+    y_step = 100
+    for i in range(4):
+        y_item = y_index + y_step * i
+        y_next = y_item + y_step
         image_res.draw_rounded_rectangle(
-            (x_index, 850, x_index + 172, 940), radius=15, outline=GRAY, width=2
+            (x_index, y_item, x_index + 270, y_next - 10),
+            radius=15,
+            outline=GRAY,
+            width=2,
         )
-        item_icon = await get_image(skill_item.icon)
+        if len(skills) < i:
+            image_res.draw_text(
+                (x_index + 10, y_item + 10, x_index + 260, y_item + 80),
+                f"无法获取技能信息",
+                fontname=fontname,
+                max_fontsize=36,
+                fill=WHITE,
+            )
+        item_icon = await get_image(skills[i].icon)
         if item_icon:
             item_icon = (
                 BuildImage(item_icon)
@@ -174,53 +233,121 @@ async def get_srpanel_img(
                 .draw_arc((0, 0, 64, 64), 0, 360, width=2, fill=WHITE)
                 .image
             )
-            image_res.paste(item_icon, (x_index + 8, 863), alpha=True)
-        name = str(skill_item.name)
-        if len(name) > 5:
-            name = name[:3] + "..."
+            image_res.paste(item_icon, (x_index + 15, y_item + 13), alpha=True)
+        name = str(skills[i].name)
+        if len(name) > 6:
+            name = name[:5] + "..."
         image_res.draw_text(
-            (x_index + 80, 860, x_index + 162, 890),
+            (x_index + 80, y_item + 10, x_index + 260, y_item + 40),
             name,
             fontname=fontname,
             max_fontsize=30,
             fill=WHITE,
         )
         image_res.draw_text(
-            (x_index + 80, 890, x_index + 162, 930),
-            f"Lv.{int(skill_item.level)}",
+            (x_index + 80, y_item + 40, x_index + 260, y_item + 80),
+            f"Lv.{int(skills[i].level)}",
             fontname=fontname,
             max_fontsize=36,
             fill=WHITE,
         )
-        x_index = x_index + 182
-    # light cone
+    # skill tree
+    x_index = 380
+    y_index = 850
+    y_step = 100
+    point_groups: List[Set] = []
     image_res.draw_rounded_rectangle(
-        (100, 970, 500, 1150), radius=15, outline=GRAY, width=2
+        (x_index, y_index, x_index + 350, y_index + y_step * 4 - 10),
+        radius=15,
+        outline=GRAY,
+        width=2,
+    )
+    for i in range(4, 8):
+        y_item = y_index + y_step * (i - 4)
+        y_next = y_item + y_step
+        if len(skill_trees) <= i:
+            break
+        point_groups.append({skill_trees[i].id})
+        item_icon = await get_image(skill_trees[i].icon)
+        if item_icon:
+            item_icon = (
+                BuildImage(item_icon)
+                .resize((64, 64))
+                .draw_arc((0, 0, 64, 64), 0, 360, width=2, fill=WHITE)
+                .image
+            )
+            if skill_trees[i].level == 0:
+                alpha = ImageEnhance.Brightness(item_icon)
+                item_icon = alpha.enhance(0.3)
+            image_res.paste(item_icon, (x_index + 20, y_item + 13), alpha=True)
+    x_index = 420
+    x_step = 80
+    point_groups[0] = {None}
+    for i in range(8, 18):
+        if len(skill_trees) <= i:
+            break
+        for j, group in enumerate(point_groups):
+            if skill_trees[i].parent in group:
+                group.add(skill_trees[i].id)
+                x_offset = len(group) - 1
+                item_icon = await get_image(skill_trees[i].icon)
+                if item_icon:
+                    item_icon = (
+                        BuildImage(item_icon)
+                        .resize((48, 48))
+                        .draw_arc((0, 0, 48, 48), 0, 360, width=2, fill=WHITE)
+                        .image
+                    )
+                    if skill_trees[i].level == 0:
+                        alpha = ImageEnhance.Brightness(item_icon)
+                        item_icon = alpha.enhance(0.3)
+                    if not (x_offset == 1 and skill_trees[i].parent is None):
+                        image_res.draw_line(
+                            (
+                                x_index + x_offset * x_step - 20,
+                                y_index + j * y_step + 45,
+                                x_index + x_offset * x_step - 10,
+                                y_index + j * y_step + 45,
+                            ),
+                            fill=WHITE,
+                            width=2,
+                        )
+                    image_res.paste(
+                        item_icon,
+                        (x_index + x_offset * x_step, y_index + j * y_step + 21),
+                        alpha=True,
+                    )
+                break
+    # light cone
+    x_index = 750
+    y_index = 850
+    image_res.draw_rounded_rectangle(
+        (x_index, y_index, x_index + 250, y_index + 390),
+        radius=15,
+        outline=GRAY,
+        width=2,
     )
     if light_cone:
         light_cone_image = await get_image(light_cone.icon)
         if light_cone_image:
-            light_cone_image = light_cone_image.resize((156, 156))
-            image_res.paste(light_cone_image, (110, 982), alpha=True)
+            light_cone_image = light_cone_image.resize((200, 200))
+            image_res.paste(light_cone_image, (x_index + 25, y_index + 20), alpha=True)
         image_res.draw_text(
-            (276, 990, 485, 1050),
+            (x_index + 20, y_index + 220, x_index + 230, y_index + 270),
             light_cone.name,
             fontname=fontname,
-            max_fontsize=32,
+            max_fontsize=36,
             fill=WHITE,
         )
         image_res.draw_text(
-            (286, 1050, 310, 1130),
-            roman_dict[light_cone.rank],
+            (x_index + 20, y_index + 270, x_index + 230, y_index + 310),
+            f"叠影 {roman_dict[light_cone.rank]} 阶",
             fontname=fontname,
-            max_fontsize=48,
+            max_fontsize=24,
             fill=WHITE,
         )
         image_res.draw_text(
-            (310, 1050, 350, 1130), "·", fontname=fontname, max_fontsize=48, fill=WHITE
-        )
-        image_res.draw_text(
-            (350, 1050, 480, 1130),
+            (x_index + 20, y_index + 310, x_index + 230, y_index + 370),
             f"Lv.{light_cone.level}",
             fontname=fontname,
             max_fontsize=48,
@@ -228,49 +355,46 @@ async def get_srpanel_img(
         )
     else:
         image_res.draw_text(
-            (100, 970, 500, 1150),
+            (x_index + 20, y_index + 20, x_index + 230, y_index + 370),
             "未装备光锥",
             fontname=fontname,
             max_fontsize=36,
             fill=WHITE,
         )
-    # relic set
-    y_index = 970
-    for i in range(3):
-        image_res.draw_rounded_rectangle(
-            (520, y_index + 63 * i, 700, y_index + 63 * i + 54),
-            radius=15,
-            outline=GRAY,
-            width=2,
+    # properties
+    x_index = 100
+    y_index = 1260
+    x_step = 180
+    y_step = 70
+    image_res.draw_rounded_rectangle(
+        (x_index, y_index, x_index + 900, y_index + 230),
+        radius=15,
+        outline=GRAY,
+        width=2,
+    )
+    for i, prop in enumerate(properties):
+        if i >= 15:
+            break
+        x_item = x_index + i % 5 * x_step
+        y_item = y_index + i // 5 * y_step
+        prop_image = await get_image(prop.icon)
+        if prop_image:
+            prop_image = prop_image.resize((52, 52))
+            image_res.paste(prop_image, (x_item + 20, y_item + 18), alpha=True)
+        image_res.draw_text(
+            (x_item + 80, y_item + 20, x_item + 170, y_item + 70),
+            prop.display,
+            fontname=fontname,
+            max_fontsize=32,
+            fill=WHITE,
         )
-        if len(relic_set) > i:
-            set_icon = relic_set[i].icon
-            set_image = await get_image(set_icon)
-            if set_image:
-                set_image = set_image.resize((40, 40))
-                image_res.paste(set_image, (535, y_index + 63 * i + 7), alpha=True)
-            image_res.draw_text(
-                (590, y_index + 63 * i, 680, y_index + 63 * i + 54),
-                f"{relic_set[i].num}件套",
-                fontname=fontname,
-                max_fontsize=32,
-                fill=WHITE,
-            )
-        else:
-            image_res.draw_text(
-                (540, y_index + 63 * i, 680, y_index + 63 * i + 54),
-                "未激活套装",
-                fontname=fontname,
-                max_fontsize=32,
-                fill=WHITE,
-            )
     # relic score cal
     relic_score: Dict[str, float] = {}
     cid = character_info.id
     # relic
     for i in range(0, 6):
-        x_index = 100 + 305 * (i % 3)
-        y_index = 1180 + 320 * int(i / 3)
+        x_index = 1040 + 305 * (i // 3)
+        y_index = 300 + 320 * (i % 3)
         image_res.draw_rounded_rectangle(
             (x_index, y_index, x_index + 290, y_index + 300),
             radius=15,
@@ -381,36 +505,117 @@ async def get_srpanel_img(
                     fill=WHITE,
                 )
     relic_score_all = format(sum(relic_score.values()) / 6, ".1f")
+    # relic set
+    x_index = 1040
+    y_index = 1260
+    y_step = 80
+    for i in range(3):
+        y_item = y_index + y_step * i
+        y_next = y_item + y_step
+        image_res.draw_rounded_rectangle(
+            (
+                x_index,
+                y_item,
+                x_index + 340,
+                y_next - 10,
+            ),
+            radius=15,
+            outline=GRAY,
+            width=2,
+        )
+        if len(relic_set) > i:
+            set_icon = relic_set[i].icon
+            set_image = await get_image(set_icon)
+            if set_image:
+                set_image = set_image.resize((40, 40))
+                image_res.paste(set_image, (x_index + 30, y_item + 15), alpha=True)
+            image_res.draw_text(
+                (
+                    x_index + 80,
+                    y_item,
+                    x_index + 180,
+                    y_next - 10,
+                ),
+                f"{relic_set[i].num} 件套",
+                fontname=fontname,
+                max_fontsize=32,
+                fill=WHITE,
+            )
+            if relic_set[i].properties:
+                set_prop_icon = relic_set[i].properties[0].icon
+                set_prop_value = relic_set[i].properties[0].display
+                set_prop_image = await get_image(set_prop_icon)
+                if set_prop_image:
+                    set_prop_image = set_prop_image.resize((40, 40))
+                    image_res.paste(
+                        set_prop_image,
+                        (x_index + 200, y_item + 15),
+                        alpha=True,
+                    )
+                    image_res.draw_text(
+                        (
+                            x_index + 240,
+                            y_item,
+                            x_index + 320,
+                            y_next - 10,
+                        ),
+                        set_prop_value,
+                        fontname=fontname,
+                        max_fontsize=24,
+                        fill=WHITE,
+                    )
+            else:
+                image_res.draw_text(
+                    (
+                        x_index + 200,
+                        y_item,
+                        x_index + 320,
+                        y_next - 10,
+                    ),
+                    "--",
+                    fontname=fontname,
+                    max_fontsize=32,
+                    fill=WHITE,
+                )
+        else:
+            image_res.draw_text(
+                (
+                    x_index + 20,
+                    y_item,
+                    x_index + 320,
+                    y_next - 10,
+                ),
+                "未激活套装",
+                fontname=fontname,
+                max_fontsize=32,
+                fill=WHITE,
+            )
     # relic score
+    x_index += 355
+    y_index = 1260
     image_res.draw_rounded_rectangle(
-        (720, 970, 1000, 1150), radius=15, outline=GRAY, width=2
+        (x_index, y_index, x_index + 240, y_index + 230),
+        radius=15,
+        outline=GRAY,
+        width=2,
     )
-    if not relic_score_all.startswith("0"):
-        image_res.draw_text(
-            (740, 1000, 980, 1080),
-            f"{relic_score_all}/10",
-            fontname=fontname,
-            max_fontsize=72,
-            fill=WHITE,
-        )
-    else:
-        image_res.draw_text(
-            (740, 1000, 980, 1080),
-            "--",
-            fontname=fontname,
-            max_fontsize=72,
-            fill=WHITE,
-        )
     image_res.draw_text(
-        (740, 1080, 980, 1130),
+        (x_index + 30, y_index + 20, x_index + 210, y_index + 125),
+        f"{relic_score_all}/10" if not relic_score_all.startswith("0") else "--",
+        fontname=fontname,
+        max_fontsize=64,
+        fill=WHITE,
+    )
+    image_res.draw_text(
+        (x_index + 30, y_index + 125, x_index + 210, y_index + 210),
         "SRS-N 评分",
         fontname=fontname,
         max_fontsize=36,
         fill=WHITE,
     )
     image_res.draw_text(
-        (80, 1820, 1020, 1870),
-        f"Created by Mar-7th/March7th & MiHoMo API @ {time}",
+        (80, 1550, 1640, 1600),
+        f"Created by Mar-7th/March7th. Panel data provided by MiHoMo API. Updated at {time}",
         fontname=fontname,
         max_fontsize=36,
         fill=WHITE,

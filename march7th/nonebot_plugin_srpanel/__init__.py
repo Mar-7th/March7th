@@ -142,8 +142,10 @@ async def _(bot: Bot, event: Event, regex_dict: dict = RegexDict()):
         try:
             global score
             img = await get_srpanel_img(player_info, info, score)
-        except Exception:
+        except Exception as e:
             img = None
+            logger.warning(f"绘图出错：{e}")
+            logger.exception(e)
     else:
         img = None
     if img:
