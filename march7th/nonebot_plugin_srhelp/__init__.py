@@ -25,6 +25,7 @@ __plugin_meta__ = PluginMetadata(
     },
 )
 
+help = on_command("help", aliases={"帮助", "功能"}, priority=99, block=False)
 srhelp = on_command("srhelp", aliases={"星铁帮助", "星铁功能"}, priority=2, block=True)
 
 
@@ -63,5 +64,10 @@ async def _():
         msg_builder = MessageFactory([Image(img)])
     else:
         msg_builder = MessageFactory([Text("帮助图片绘制失败，请稍后重试")])
-    await msg_builder.send()
-    await srhelp.finish()
+    await msg_builder.finish()
+
+
+@help.handle()
+async def _():
+    msg_builder = MessageFactory([Text("发送 srhelp 查看崩坏：星穹铁道帮助菜单")])
+    await msg_builder.finish()
