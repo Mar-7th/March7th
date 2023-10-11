@@ -2,17 +2,17 @@
 
 崩坏：星穹铁道多功能机器人（开发中），目前支持账号绑定、信息查询、Wiki 查询等功能。
 
-本项目基于 Nonebot2，通过 [nonebot-plugin-send-anything-anywhere](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere) 实现对 OneBot v11, OneBot v12, QQ Guild, Kaiheila 适配器的支持；使用 [nonebot-plugin-datastore](https://github.com/he0119/nonebot-plugin-datastore) 进行插件数据管理。
+本项目基于 Nonebot2，通过 [nonebot-plugin-send-anything-anywhere](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere) 实现对 OneBot v11, OneBot v12, QQ Guild, 开黑啦, Telegram, Feishu, Red 适配器的支持；使用 [nonebot-plugin-datastore](https://github.com/he0119/nonebot-plugin-datastore) 进行插件数据管理。
 
 ## 安装
+
+如果未安装 `poetry`，先参考 [文档](https://python-poetry.org/docs/#installation) 安装。
 
 使用 `git clone https://github.com/Mar-7th/March7th.git` 或 [下载压缩包](https://github.com/Mar-7th/March7th/archive/refs/heads/master.zip) 并解压，进入工程目录。
 
 使用 `poetry install` 安装项目依赖。
 
-使用 `nb datastore upgrade` 升级数据库。
-
-配置协议实现端（如 `go-cqhttp` 可使用 `nb plugin install gocqhttp` 安装）。
+配置协议实现端。
 
 配置运行环境参数（可复制 `.env` 文件到 `.env.prod` 后填入参数）。
 
@@ -22,10 +22,27 @@
 
 ## 常见问题
 
-- 添加公共 cookie：
+### 添加公共 cookie
 
-  - 只有添加公共 cookie 后才可以不需要用户绑定 cookie 就能查询 `srinfo`
-  - 添加公共 cookie 需要 `SUPERUSER` 权限，发送 `srpck [cookie]`
+添加公共 cookie 后，用户可以无需绑定 cookie 就能使用 `srinfo`。
+
+添加公共 cookie 需要 `SUPERUSER` 权限，发送 `srpck [cookie]`，将 `[cookie]` 替换为实际的 cookie 内容。
+
+### 协议端配置
+
+#### Chronocat
+
+参考 [Chronocat 文档](https://chronocat.vercel.app/install/) 进行协议端安装与配置。
+
+在项目根目录运行命令 `nb adapter install nonebot-adapter-red`。
+
+参考 [Red 适配器文档](https://github.com/nonebot/adapter-red) 进行适配器配置。
+
+#### go-cqhttp
+
+此方式不推荐新搭建 Bot 使用，请参考 [迁移建议](https://github.com/Mrs4s/go-cqhttp/issues/2471)。
+
+在项目根目录运行命令 `nb plugin install gocqhttp`。
 
 ## 链接
 
