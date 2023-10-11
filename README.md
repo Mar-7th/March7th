@@ -30,6 +30,10 @@
 
 ### 协议端配置
 
+#### Shamrock
+
+参考 [Shamrock 文档](https://linxinrao.github.io/Shamrock/guide/getting-started.html) 进行协议端安装与配置。
+
 #### Chronocat
 
 参考 [Chronocat 文档](https://chronocat.vercel.app/install/) 进行协议端安装与配置。
@@ -43,6 +47,8 @@
 此方式不推荐新搭建 Bot 使用，请参考 [迁移建议](https://github.com/Mrs4s/go-cqhttp/issues/2471)。
 
 在项目根目录运行命令 `nb plugin install gocqhttp`。
+
+运行 Bot 程序后根据提示在网页端进行账号配置。
 
 ## 链接
 
