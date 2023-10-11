@@ -132,15 +132,15 @@ class LightConeInfo(BaseModel):
     properties: List[PropertyInfo] = []
 
 
-class SpaceChallengeInfo(BaseModel):
-    maze_group_id: int = 0
-    maze_group_index: int = 0
-    pre_maze_group_index: int = 0
+class MemoryInfo(BaseModel):
+    level: int = 0
+    chaos_id: int = 0
+    chaos_level: int = 0
 
 
 class SpaceInfo(BaseModel):
-    challenge_data: Optional[SpaceChallengeInfo] = None
-    pass_area_progress: int = 0
+    memory_data: Optional[MemoryInfo] = None
+    universe_level: int = 0
     light_cone_count: int = 0
     avatar_count: int = 0
     achievement_count: int = 0
