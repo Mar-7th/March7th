@@ -12,13 +12,16 @@ require("nonebot_plugin_srbind")
 from nonebot_plugin_saa import MessageFactory, Text
 
 try:
-    from march7th.nonebot_plugin_mys_api import mys_api
+    from march7th.nonebot_plugin_mys_api import MysApi
     from march7th.nonebot_plugin_srbind import get_user_srbind
-    from march7th.nonebot_plugin_srbind.cookie import get_user_cookie
+    from march7th.nonebot_plugin_srbind.cookie import (
+        get_user_cookie_with_fp,
+        set_user_fp,
+    )
 except ModuleNotFoundError:
-    from nonebot_plugin_mys_api import mys_api
+    from nonebot_plugin_mys_api import MysApi
     from nonebot_plugin_srbind import get_user_srbind
-    from nonebot_plugin_srbind.cookie import get_user_cookie
+    from nonebot_plugin_srbind.cookie import get_user_cookie_with_fp, set_user_fp
 
 __plugin_meta__ = PluginMetadata(
     name="StarRailSign",
@@ -54,14 +57,17 @@ async def _(bot: Bot, event: Event):
     msg: List[str] = []
     for user in user_list:
         sr_uid = user.sr_uid
-        cookie = await get_user_cookie(bot.self_id, user_id, sr_uid)
+        cookie, device_id, device_fp = await get_user_cookie_with_fp(
+            bot.self_id, event.get_user_id(), sr_uid
+        )
         if not cookie:
             msg.append(f"UID{sr_uid}: 未绑定cookie，请使用`srck [cookie]`绑定或`srqr`扫码绑定")
             continue
         logger.info(f"开始为SRUID『{sr_uid}』签到")
-        sr_sign = await mys_api.call_mihoyo_api(
-            "sr_sign", cookie=cookie, role_uid=sr_uid
-        )
+        mys_api = MysApi(cookie, device_id, device_fp)
+        if not device_id or not device_fp:
+            device_id, device_fp = await mys_api.init_device()
+        sr_sign = await mys_api.call_mihoyo_api("sr_sign", role_uid=sr_uid)
         if not sr_sign:
             msg.append(f"UID{sr_uid}: 疑似cookie失效，请重新使用`srck [cookie]`绑定或`srqr`扫码绑定")
             msg_builder = MessageFactory([Text(str(msg))])
@@ -78,6 +84,10 @@ async def _(bot: Bot, event: Event):
             msg.append(f"UID{sr_uid}: 签到遇验证码，请手动签到")
         else:
             msg.append(f"UID{sr_uid}: 签到成功")
+            if new_fp := sr_sign.get("new_fp"):
+                await set_user_fp(
+                    bot.self_id, event.get_user_id(), sr_uid, device_id, new_fp
+                )
     msg_builder = MessageFactory([Text("\n" + "\n".join(msg))])
     await msg_builder.send(at_sender=True)
     await srsign.finish()

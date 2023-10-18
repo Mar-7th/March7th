@@ -28,12 +28,12 @@ from nonebot_plugin_saa import (
 )
 
 try:
-    from march7th.nonebot_plugin_mys_api import mys_api
+    from march7th.nonebot_plugin_mys_api import MysApi
 except ModuleNotFoundError:
-    from nonebot_plugin_mys_api import mys_api
+    from nonebot_plugin_mys_api import MysApi
 
-from .models import (
-    UserBind,
+from .model import UserBind
+from .data_source import (
     del_user_srbind,
     generate_qrcode,
     get_user_srbind,
@@ -145,6 +145,7 @@ async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
         stoken_match = re.search(r"(?:stoken|stoken_v2)=([0-9a-zA-Z]+)", cookie)
         stoken = stoken_match[1] if stoken_match else None
         logger.debug(f"login_ticket: {login_ticket}")
+        mys_api = MysApi()
         if login_ticket and not stoken:
             # 如果有login_ticket但没有stoken，就通过login_ticket获取stoken
             stoken = await mys_api.get_stoken_by_login_ticket(login_ticket, mys_id)
@@ -153,11 +154,11 @@ async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
             # 如果有stoken但没有cookie_token，就通过stoken获取cookie_token
             cookie_token = await mys_api.get_cookie_token_by_stoken(stoken, mys_id)
             logger.debug(f"cookie_token: {cookie_token}")
+        mys_api = MysApi(cookie=f"account_id={mys_id};cookie_token={cookie_token}")
         if not cookie_token:
             msg = "cookie无效，缺少cookie_token或login_ticket字段\n获取cookie的教程：\ndocs.qq.com/doc/DQ3JLWk1vQVllZ2Z1"
         elif game_info := await mys_api.call_mihoyo_api(
             api="game_record",
-            cookie=f"account_id={mys_id};cookie_token={cookie_token}",
             mys_id=mys_id,
         ):
             if isinstance(game_info, int):
@@ -176,11 +177,14 @@ async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
                 player = ""
                 for info in sr_games:
                     player += f'{info["nickname"]}({info["uid"]}) '
+                    device_id, device_fp = await mys_api.init_device()
                     user = UserBind(
                         bot_id=bot.self_id,
                         user_id=str(event.get_user_id()),
                         mys_id=mys_id,
                         sr_uid=info["uid"],
+                        device_id=device_id,
+                        device_fp=device_fp,
                         cookie=f"account_id={mys_id};cookie_token={cookie_token}",
                         stoken=f"stuid={mys_id};stoken={stoken};" if stoken else None,
                     )
@@ -218,6 +222,7 @@ async def _(bot: Bot, arg: Message = CommandArg()):
         stoken_match = re.search(r"(?:stoken|stoken_v2)=([0-9a-zA-Z]+)", cookie)
         stoken = stoken_match[1] if stoken_match else None
         logger.debug(f"login_ticket: {login_ticket}")
+        mys_api = MysApi()
         if login_ticket and not stoken:
             # 如果有login_ticket但没有stoken，就通过login_ticket获取stoken
             stoken = await mys_api.get_stoken_by_login_ticket(login_ticket, mys_id)
@@ -229,19 +234,21 @@ async def _(bot: Bot, arg: Message = CommandArg()):
         if not cookie_token:
             msg = "cookie无效，缺少cookie_token或login_ticket字段\n获取cookie的教程：\ndocs.qq.com/doc/DQ3JLWk1vQVllZ2Z1"
         else:
+            device_id, device_fp = await mys_api.init_device()
             user = UserBind(
                 bot_id=bot.self_id,
                 user_id="0",
                 mys_id=mys_id,
                 sr_uid="0",
+                device_id=device_id,
+                device_fp=device_fp,
                 cookie=f"account_id={mys_id};cookie_token={cookie_token}",
                 stoken=f"stuid={mys_id};stoken={stoken};" if stoken else None,
             )
             await set_user_srbind(user)
             msg = f"绑定公共cookie成功"
     msg_builder = MessageFactory([Text(str(msg))])
-    await msg_builder.send(at_sender=True)
-    await srpck.finish()
+    await msg_builder.finish(at_sender=True)
 
 
 @srdel.handle()
@@ -285,6 +292,7 @@ async def _(bot: Bot, event: Event):
         msg_builder = MessageFactory([Text("你已经在绑定中了，请扫描上一次的二维码")])
         await msg_builder.send(at_sender=True)
         await srdel.finish()
+    mys_api = MysApi()
     login_data = await mys_api.create_login_qr(8)
     if login_data is None:
         msg_builder = MessageFactory(
@@ -318,6 +326,7 @@ async def check_qrcode():
         for user_id, data in qrbind_buffer.items():
             logger.debug(f"Check qr result of {user_id}")
             try:
+                mys_api = MysApi()
                 status_data = await mys_api.check_login_qr(data)
                 if status_data is None:
                     logger.warning(f"Check of user_id {user_id} failed")
@@ -368,9 +377,15 @@ async def check_qrcode():
                 mid = stoken_data["data"]["user_info"]["mid"]
                 cookie_token = cookie_data["data"]["cookie_token"]
                 stoken = stoken_data["data"]["token"]["token"]
+                device_id = qrbind_buffer[user_id]["device"]
+                device_id, device_fp = await mys_api.init_device(device_id)
+                mys_api = MysApi(
+                    cookie=f"account_id={mys_id};cookie_token={cookie_token}",
+                    device_id=device_id,
+                    device_fp=device_fp,
+                )
                 game_info = await mys_api.call_mihoyo_api(
                     api="game_record",
-                    cookie=f"account_id={mys_id};cookie_token={cookie_token}",
                     mys_id=mys_id,
                 )
                 logger.debug(f"Game info: {game_info}")
@@ -423,6 +438,8 @@ async def check_qrcode():
                             user_id=str(user_id),
                             mys_id=mys_id,
                             sr_uid=info["uid"],
+                            device_id=device_id,
+                            device_fp=device_fp,
                             cookie=f"account_id={mys_id};cookie_token={cookie_token}",
                             stoken=f"stuid={mys_id};stoken={stoken};mid={mid};"
                             if stoken
@@ -437,7 +454,8 @@ async def check_qrcode():
                 logger.debug(f"Check of user_id {user_id} success")
                 if not qrbind_buffer:
                     break
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(f"QR process error: {e}")
+                logger.exception(e)
             finally:
                 await asyncio.sleep(1)
