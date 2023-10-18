@@ -83,7 +83,7 @@ async def _(bot: Bot, event: Event):
     if not device_id or not device_fp:
         device_id, device_fp = await mys_api.init_device()
     sr_basic_info = await mys_api.call_mihoyo_api(api="sr_basic_info", role_uid=sr_uid)
-    sr_note = await mys_api.call_mihoyo_api(api="sr_widget", role_uid=sr_uid)
+    sr_note = await mys_api.call_mihoyo_api(api="sr_note", role_uid=sr_uid)
     if isinstance(sr_basic_info, int):
         if sr_basic_info in error_code_msg:
             msg = error_code_msg[sr_basic_info]
