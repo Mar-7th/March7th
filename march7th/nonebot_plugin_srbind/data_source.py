@@ -16,6 +16,8 @@ async def set_user_srbind(user: UserBind) -> None:
                 await session.delete(old_user)
             elif user.cookie == old_user.cookie:
                 await session.delete(old_user)
+        await session.commit()
+    async with create_session() as session:
         session.add(user)
         await session.commit()
 
