@@ -31,5 +31,4 @@ async def _():
     except:
         codes = "获取前瞻兑换码失败"
     msg_builder = MessageFactory([Text(str(codes))])
-    await msg_builder.send(at_sender=True)
-    await srcode.finish()
+    await msg_builder.finish(at_sender=True)

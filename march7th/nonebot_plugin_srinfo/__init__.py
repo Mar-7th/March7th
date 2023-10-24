@@ -29,7 +29,7 @@ except ModuleNotFoundError:
         set_user_fp,
     )
 
-from .get_img import get_srinfo_img
+from .data_source import get_srinfo_img
 
 __plugin_meta__ = PluginMetadata(
     name="StarRailInfo",
@@ -47,8 +47,9 @@ __plugin_meta__ = PluginMetadata(
 
 
 error_code_msg = {
-    1034: "查询遇验证码，请手动在米游社验证后查询",
+    1034: "查询遇验证码",
     10001: "绑定cookie失效，请重新绑定",
+    -10001: "请求出错，请稍后重试",
 }
 
 srinfo = on_command("srinfo", aliases={"星铁信息", "星铁账号信息"}, priority=2, block=True)
@@ -60,8 +61,7 @@ async def _(bot: Bot, event: Event):
     if not user_list:
         msg = "未绑定SRUID，请使用`sruid [uid]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.send(at_sender=True)
-        await srinfo.finish()
+        await msg_builder.finish(at_sender=True)
     sr_uid = user_list[0].sr_uid
     cookie, device_id, device_fp = await get_user_cookie_with_fp(
         bot.self_id, event.get_user_id(), sr_uid

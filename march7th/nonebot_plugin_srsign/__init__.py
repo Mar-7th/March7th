@@ -89,5 +89,4 @@ async def _(bot: Bot, event: Event):
                     bot.self_id, event.get_user_id(), sr_uid, device_id, new_fp
                 )
     msg_builder = MessageFactory([Text("\n" + "\n".join(msg))])
-    await msg_builder.send(at_sender=True)
-    await srsign.finish()
+    await msg_builder.finish(at_sender=True)

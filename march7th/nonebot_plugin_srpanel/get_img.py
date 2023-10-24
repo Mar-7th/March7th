@@ -9,7 +9,7 @@ try:
 except ModuleNotFoundError:
     from nonebot_plugin_srres import srres
 
-from .models import CharacterInfo, PlayerInfo, ScoreFile
+from .model import CharacterInfo, PlayerInfo, ScoreFile
 
 fontname = srres.get_font()
 folder = srres.get_data_folder()

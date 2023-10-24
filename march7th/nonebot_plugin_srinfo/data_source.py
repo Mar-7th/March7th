@@ -9,13 +9,6 @@ try:
 except ModuleNotFoundError:
     from nonebot_plugin_srres import srres
 
-BACKGROUND = (248, 248, 248)
-GRAY1 = (200, 200, 200)
-GRAY2 = (100, 100, 100)
-GRAY3 = (75, 75, 75)
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-
 STAR5 = (194, 152, 99)
 STAR4 = (128, 85, 194)
 
@@ -74,83 +67,87 @@ async def get_srinfo_img(
             equips[detail["id"]]["level"] = equip["level"]
 
     # 绘制图片
-    image_bg = BuildImage.new("RGBA", (800, 380), BACKGROUND)
+    image_bg = BuildImage.new("RGBA", (1160, 380), "black")
 
     image_bg.draw_text(
-        (60, 50), nickname, fontsize=48, fontname=fontname, fill=GRAY3
+        (60, 50), nickname, fontsize=72, fontname=fontname, fill="white"
     )  # Nickname
     image_bg.draw_text(
-        (60, 110), f"UID {sr_uid}", fontsize=24, fontname=fontname, fill=GRAY3
+        (550, 85), f"UID {sr_uid}", fontsize=36, fontname=fontname, fill="white"
     )  # UID
     image_bg.draw_text(
-        (600, 50, 700, 140), str(level), max_fontsize=72, fontname=fontname, fill=GRAY3
+        (960, 50, 1060, 140),
+        str(level),
+        max_fontsize=72,
+        fontname=fontname,
+        fill="white",
     )  # 开拓等级
 
-    image_bg.draw_line((50, 150, 750, 150), fill=GRAY1, width=2)
+    image_bg.draw_line((50, 150, 1110, 150), fill="gray", width=2)
 
     image_bg.draw_text(
-        (50, 240, 210, 270), "活跃天数", max_fontsize=24, fontname=fontname, fill=GRAY2
+        (50, 240, 210, 270), "活跃天数", max_fontsize=24, fontname=fontname, fill="white"
     )  # 活跃天数
     image_bg.draw_text(
         (50, 180, 210, 230),
         str(active_days),
         max_fontsize=48,
         fontname=fontname,
-        fill=GRAY3,
+        fill="white",
     )  # 活跃天数
     image_bg.draw_text(
-        (230, 240, 390, 270), "解锁角色", max_fontsize=24, fontname=fontname, fill=GRAY2
+        (350, 240, 510, 270), "解锁角色", max_fontsize=24, fontname=fontname, fill="white"
     )  # 解锁角色
     image_bg.draw_text(
-        (230, 180, 390, 230),
+        (350, 180, 510, 230),
         str(avater_num),
         max_fontsize=48,
         fontname=fontname,
-        fill=GRAY3,
+        fill="white",
     )  # 解锁角色
     image_bg.draw_text(
-        (410, 240, 550, 270), "达成成就", max_fontsize=24, fontname=fontname, fill=GRAY2
+        (650, 240, 790, 270), "达成成就", max_fontsize=24, fontname=fontname, fill="white"
     )  # 达成成就
     image_bg.draw_text(
-        (410, 180, 550, 230),
+        (650, 180, 790, 230),
         str(achievement_num),
         max_fontsize=48,
         fontname=fontname,
-        fill=GRAY3,
+        fill="white",
     )  # 达成成就
     image_bg.draw_text(
-        (570, 240, 730, 270), "宝箱开启", max_fontsize=24, fontname=fontname, fill=GRAY2
+        (930, 240, 1090, 270), "宝箱开启", max_fontsize=24, fontname=fontname, fill="white"
     )  # 宝箱开启
     image_bg.draw_text(
-        (570, 180, 730, 230),
+        (930, 180, 1090, 230),
         str(chest_num),
         max_fontsize=48,
         fontname=fontname,
-        fill=GRAY3,
+        fill="white",
     )  # 宝箱开启
 
-    image_bg.draw_line((50, 290, 750, 290), fill=GRAY1, width=2)
+    image_bg.draw_line((50, 290, 1110, 290), fill="gray", width=2)
 
     image_bg.draw_text(
-        (50, 310, 210, 340), "忘却之庭", max_fontsize=24, fontname=fontname, fill=GRAY2
+        (50, 310, 210, 340), "忘却之庭", max_fontsize=24, fontname=fontname, fill="white"
     )  # 忘却之庭
     image_bg.draw_text(
-        (300, 310, 700, 340),
+        (300, 310, 1060, 340),
         str(abyss_process),
         max_fontsize=36,
         fontname=fontname,
-        fill=GRAY3,
+        fill="white",
     )  # 忘却之庭
 
-    image_bg.draw_line((50, 360, 750, 360), fill=GRAY1, width=2)
+    image_bg.draw_line((50, 360, 1110, 360), fill="gray", width=2)
 
-    # 角色部分 每五个一组
+    # 角色部分 每 6 个一组
     lines = []
-    for five_avatars in wrap_list(avatars, 4):
-        line = BuildImage.new("RGBA", (800, 240), BACKGROUND)
+    for six_avatars in wrap_list(avatars, 6):
+        line = BuildImage.new("RGBA", (1160, 240), "black")
         x_index = 50
-        for avatar in five_avatars:
-            item_image = BuildImage.new("RGBA", (160, 240), BACKGROUND)
+        for avatar in six_avatars:
+            item_image = BuildImage.new("RGBA", (160, 240), "black")
             rank = avatar["rank"]
             rarity = avatar["rarity"]
             char_icon = await get_icon(str(avatar["id"]))
@@ -160,33 +157,33 @@ async def get_srinfo_img(
                     BuildImage(char_icon)
                     .resize((100, 100))
                     .circle()
-                    .draw_arc((0, 0, 100, 100), 0, 360, width=2, fill=GRAY2)
+                    # .draw_arc((0, 0, 100, 100), 0, 360, width=2, fill="white")
                 )
-                if rarity == 5:
-                    char_icon.draw_arc((0, 0, 100, 100), 0, 360, width=4, fill=STAR5)
-                else:
-                    char_icon.draw_arc((0, 0, 100, 100), 0, 360, width=4, fill=STAR4)
+                # char_icon.draw_arc((0, 0, 100, 100), 0, 360, width=4, fill="white")
                 item_image.paste(char_icon, (30, 30), alpha=True)
             item_image.draw_text(
                 (30, 130, 130, 170),
                 level_fmt(avatar["level"]),
                 fontsize=36,
                 fontname=fontname,
-                fill=GRAY2,
+                fill="white",
             )
             if element_icon:
                 element_icon = element_icon.resize((28, 28))
                 item_image.paste(element_icon, (116, 16), alpha=True)
             if rank > 0:
                 item_image.draw_rounded_rectangle(
-                    (20, 20, 40, 40), outline=GRAY2, radius=5, width=2
+                    (20, 20, 40, 40),
+                    outline="gray",
+                    radius=5,
+                    width=2,
                 )
                 item_image.draw_text(
                     (21, 22, 40, 40),
                     str(rank),
                     max_fontsize=22,
                     fontname=fontname,
-                    fill=GRAY2,
+                    fill="white",
                 )
             if avatar["id"] in equips:
                 equip = equips[avatar["id"]]
@@ -195,36 +192,39 @@ async def get_srinfo_img(
                     equip_icon = equip_icon.resize((56, 56))
                     item_image.paste(equip_icon, (20, 170), alpha=True)
                     item_image.draw_rounded_rectangle(
-                        (94, 174, 114, 194), outline=GRAY2, radius=5, width=2
+                        (94, 174, 114, 194), outline="gray", radius=5, width=2
                     )
                     item_image.draw_text(
                         (95, 176, 114, 194),
                         str(equip["rank"]),
                         fontname=fontname,
                         max_fontsize=22,
-                        fill=GRAY2,
+                        fill="white",
                     )
                     item_image.draw_text(
                         (80, 198, 130, 226),
                         level_fmt(int(equip["level"])),
                         max_fontsize=24,
                         fontname=fontname,
-                        fill=GRAY2,
+                        fill="white",
                     )
             else:
                 text = "未装备光锥" if sr_avatar_info else "未获取光锥信息"
                 item_image.draw_text(
-                    (20, 180, 140, 220), text, fontname=fontname, fill=GRAY2
+                    (20, 180, 140, 220), text, fontname=fontname, fill="white"
                 )
             item_image.draw_rounded_rectangle(
-                (0, 0, 160, 240), radius=10, outline=GRAY2, width=3
+                (0, 0, 160, 240),
+                radius=10,
+                outline=STAR5 if rarity == 5 else STAR4,
+                width=3,
             )
             line.paste(item_image, (x_index, 0))
             x_index += 180
         lines.append(line)
 
     # 绘制总图
-    image_res = BuildImage.new("RGBA", (800, 400 + len(lines) * 260), BACKGROUND)
+    image_res = BuildImage.new("RGBA", (1160, 400 + len(lines) * 260), "black")
     image_res.paste(image_bg, (0, 0))
 
     y_index = 380
@@ -233,10 +233,10 @@ async def get_srinfo_img(
         y_index += 260
 
     image_res.draw_rectangle(
-        (10, 10, 800 - 10, 400 + len(lines) * 260 - 10), outline=GRAY3, width=6
+        (10, 10, 1160 - 10, 400 + len(lines) * 260 - 10), outline="gray", width=6
     )
     image_res.draw_rectangle(
-        (20, 20, 800 - 20, 400 + len(lines) * 260 - 20), outline=GRAY2, width=2
+        (20, 20, 1160 - 20, 400 + len(lines) * 260 - 20), outline="white", width=2
     )
 
     return image_res.save_png()

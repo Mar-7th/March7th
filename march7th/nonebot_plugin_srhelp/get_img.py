@@ -23,6 +23,7 @@ async def get_srhelp_img(plugin_info: Dict[str, Dict[str, str]]) -> Optional[Byt
     if not plugin_info:
         return None
     title = "March7th Help Menu"
+    tip = "* [] 表示需要填入的参数，补充参数后无需带 []"
     git_repo = "github.com/Mar-7th/March7th"
     cols_height: List[int] = [0, 0]
     item_image_dict: Dict[str, Dict[str, Any]] = {}
@@ -55,7 +56,10 @@ async def get_srhelp_img(plugin_info: Dict[str, Dict[str, str]]) -> Optional[Byt
     image = BuildImage.new("RGBA", (1060, 180 + max(cols_height)), BACKGROUND)
     image.draw_text((60, 30), title, fontsize=56, weight="bold", **font_args)
     image.draw_text(
-        (700, image.height - 40), git_repo, fontsize=20, weight="bold", **font_args
+        (700, image.height - 60), tip, fontsize=16, weight="bold", **font_args
+    )
+    image.draw_text(
+        (700, image.height - 30), git_repo, fontsize=20, weight="bold", **font_args
     )
     for k, v in item_image_dict.items():
         image.paste(v["image"], (v["x"], v["y"]))

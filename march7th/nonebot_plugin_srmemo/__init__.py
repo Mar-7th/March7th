@@ -27,7 +27,7 @@ except ModuleNotFoundError:
         set_user_fp,
     )
 
-from .get_img import get_srmemo_img, get_srmonth_img
+from .data_source import get_srmemo_img, get_srmonth_img
 
 __plugin_meta__ = PluginMetadata(
     name="StarRailMemo",
@@ -46,9 +46,9 @@ __plugin_meta__ = PluginMetadata(
 )
 
 error_code_msg = {
-    1034: "查询遇验证码，请手动在米游社验证后查询",
+    1034: "查询遇验证码",
     10001: "绑定cookie失效，请重新绑定",
-    -10001: "请求出错，请尝试重新使用`srqr`绑定",
+    -10001: "请求出错，请稍后重试",
 }
 
 srmemo = on_command(

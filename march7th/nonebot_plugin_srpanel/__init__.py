@@ -20,7 +20,7 @@ except ModuleNotFoundError:
     from nonebot_plugin_srres import srres
 
 from .get_img import get_srpanel_img
-from .models import (
+from .model import (
     ScoreFile,
     get_srpanel_character,
     get_srpanel_player,
@@ -76,8 +76,7 @@ async def _():
     else:
         score = score_file
         msg_builder = MessageFactory([Text("『崩坏：星穹铁道』遗器评分标准更新完成")])
-    await msg_builder.send()
-    await srsupdate.finish()
+    await msg_builder.finish()
 
 
 srpu = on_command(
@@ -95,11 +94,10 @@ async def _(bot: Bot, event: Event):
     if not user_list:
         msg = "未绑定SRUID，请使用`sruid [uid]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.send(at_sender=True)
-        await srpu.finish()
+        await msg_builder.finish(at_sender=True)
     sr_uid = user_list[0].sr_uid
-    logger.info(f"正在更新SRUID『{sr_uid}』角色面板")
-    msg_builder = MessageFactory([Text(f"正在更新SRUID『{sr_uid}』角色面板")])
+    logger.info(f"开始更新SRUID『{sr_uid}』角色面板")
+    msg_builder = MessageFactory([Text(f"开始更新SRUID『{sr_uid}』角色面板")])
     await msg_builder.send(at_sender=True)
     updated = await update_srpanel(bot.self_id, event.get_user_id(), sr_uid)
     if updated:
@@ -107,8 +105,7 @@ async def _(bot: Bot, event: Event):
         msg_builder = MessageFactory([Text(msg)])
     else:
         msg_builder = MessageFactory([Text("角色面板更新失败，请稍后重试")])
-    await msg_builder.send(at_sender=True)
-    await srpu.finish()
+    await msg_builder.finish(at_sender=True)
 
 
 @srpanel.handle()
@@ -125,8 +122,7 @@ async def _(bot: Bot, event: Event, regex_dict: dict = RegexDict()):
     if not user_list:
         msg = "未绑定SRUID，请使用`sruid [uid]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.send(at_sender=True)
-        await srpanel.finish()
+        await msg_builder.finish(at_sender=True)
     sr_uid = user_list[0].sr_uid
     if str(cid).startswith("80"):
         cid = "8000"
@@ -135,8 +131,7 @@ async def _(bot: Bot, event: Event, regex_dict: dict = RegexDict()):
         name = srres.ResIndex["characters"][cid]["name"] if cid != "8000" else "开拓者"
         msg = f"未找到『{name}』的面板，请使用`srpu`更新面板"
         msg_builder = MessageFactory([Text(msg)])
-        await msg_builder.send(at_sender=True)
-        await srpanel.finish()
+        await msg_builder.finish(at_sender=True)
     player_info = await get_srpanel_player(bot.self_id, event.get_user_id(), sr_uid)
     if player_info:
         try:
@@ -148,10 +143,8 @@ async def _(bot: Bot, event: Event, regex_dict: dict = RegexDict()):
             logger.exception(e)
     else:
         img = None
-    if img:
-        msg_builder = MessageFactory([Image(img)])
-        await msg_builder.send()
-    else:
+    if img is None:
         msg_builder = MessageFactory([Text("绘图出错，请使用`srpu`更新面板")])
-        await msg_builder.send(at_sender=True)
-    await srpanel.finish()
+        await msg_builder.finish(at_sender=True)
+    msg_builder = MessageFactory([Image(img)])
+    await msg_builder.finish()

@@ -9,13 +9,6 @@ try:
 except ModuleNotFoundError:
     from nonebot_plugin_srres import srres
 
-BACKGROUND = (248, 248, 248)
-GRAY1 = (200, 200, 200)
-GRAY2 = (100, 100, 100)
-GRAY3 = (75, 75, 75)
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-
 fontname = srres.get_font()
 
 
@@ -50,30 +43,34 @@ async def get_srmemo_img(sr_uid, sr_basic_info, sr_note) -> Optional[BytesIO]:
             expeditions.append(expedition)
 
     # 绘制图片
-    image_bg = BuildImage.new("RGBA", (800, 260), BACKGROUND)
+    image_bg = BuildImage.new("RGBA", (800, 260), "black")
 
     image_bg.draw_text(
-        (60, 50), nickname, fontsize=48, fontname=fontname, fill=GRAY3
+        (60, 50), nickname, fontsize=48, fontname=fontname, fill="white"
     )  # Nickname
     image_bg.draw_text(
-        (60, 110), f"UID {sr_uid}", fontsize=24, fontname=fontname, fill=GRAY3
+        (60, 110), f"UID {sr_uid}", fontsize=24, fontname=fontname, fill="white"
     )  # UID
     image_bg.draw_text(
-        (600, 50, 700, 140), str(level), max_fontsize=72, fontname=fontname, fill=GRAY3
+        (600, 50, 700, 140),
+        str(level),
+        max_fontsize=72,
+        fontname=fontname,
+        fill="white",
     )  # 开拓等级
 
-    image_bg.draw_line((50, 150, 750, 150), fill=GRAY1, width=2)
+    image_bg.draw_line((50, 150, 750, 150), fill="gray", width=2)
 
     # 开拓力
     image_bg.draw_text(
-        (50, 190, 180, 220), "开拓力", max_fontsize=24, fontname=fontname, fill=GRAY2
+        (50, 190, 180, 220), "开拓力", max_fontsize=24, fontname=fontname, fill="white"
     )
     image_bg.draw_text(
         (200, 170, 480, 230),
         stamina_str,
         max_fontsize=54,
         fontname=fontname,
-        fill=GRAY3,
+        fill="white",
     )
     if stamina == max_stamina:
         image_bg.draw_text(
@@ -81,7 +78,7 @@ async def get_srmemo_img(sr_uid, sr_basic_info, sr_note) -> Optional[BytesIO]:
             "已回满",
             max_fontsize=24,
             fontname=fontname,
-            fill=GRAY2,
+            fill="white",
         )
     else:
         image_bg.draw_text(
@@ -89,20 +86,22 @@ async def get_srmemo_img(sr_uid, sr_basic_info, sr_note) -> Optional[BytesIO]:
             f"{stamina_recovery_time} 后回满",
             max_fontsize=24,
             fontname=fontname,
-            fill=GRAY2,
+            fill="white",
         )
 
-    image_bg.draw_line((50, 250, 750, 250), fill=GRAY1, width=2)
+    image_bg.draw_line((50, 250, 750, 250), fill="gray", width=2)
 
     # 派遣列表
     lines = []
     for expedition in expeditions:
         name = expedition["name"]
         remaining_time: str = time_fmt(expedition["remaining_time"])
-        line = BuildImage.new("RGBA", (800, 60), BACKGROUND)
-        line.draw_rounded_rectangle((50, 0, 750, 60), radius=10, outline=GRAY1, width=2)
+        line = BuildImage.new("RGBA", (800, 60), "black")
+        line.draw_rounded_rectangle(
+            (50, 0, 750, 60), radius=10, outline="gray", width=2
+        )
         line.draw_text(
-            (60, 0, 400, 60), name, max_fontsize=24, fontname=fontname, fill=GRAY3
+            (60, 0, 400, 60), name, max_fontsize=24, fontname=fontname, fill="white"
         )
         if int(expedition["remaining_time"]) == 0:
             line.draw_text(
@@ -110,7 +109,7 @@ async def get_srmemo_img(sr_uid, sr_basic_info, sr_note) -> Optional[BytesIO]:
                 f"已完成",
                 max_fontsize=24,
                 fontname=fontname,
-                fill=GRAY3,
+                fill="white",
             )
         else:
             line.draw_text(
@@ -118,13 +117,13 @@ async def get_srmemo_img(sr_uid, sr_basic_info, sr_note) -> Optional[BytesIO]:
                 f"剩余 {remaining_time}",
                 max_fontsize=24,
                 fontname=fontname,
-                fill=GRAY3,
+                fill="white",
             )
         lines.append(line)
 
     # 绘制总图
     height = 300 + len(lines) * 80
-    image_res = BuildImage.new("RGBA", (800, height), BACKGROUND)
+    image_res = BuildImage.new("RGBA", (800, height), "black")
     image_res.paste(image_bg, (0, 0))
 
     y_index = 280
@@ -132,8 +131,8 @@ async def get_srmemo_img(sr_uid, sr_basic_info, sr_note) -> Optional[BytesIO]:
         image_res.paste(line, (0, y_index), alpha=True)
         y_index += 80
 
-    image_res.draw_rectangle((10, 10, 800 - 10, height - 10), outline=GRAY3, width=6)
-    image_res.draw_rectangle((20, 20, 800 - 20, height - 20), outline=GRAY2, width=2)
+    image_res.draw_rectangle((10, 10, 800 - 10, height - 10), outline="gray", width=6)
+    image_res.draw_rectangle((20, 20, 800 - 20, height - 20), outline="white", width=2)
 
     return image_res.save_png()
 
@@ -178,29 +177,33 @@ async def get_srmonth_img(sr_uid, sr_basic_info, sr_month) -> Optional[BytesIO]:
         group_by += f"{i['action_name']}：{i['num']}（{i['percent']}%）\n"
 
     # 绘制图片
-    image_bg = BuildImage.new("RGBA", (800, 800), BACKGROUND)
+    image_bg = BuildImage.new("RGBA", (800, 800), "black")
     image_bg.draw_text(
-        (60, 50), nickname, fontsize=48, fontname=fontname, fill=GRAY3
+        (60, 50), nickname, fontsize=48, fontname=fontname, fill="white"
     )  # Nickname
     image_bg.draw_text(
-        (60, 110), f"UID {sr_uid}", fontsize=24, fontname=fontname, fill=GRAY3
+        (60, 110), f"UID {sr_uid}", fontsize=24, fontname=fontname, fill="white"
     )  # UID
     image_bg.draw_text(
-        (600, 50, 700, 140), str(level), max_fontsize=72, fontname=fontname, fill=GRAY3
+        (600, 50, 700, 140),
+        str(level),
+        max_fontsize=72,
+        fontname=fontname,
+        fill="white",
     )  # 开拓等级
-    image_bg.draw_line((50, 150, 750, 150), fill=GRAY1, width=2)
+    image_bg.draw_line((50, 150, 750, 150), fill="gray", width=2)
 
     image_bg.draw_text(
-        (50, 190, 160, 220), "本日获取", max_fontsize=24, fontname=fontname, fill=GRAY2
+        (50, 190, 160, 220), "本日获取", max_fontsize=24, fontname=fontname, fill="white"
     )
     image_bg.draw_text(
-        (50, 260, 160, 290), "昨日获取", max_fontsize=24, fontname=fontname, fill=GRAY2
+        (50, 260, 160, 290), "昨日获取", max_fontsize=24, fontname=fontname, fill="white"
     )
     image_bg.draw_text(
-        (50, 330, 160, 360), "本月获取", max_fontsize=24, fontname=fontname, fill=GRAY2
+        (50, 330, 160, 360), "本月获取", max_fontsize=24, fontname=fontname, fill="white"
     )
     image_bg.draw_text(
-        (50, 400, 160, 430), "上月获取", max_fontsize=24, fontname=fontname, fill=GRAY2
+        (50, 400, 160, 430), "上月获取", max_fontsize=24, fontname=fontname, fill="white"
     )
 
     y_index = 170
@@ -211,53 +214,53 @@ async def get_srmonth_img(sr_uid, sr_basic_info, sr_month) -> Optional[BytesIO]:
             str(data["hcoin"]),
             max_fontsize=48,
             fontname=fontname,
-            fill=GRAY3,
+            fill="white",
         )
         image_bg.draw_text(
             (350, y_index + 20, 450, y_index + 40),
             "星琼",
             max_fontsize=24,
             fontname=fontname,
-            fill=GRAY2,
+            fill="white",
         )
         image_bg.draw_text(
             (450, y_index, 550, y_index + 60),
             str(data["pass"]),
             max_fontsize=48,
             fontname=fontname,
-            fill=GRAY3,
+            fill="white",
         )
         image_bg.draw_text(
             (550, y_index + 20, 750, y_index + 40),
             "星轨通票&星轨专票",
             max_fontsize=24,
             fontname=fontname,
-            fill=GRAY2,
+            fill="white",
         )
         y_index = y_index + 70
 
-    image_bg.draw_line((50, 450, 750, 450), fill=GRAY1, width=2)
+    image_bg.draw_line((50, 450, 750, 450), fill="gray", width=2)
 
     y_index = 480
     for line in group_by.split("\n"):
         image_bg.draw_text(
-            (60, y_index), line, fontsize=24, fontname=fontname, fill=GRAY2
+            (60, y_index), line, fontsize=24, fontname=fontname, fill="white"
         )
         y_index = y_index + 40
 
     image_bg.draw_text(
-        (500, 520, 720, 620), "开 拓", max_fontsize=100, fontname=fontname, fill=GRAY2
+        (500, 520, 720, 620), "开 拓", max_fontsize=100, fontname=fontname, fill="white"
     )
     image_bg.draw_text(
-        (500, 620, 720, 720), "月 历", max_fontsize=100, fontname=fontname, fill=GRAY2
+        (500, 620, 720, 720), "月 历", max_fontsize=100, fontname=fontname, fill="white"
     )
     image_bg.draw_rounded_rectangle(
-        (480, 500, 740, 740), outline=GRAY2, width=2, radius=20
+        (480, 500, 740, 740), outline="gray", width=2, radius=20
     )
-    image_bg.draw_line((600, 620, 620, 620), fill=GRAY2)
-    image_bg.draw_line((610, 610, 610, 630), fill=GRAY2)
+    image_bg.draw_line((600, 620, 620, 620), fill="white")
+    image_bg.draw_line((610, 610, 610, 630), fill="white")
 
-    image_bg.draw_rectangle((10, 10, 800 - 10, 800 - 10), outline=GRAY3, width=6)
-    image_bg.draw_rectangle((20, 20, 800 - 20, 800 - 20), outline=GRAY2, width=2)
+    image_bg.draw_rectangle((10, 10, 800 - 10, 800 - 10), outline="gray", width=6)
+    image_bg.draw_rectangle((20, 20, 800 - 20, 800 - 20), outline="white", width=2)
 
     return image_bg.save_png()

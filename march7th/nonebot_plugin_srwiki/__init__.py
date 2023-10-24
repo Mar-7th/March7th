@@ -85,5 +85,5 @@ async def _(regex_dict: dict = RegexDict()):
         pic_content = await srres.get_relic_set_overview(wiki_name)
     if pic_content:
         msg_builder = MessageFactory([Image(pic_content)])
-        await msg_builder.send(at_sender=True)
+        await msg_builder.finish(at_sender=True)
     await wiki_search.finish()

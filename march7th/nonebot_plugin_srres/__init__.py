@@ -51,5 +51,4 @@ async def _():
         msg_builder = MessageFactory([Text("『崩坏：星穹铁道』游戏资源列表更新失败，请查看控制台输出")])
     else:
         msg_builder = MessageFactory([Text("『崩坏：星穹铁道』游戏资源列表更新完成")])
-    await msg_builder.send()
-    await sr_update.finish()
+    await msg_builder.finish()
