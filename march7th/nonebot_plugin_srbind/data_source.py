@@ -3,23 +3,61 @@ from typing import List
 
 import qrcode
 from nonebot_plugin_datastore import create_session
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 from .model import UserBind
 
 
 async def set_user_srbind(user: UserBind) -> None:
     select_user = await get_user_srbind(user.bot_id, user.user_id)
-    async with create_session() as session:
-        for old_user in select_user:
-            if user.user_id != "0":
-                await session.delete(old_user)
-            elif user.cookie == old_user.cookie:
-                await session.delete(old_user)
-        await session.commit()
-    async with create_session() as session:
-        session.add(user)
-        await session.commit()
+    update_flag = False
+    for old_user in select_user:
+        if user.user_id != "0":
+            # not public user
+            if user.sr_uid != old_user.sr_uid:
+                # delete origin user
+                async with create_session() as session:
+                    await session.delete(old_user)
+                    await session.commit()
+            else:
+                # update user
+                statement = (
+                    update(UserBind)
+                    .where(UserBind.bot_id == user.bot_id)
+                    .where(UserBind.user_id == user.user_id)
+                    .where(UserBind.sr_uid == user.sr_uid)
+                    .values(mys_id=user.mys_id)
+                    .values(device_id=user.device_id)
+                    .values(device_fp=user.device_fp)
+                    .values(cookie=user.cookie)
+                    .values(stoken=user.stoken)
+                )
+                async with create_session() as session:
+                    await session.execute(statement)
+                    await session.commit()
+                update_flag = True
+        else:
+            # public user
+            if user.cookie == old_user.cookie:
+                statement = (
+                    update(UserBind)
+                    .where(UserBind.bot_id == user.bot_id)
+                    .where(UserBind.user_id == user.user_id)
+                    .where(UserBind.sr_uid == user.sr_uid)
+                    .values(mys_id=user.mys_id)
+                    .values(device_id=user.device_id)
+                    .values(device_fp=user.device_fp)
+                    .values(cookie=user.cookie)
+                    .values(stoken=user.stoken)
+                )
+                async with create_session() as session:
+                    await session.execute(statement)
+                    await session.commit()
+                update_flag = True
+    if not update_flag:
+        async with create_session() as session:
+            session.add(user)
+            await session.commit()
 
 
 async def del_user_srbind(bot_id: str, user_id: str, sr_uid: str) -> None:
