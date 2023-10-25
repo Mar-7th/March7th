@@ -110,7 +110,7 @@ async def _(bot: Bot, event: Event):
         msg_builder = MessageFactory([Image(img)])
     else:
         msg_builder = MessageFactory([Text("图片绘制失败，请稍后重试")])
-    await msg_builder.finish(at_sender=True)
+    await msg_builder.finish()
 
 
 @srmonth.handle()
@@ -160,4 +160,4 @@ async def _(bot: Bot, event: Event):
         msg_builder = MessageFactory([Image(img)])
     else:
         msg_builder = MessageFactory([Text("图片绘制失败，请稍后重试")])
-    await msg_builder.finish(at_sender=True)
+    await msg_builder.finish()
