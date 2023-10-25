@@ -1,0 +1,100 @@
+from nonebot import on_command, require
+from nonebot.adapters import Bot, Event, Message
+from nonebot.log import logger
+from nonebot.plugin import PluginMetadata
+from nonebot.params import CommandArg
+
+require("nonebot_plugin_saa")
+require("nonebot_plugin_srbind")
+require("nonebot_plugin_srres")
+
+from nonebot_plugin_saa import Image, MessageFactory, Text
+
+try:
+    from march7th.nonebot_plugin_srbind import get_user_srbind
+except ModuleNotFoundError:
+    from nonebot_plugin_srbind import get_user_srbind
+
+from .data_source import update_srgacha, get_srgacha
+
+__plugin_meta__ = PluginMetadata(
+    name="StarRailGacha",
+    description="崩坏：星穹铁道抽卡记录查询",
+    usage="""\
+导入: 导入抽卡记录 [抽卡记录URL]
+查看: 查看抽卡记录
+""",
+    extra={
+        "version": "1.0",
+        "srhelp": """\
+导入: 导入抽卡记录 [u]抽卡记录URL[/u]
+查看: 查看抽卡记录
+""",
+    },
+)
+
+srgu = on_command(
+    "srgu",
+    aliases={"导入抽卡记录", "更新抽卡记录", "导入星铁抽卡记录", "更新星铁抽卡记录"},
+    priority=2,
+    block=True,
+)
+srgc = on_command(
+    "srgc",
+    aliases={"查看抽卡记录", "查询抽卡记录", "查看星铁抽卡记录", "查询星铁抽卡记录"},
+    priority=2,
+    block=True,
+)
+
+HELP_MESSAGE = """\
+请在命令后跟上抽卡记录链接，在 PC 上查看抽卡记录界面后在 PowerShell 运行以下代码获取链接：
+
+[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12; Invoke-Expression (New-Object Net.WebClient).DownloadString("https://gist.githubusercontent.com/Star-Rail-Station/2512df54c4f35d399cc9abbde665e8f0/raw/get_warp_link_cn.ps1?cachebust=srs")
+"""
+
+
+@srgu.handle()
+async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
+    url = arg.extract_plain_text()
+    if (
+        not url
+        or not url.startswith(
+            "https://api-takumi.mihoyo.com/common/gacha_record/api/getGachaLog"
+        )
+        or "authkey=" not in url
+    ):
+        msg_builder = MessageFactory([Text(HELP_MESSAGE)])
+        await msg_builder.finish(at_sender=True)
+    user_list = await get_user_srbind(bot.self_id, event.get_user_id())
+    if not user_list:
+        msg = "未绑定SRUID，请使用`sruid [uid]`绑定或`srqr`扫码绑定"
+        msg_builder = MessageFactory([Text(str(msg))])
+        await msg_builder.finish(at_sender=True)
+    sr_uid = user_list[0].sr_uid
+    logger.info(f"开始更新SRUID『{sr_uid}』抽卡记录")
+    msg_builder = MessageFactory([Text(f"开始更新SRUID『{sr_uid}』抽卡记录")])
+    await msg_builder.send(at_sender=True)
+    message = await update_srgacha(bot.self_id, event.get_user_id(), sr_uid, url)
+    msg_builder = MessageFactory([Text(message)])
+    await msg_builder.finish(at_sender=True)
+
+
+@srgc.handle()
+async def _(bot: Bot, event: Event):
+    user_list = await get_user_srbind(bot.self_id, event.get_user_id())
+    if not user_list:
+        msg = "未绑定SRUID，请使用`sruid [uid]`绑定或`srqr`扫码绑定"
+        msg_builder = MessageFactory([Text(str(msg))])
+        await msg_builder.finish(at_sender=True)
+    sr_uid = user_list[0].sr_uid
+    try:
+        img = await get_srgacha(bot.self_id, event.get_user_id(), sr_uid)
+    except Exception as e:
+        img = None
+        logger.warning(f"绘图出错：{e}")
+        logger.exception(e)
+    if img is None:
+        msg_builder = MessageFactory([Text("绘图出错，请更新抽卡记录")])
+        await msg_builder.finish(at_sender=True)
+    msg_builder = MessageFactory([Image(img)])
+    await msg_builder.finish()
