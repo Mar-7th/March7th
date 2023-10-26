@@ -231,7 +231,7 @@ def analyze_gacha(gacha: Dict[str, GachaLogItem]) -> Dict[str, Any]:
             counter_5_up += 1
             counter_5 += 1
             counter_4 += 1
-    result["items"] = items
+    result["items"] = dict(sorted(items.items(), reverse=True))
     result["avg_5_up_cost"] = (
         sum(counter_5_up_list) / len(counter_5_up_list) if counter_5_up_list else 0
     )
@@ -288,18 +288,24 @@ async def get_srgacha(bot_id: str, user_id: str, sr_uid: str) -> Optional[BytesI
     num_star5_lce = len(star5_lce)
     num_total = num_c + num_b + num_ce + num_lce
     num_star5_total = num_star5_c + num_star5_b + num_star5_ce + num_star5_lce
-    avg_star5_cost = int(
-        (num_total - count_5_total) / num_star5_total if num_star5_total else 0
+    avg_star5_cost = (
+        round((num_total - count_5_total) / num_star5_total, 1)
+        if num_star5_total
+        else 0
     )
-    avg_star5_cost_c = (num_c - common["counter_5"]) / num_star5_c if num_star5_c else 0
+    avg_star5_cost_c = (
+        round((num_c - common["counter_5"]) / num_star5_c, 1) if num_star5_c else 0
+    )
     avg_star5_cost_b = (
-        (num_b - beginner["counter_5"]) / num_star5_b if num_star5_b else 0
+        round((num_b - beginner["counter_5"]) / num_star5_b, 1) if num_star5_b else 0
     )
     avg_star5_cost_ce = (
-        (num_ce - character_event["counter_5"]) / num_star5_ce if num_star5_ce else 0
+        round((num_ce - character_event["counter_5"]) / num_star5_ce, 1)
+        if num_star5_ce
+        else 0
     )
     avg_star5_cost_lce = (
-        (num_lce - light_cone_event["counter_5"]) / num_star5_lce
+        round((num_lce - light_cone_event["counter_5"]) / num_star5_lce, 1)
         if num_star5_lce
         else 0
     )
