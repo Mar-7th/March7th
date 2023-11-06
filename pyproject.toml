@@ -1,7 +1,8 @@
 [tool.nonebot]
 adapters = [
     { name = "OneBot V11", module_name = "nonebot.adapters.onebot.v11" },
-    { name = "OneBot V12", module_name = "nonebot.adapters.onebot.v12" }
+    { name = "OneBot V12", module_name = "nonebot.adapters.onebot.v12" },
+    { name = "RedProtocol", module_name = "nonebot.adapters.red" }
 ]
 plugins = []
 plugin_dirs = ["march7th"]
