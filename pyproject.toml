@@ -10,7 +10,7 @@ builtin_plugins = []
 
 [tool.poetry]
 name = "march7th"
-version = "0.1.0"
+version = "0.2.0"
 description = "March7th - Honkai Star Rail bot based on Nonebot2."
 authors = ["mobyw <mobyw66@gmail.com>"]
 readme = "README.md"
