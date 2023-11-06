@@ -490,10 +490,14 @@ async def get_srpanel_img(
                 y_index_item = y_index_item + 30
             if cid in score.keys() and relic_info.main_affix:
                 relic_item_score = (
-                    relic_item_score / score[cid].max * 0.5
-                    + score[cid].main[relic_type][relic_info.main_affix.type]
-                    * ((relic_info.level + 1) / 16)
-                    * 0.5
+                    (
+                        relic_item_score / score[cid].max * 0.5
+                        + score[cid].main[relic_type][relic_info.main_affix.type]
+                        * ((relic_info.level + 1) / 16)
+                        * 0.5
+                    )
+                    if score[cid].max
+                    else 0
                 )
                 relic_score[relic_info.id] = relic_item_score * 10
                 score_disp = format(relic_score[relic_info.id], ".1f")
