@@ -7,14 +7,14 @@ ci:
   autoupdate_commit_msg: ":arrow_up: Auto update by pre-commit hooks"
 repos:
   - repo: https://github.com/hadialqattan/pycln
-    rev: v2.2.2
+    rev: v2.3.0
     hooks:
       - id: pycln
         args: [--config, pyproject.toml]
         stages: [commit]
 
   - repo: https://github.com/psf/black
-    rev: 23.9.1
+    rev: 23.10.1
     hooks:
       - id: black
         stages: [commit]
