@@ -274,11 +274,11 @@ async def request(url: str) -> Optional[Dict]:
         headers={"User-Agent": "Mar-7th/March7th"},
         timeout=10,
     )
-    response = await driver.request(request)
     try:
+        response = await driver.request(request)
         data = json.loads(response.content or "{}")
         return data
-    except (json.JSONDecodeError, KeyError):
+    except:
         return None
 
 
