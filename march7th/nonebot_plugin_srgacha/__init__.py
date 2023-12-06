@@ -92,7 +92,7 @@ async def _(bot: Bot, event: Event):
         logger.warning(f"绘图出错：{e}")
         logger.exception(e)
     if img is None:
-        msg_builder = MessageFactory([Text("绘图出错，请更新抽卡记录")])
+        msg_builder = MessageFactory([Text("请先使用 导入抽卡记录 命令导入抽卡记录")])
         await msg_builder.finish(at_sender=True)
     msg_builder = MessageFactory([Image(img)])
     await msg_builder.finish()
