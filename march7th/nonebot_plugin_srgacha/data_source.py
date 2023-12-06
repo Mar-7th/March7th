@@ -126,7 +126,7 @@ async def save_gacha(gacha: UserGachaLog):
             statement = (
                 update(UserGachaLog)
                 .where(UserGachaLog.id == select_gacha.id)
-                .values(gacha=gacha)
+                .values(gacha=gacha.gacha)
             )
             await session.execute(statement)
         else:
