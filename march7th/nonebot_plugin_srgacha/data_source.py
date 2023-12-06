@@ -116,21 +116,21 @@ async def get_gacha(bot_id: str, user_id: str, sr_uid: str) -> Optional[UserGach
     return record
 
 
-async def save_gacha(gatcha: UserGachaLog):
+async def save_gacha(gacha: UserGachaLog):
     """
     Save gacha to database
     """
-    select_gatcha = await get_gacha(gatcha.bot_id, gatcha.user_id, gatcha.sr_uid)
+    select_gacha = await get_gacha(gacha.bot_id, gacha.user_id, gacha.sr_uid)
     async with create_session() as session:
-        if select_gatcha:
+        if select_gacha:
             statement = (
                 update(UserGachaLog)
-                .where(UserGachaLog.id == select_gatcha.id)
-                .values(gatcha=gatcha)
+                .where(UserGachaLog.id == select_gacha.id)
+                .values(gacha=gacha)
             )
             await session.execute(statement)
         else:
-            session.add(gatcha)
+            session.add(gacha)
         await session.commit()
 
 
