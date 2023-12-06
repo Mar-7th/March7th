@@ -47,10 +47,8 @@ srgc = on_command(
 )
 
 HELP_MESSAGE = """\
-请在命令后跟上抽卡记录链接，在 PC 上查看抽卡记录界面后在 PowerShell 运行以下代码获取链接：
-
-[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12; Invoke-Expression (New-Object Net.WebClient).DownloadString("https://gist.githubusercontent.com/Star-Rail-Station/2512df54c4f35d399cc9abbde665e8f0/raw/get_warp_link_cn.ps1?cachebust=srs")
-"""
+请在命令后跟上抽卡记录链接，获取链接的教程:
+docs.qq.com/doc/p/9c830f3e9398aaaf68d1eba225eead983947d2db"""
 
 
 @srgu.handle()
