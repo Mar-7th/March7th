@@ -1,11 +1,11 @@
-from copy import deepcopy
-import hashlib
 import json
-import random
-import string
 import time
 import uuid
-from typing import Any, Dict, Literal, Optional, Tuple, Union
+import random
+import string
+import hashlib
+from copy import deepcopy
+from typing import Any, Dict, Tuple, Union, Literal, Optional
 
 from nonebot import get_driver
 from nonebot.log import logger
@@ -483,7 +483,7 @@ class MysApi:
         try:
             data = json.loads(response.content or "{}")
         except json.JSONDecodeError:
-            logger.warning(f"API call failed")
+            logger.warning("API call failed")
             logger.warning(f"Response: {response.status_code} {response.content}")
             data = None
         return data

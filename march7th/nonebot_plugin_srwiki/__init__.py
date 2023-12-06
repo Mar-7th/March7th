@@ -1,13 +1,11 @@
-import random
-
-from nonebot import on_regex, require
 from nonebot.params import RegexDict
+from nonebot import require, on_regex
 from nonebot.plugin import PluginMetadata
 
 require("nonebot_plugin_saa")
 require("nonebot_plugin_srres")
 
-from nonebot_plugin_saa import Image, MessageFactory, Text
+from nonebot_plugin_saa import Image, MessageFactory
 
 try:
     from march7th.nonebot_plugin_srres import srres

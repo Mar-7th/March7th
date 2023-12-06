@@ -1,11 +1,11 @@
-from nonebot import on_command, require
-from nonebot.plugin import PluginMetadata, on_command
+from nonebot import require, on_command
+from nonebot.plugin import PluginMetadata
 
 from .data_source import get_code_msg
 
 require("nonebot_plugin_saa")
 
-from nonebot_plugin_saa import MessageFactory, Text
+from nonebot_plugin_saa import Text, MessageFactory
 
 __plugin_meta__ = PluginMetadata(
     name="StarRailCode",
@@ -28,7 +28,7 @@ srcode = on_command("srcode", aliases={"星铁兑换码"})
 async def _():
     try:
         codes = await get_code_msg()
-    except:
+    except Exception:
         codes = "获取前瞻兑换码失败"
     msg_builder = MessageFactory([Text(str(codes))])
     await msg_builder.finish(at_sender=True)

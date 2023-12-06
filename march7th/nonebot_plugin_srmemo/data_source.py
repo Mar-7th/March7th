@@ -1,7 +1,6 @@
 from io import BytesIO
 from typing import Optional
 
-from PIL import Image
 from pil_utils import BuildImage
 
 try:
@@ -106,7 +105,7 @@ async def get_srmemo_img(sr_uid, sr_basic_info, sr_note) -> Optional[BytesIO]:
         if int(expedition["remaining_time"]) == 0:
             line.draw_text(
                 (400, 0, 700, 60),
-                f"已完成",
+                "已完成",
                 max_fontsize=24,
                 fontname=fontname,
                 fill="white",

@@ -1,6 +1,6 @@
-from nonebot import on_command, require
-from nonebot.adapters import Bot, Event
 from nonebot.log import logger
+from nonebot import require, on_command
+from nonebot.adapters import Bot, Event
 from nonebot.plugin import PluginMetadata
 
 require("nonebot_plugin_saa")
@@ -8,16 +8,16 @@ require("nonebot_plugin_mys_api")
 require("nonebot_plugin_srbind")
 require("nonebot_plugin_srres")
 
-from nonebot_plugin_saa import Image, MessageFactory, Text
+from nonebot_plugin_saa import Text, Image, MessageFactory
 
 try:
     from march7th.nonebot_plugin_mys_api import MysApi
     from march7th.nonebot_plugin_srbind import get_user_srbind
     from march7th.nonebot_plugin_srbind.cookie import (  # set_cookie_expire,
-        get_public_cookie_with_fp,
-        get_user_cookie_with_fp,
-        set_public_fp,
         set_user_fp,
+        set_public_fp,
+        get_user_cookie_with_fp,
+        get_public_cookie_with_fp,
     )
 except ModuleNotFoundError:
     from nonebot_plugin_mys_api import MysApi
@@ -104,7 +104,7 @@ async def _(bot: Bot, event: Event):
     # cookie expire if avatar_id is None
     if not avatar_id:
         if public_cookie_flag:
-            logger.warning(f"公共cookie已失效")
+            logger.warning("公共cookie已失效")
             msg = "公共cookie已失效，请使用`srqr`扫码绑定账号"
             msg_builder = MessageFactory([Text(str(msg))])
         else:

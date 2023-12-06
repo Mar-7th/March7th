@@ -2,8 +2,8 @@ from io import BytesIO
 from typing import List
 
 import qrcode
-from nonebot_plugin_datastore import create_session
 from sqlalchemy import select, update
+from nonebot_plugin_datastore import create_session
 
 from .model import UserBind
 

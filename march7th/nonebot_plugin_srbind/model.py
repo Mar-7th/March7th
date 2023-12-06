@@ -1,8 +1,8 @@
 from typing import Optional
 
-from nonebot_plugin_datastore import PluginData, get_plugin_data
 from sqlalchemy import TEXT, String
 from sqlalchemy.orm import Mapped, mapped_column
+from nonebot_plugin_datastore import PluginData, get_plugin_data
 
 plugin_data: PluginData = get_plugin_data()
 Model = plugin_data.Model

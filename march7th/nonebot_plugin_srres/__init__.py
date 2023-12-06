@@ -1,14 +1,14 @@
-from nonebot import get_driver, on_command, require
 from nonebot.log import logger
 from nonebot.permission import SUPERUSER
 from nonebot.plugin import PluginMetadata
+from nonebot import require, get_driver, on_command
 
 require("nonebot_plugin_apscheduler")
 require("nonebot_plugin_datastore")
 require("nonebot_plugin_saa")
 
-from nonebot_plugin_saa import MessageFactory, Text
 from nonebot_plugin_apscheduler import scheduler
+from nonebot_plugin_saa import Text, MessageFactory
 
 from .data_source import StarRailRes
 

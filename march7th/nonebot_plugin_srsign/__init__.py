@@ -1,27 +1,27 @@
 from typing import List
-from nonebot import require
-from nonebot import on_command
-from nonebot.adapters import Bot, Event
+
 from nonebot.log import logger
+from nonebot import require, on_command
+from nonebot.adapters import Bot, Event
 from nonebot.plugin import PluginMetadata
 
 require("nonebot_plugin_saa")
 require("nonebot_plugin_mys_api")
 require("nonebot_plugin_srbind")
 
-from nonebot_plugin_saa import MessageFactory, Text
+from nonebot_plugin_saa import Text, MessageFactory
 
 try:
     from march7th.nonebot_plugin_mys_api import MysApi
     from march7th.nonebot_plugin_srbind import get_user_srbind
     from march7th.nonebot_plugin_srbind.cookie import (
-        get_user_cookie_with_fp,
         set_user_fp,
+        get_user_cookie_with_fp,
     )
 except ModuleNotFoundError:
     from nonebot_plugin_mys_api import MysApi
     from nonebot_plugin_srbind import get_user_srbind
-    from nonebot_plugin_srbind.cookie import get_user_cookie_with_fp, set_user_fp
+    from nonebot_plugin_srbind.cookie import set_user_fp, get_user_cookie_with_fp
 
 __plugin_meta__ = PluginMetadata(
     name="StarRailSign",

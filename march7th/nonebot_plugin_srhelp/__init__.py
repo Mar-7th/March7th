@@ -1,13 +1,13 @@
-from typing import Dict, Set
+from typing import Set, Dict
 
-from nonebot import on_command, require
 from nonebot.log import logger
+from nonebot import require, on_command
 from nonebot.plugin import Plugin, PluginMetadata, get_loaded_plugins
 
 require("nonebot_plugin_saa")
 require("nonebot_plugin_srres")
 
-from nonebot_plugin_saa import Image, MessageFactory, Text
+from nonebot_plugin_saa import Text, Image, MessageFactory
 
 from .get_img import get_srhelp_img
 
@@ -40,7 +40,7 @@ async def _():
                 if plugin.metadata and plugin.metadata.name
                 else plugin.module.__getattribute__("__help_plugin_name__")
             )
-        except:
+        except Exception:
             name = plugin.name
         if name.startswith("StarRail"):
             plugin_info[name] = {}

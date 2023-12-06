@@ -4,11 +4,11 @@ from typing import Any, Dict, List, Optional
 
 from nonebot import get_driver
 from nonebot.log import logger
+from pydantic import BaseModel, ValidationError
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import JSON, String, select, update
 from nonebot.drivers import Request, HTTPClientMixin
 from nonebot_plugin_datastore import create_session, get_plugin_data
-from pydantic import BaseModel, ValidationError
-from sqlalchemy import JSON, String, select, update
-from sqlalchemy.orm import Mapped, mapped_column
 
 from .config import plugin_config
 
@@ -250,7 +250,7 @@ async def get_srpanel_player(
     if panel:
         try:
             return PlayerInfo.parse_obj(panel.info)
-        except:
+        except Exception:
             return None
     return None
 
@@ -262,7 +262,7 @@ async def get_srpanel_character(
     if panel:
         try:
             return CharacterInfo.parse_obj(panel.info)
-        except:
+        except Exception:
             return None
     return None
 
@@ -297,7 +297,7 @@ async def update_score_file() -> Optional[ScoreFile]:
         if not score_file.exists():
             return None
         logger.warning("Cannot get local score.json")
-        with open(score_file, "r", encoding="utf-8") as f:
+        with open(score_file, encoding="utf-8") as f:
             sr_score_data = json.load(f)
     score = {k: ScoreItem.parse_obj(v) for k, v in sr_score_data.items()}
     with open(score_file, "w", encoding="utf-8") as f:

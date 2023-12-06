@@ -2,7 +2,7 @@ from typing import Dict, List
 
 from pydantic import BaseModel
 
-from .common import Promotion, Property, Quantity
+from .common import Property, Quantity, Promotion
 
 
 class CharacterEvaluationType(BaseModel):

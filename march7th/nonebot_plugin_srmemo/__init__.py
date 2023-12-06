@@ -1,6 +1,6 @@
-from nonebot import on_command, require
-from nonebot.adapters import Bot, Event
 from nonebot.log import logger
+from nonebot import require, on_command
+from nonebot.adapters import Bot, Event
 from nonebot.plugin import PluginMetadata
 
 require("nonebot_plugin_saa")
@@ -8,15 +8,15 @@ require("nonebot_plugin_mys_api")
 require("nonebot_plugin_srbind")
 require("nonebot_plugin_srres")
 
-from nonebot_plugin_saa import Image, MessageFactory, Text
+from nonebot_plugin_saa import Text, Image, MessageFactory
 
 try:
     from march7th.nonebot_plugin_mys_api import MysApi
     from march7th.nonebot_plugin_srbind import get_user_srbind
     from march7th.nonebot_plugin_srbind.cookie import (
-        get_user_cookie_with_fp,
-        get_user_stoken,
         set_user_fp,
+        get_user_stoken,
+        get_user_cookie_with_fp,
     )
 except ModuleNotFoundError:
     from nonebot_plugin_mys_api import MysApi

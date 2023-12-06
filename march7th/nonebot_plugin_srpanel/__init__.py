@@ -1,20 +1,20 @@
-from nonebot import get_driver, on_command, on_regex, require
-from nonebot.adapters import Bot, Event
 from nonebot.log import logger
 from nonebot.params import RegexDict
+from nonebot.adapters import Bot, Event
 from nonebot.permission import SUPERUSER
 from nonebot.plugin import PluginMetadata
+from nonebot import require, on_regex, get_driver, on_command
 
 require("nonebot_plugin_saa")
 require("nonebot_plugin_srres")
 require("nonebot_plugin_srbind")
 require("nonebot_plugin_datastore")
 
-from nonebot_plugin_saa import Image, MessageFactory, Text
+from nonebot_plugin_saa import Text, Image, MessageFactory
 
 try:
-    from march7th.nonebot_plugin_srbind import get_user_srbind
     from march7th.nonebot_plugin_srres import srres
+    from march7th.nonebot_plugin_srbind import get_user_srbind
 except ModuleNotFoundError:
     from nonebot_plugin_srbind import get_user_srbind
     from nonebot_plugin_srres import srres
@@ -22,10 +22,10 @@ except ModuleNotFoundError:
 from .get_img import get_srpanel_img
 from .model import (
     ScoreFile,
-    get_srpanel_character,
-    get_srpanel_player,
-    update_score_file,
     update_srpanel,
+    update_score_file,
+    get_srpanel_player,
+    get_srpanel_character,
 )
 
 __plugin_meta__ = PluginMetadata(

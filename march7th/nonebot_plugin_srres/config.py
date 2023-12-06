@@ -1,7 +1,7 @@
 from typing import Optional
 
 from nonebot import get_driver
-from pydantic import BaseModel, Extra
+from pydantic import Extra, BaseModel
 
 
 class Config(BaseModel, extra=Extra.ignore):

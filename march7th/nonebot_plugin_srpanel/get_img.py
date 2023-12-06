@@ -1,15 +1,15 @@
 from io import BytesIO
-from typing import Dict, List, Optional, Set
+from typing import Set, Dict, List, Optional
 
-from PIL import Image, ImageEnhance
 from pil_utils import BuildImage
+from PIL import Image, ImageEnhance
 
 try:
     from march7th.nonebot_plugin_srres import srres
 except ModuleNotFoundError:
     from nonebot_plugin_srres import srres
 
-from .model import CharacterInfo, PlayerInfo, ScoreFile
+from .model import ScoreFile, PlayerInfo, CharacterInfo
 
 fontname = srres.get_font()
 folder = srres.get_data_folder()
@@ -72,7 +72,7 @@ async def get_srpanel_img(
         image_res.paste(title_image_bg, (700, 40), alpha=True)
         title_image = title_image.resize((300, 150))
         image_res.paste(title_image, (700, 40), alpha=True)
-    image_res.draw_text((100, 180), f"角色面板", fontsize=92, fontname=fontname, fill=WHITE)
+    image_res.draw_text((100, 180), "角色面板", fontsize=92, fontname=fontname, fill=WHITE)
     # uid
     image_res.draw_text(
         (550, 224), f"UID:{uid}", fontsize=48, fontname=fontname, fill=WHITE
@@ -220,7 +220,7 @@ async def get_srpanel_img(
         if len(skills) < i:
             image_res.draw_text(
                 (x_index + 10, y_item + 10, x_index + 260, y_item + 80),
-                f"无法获取技能信息",
+                "无法获取技能信息",
                 fontname=fontname,
                 max_fontsize=36,
                 fill=WHITE,

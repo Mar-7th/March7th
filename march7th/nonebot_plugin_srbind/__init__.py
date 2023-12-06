@@ -1,16 +1,16 @@
+import re
+import json
 import asyncio
 import contextlib
-import json
-import re
 from io import BytesIO
 from typing import Any, Dict
 
-from nonebot import get_bot, on_command, require
-from nonebot.adapters import Bot, Event, Message
 from nonebot.log import logger
 from nonebot.params import CommandArg
 from nonebot.permission import SUPERUSER
 from nonebot.plugin import PluginMetadata
+from nonebot import get_bot, require, on_command
+from nonebot.adapters import Bot, Event, Message
 
 require("nonebot_plugin_apscheduler")
 require("nonebot_plugin_datastore")
@@ -19,11 +19,11 @@ require("nonebot_plugin_mys_api")
 
 from nonebot_plugin_apscheduler import scheduler
 from nonebot_plugin_saa import (
+    Text,
     Image,
     Mention,
     MessageFactory,
     PlatformTarget,
-    Text,
     extract_target,
 )
 
@@ -123,7 +123,7 @@ async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
 async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
     cookie: str = arg.extract_plain_text().strip()
     if cookie in {"cookie", "[cookie]", "Cookie", "[COOKIE]", "ck", "CK", ""}:
-        msg = f"请查看教程获取cookie:\ndocs.qq.com/doc/DQ3JLWk1vQVllZ2Z1"
+        msg = "请查看教程获取cookie:\ndocs.qq.com/doc/DQ3JLWk1vQVllZ2Z1"
     if not (
         mys_id := re.search(
             r"(?:(?:login_uid|account_mid|account_id|stmid|ltmid|stuid|ltuid)(?:_v2)?)=(\d+)",
@@ -199,7 +199,7 @@ async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
 async def _(bot: Bot, arg: Message = CommandArg()):
     cookie: str = arg.extract_plain_text().strip()
     if cookie in {"cookie", "[cookie]", "Cookie", "[COOKIE]", "ck", "CK", ""}:
-        msg = f"请查看教程获取cookie:\ndocs.qq.com/doc/DQ3JLWk1vQVllZ2Z1"
+        msg = "请查看教程获取cookie:\ndocs.qq.com/doc/DQ3JLWk1vQVllZ2Z1"
     if not (
         mys_id := re.search(
             r"(?:(?:login_uid|account_mid|account_id|stmid|ltmid|stuid|ltuid)(?:_v2)?)=(\d+)",
@@ -244,7 +244,7 @@ async def _(bot: Bot, arg: Message = CommandArg()):
                 stoken=f"stuid={mys_id};stoken={stoken};" if stoken else None,
             )
             await set_user_srbind(user)
-            msg = f"绑定公共cookie成功"
+            msg = "绑定公共cookie成功"
     msg_builder = MessageFactory([Text(str(msg))])
     await msg_builder.finish(at_sender=True)
 
@@ -309,7 +309,7 @@ async def _(bot: Bot, event: Event):
             Text("\n"),
             Mention(user_id),
             Text(
-                f"\n请在3分钟内使用米游社扫码并确认进行绑定。\n注意：1.扫码即代表你同意将cookie信息授权给Bot使用\n2.扫码时会提示登录游戏，但不会挤掉账号\n3.其他人请不要乱扫，否则会将你的账号绑到TA身上！"
+                "\n请在3分钟内使用米游社扫码并确认进行绑定。\n注意：1.扫码即代表你同意将cookie信息授权给Bot使用\n2.扫码时会提示登录游戏，但不会挤掉账号\n3.其他人请不要乱扫，否则会将你的账号绑到TA身上！"
             ),
         ]
     )
@@ -361,7 +361,7 @@ async def check_qrcode():
                     msg_builder = MessageFactory(
                         [
                             Mention(user_id),
-                            Text(f"获取cookie失败，请稍后重试"),
+                            Text("获取cookie失败，请稍后重试"),
                         ]
                     )
                     target = PlatformTarget.deserialize(data["target"])
@@ -389,7 +389,7 @@ async def check_qrcode():
                     msg_builder = MessageFactory(
                         [
                             Mention(user_id),
-                            Text(f"获取游戏信息失败，请稍后重试"),
+                            Text("获取游戏信息失败，请稍后重试"),
                         ]
                     )
                     logger.debug(f"Get game record failed of user_id {user_id}")
@@ -423,7 +423,7 @@ async def check_qrcode():
                 else:
                     logger.debug(f"Found game record of user_id {user_id}: {sr_games}")
                     msg_builder = MessageFactory(
-                        [Mention(user_id), Text(f"成功绑定星穹铁道账号:\n")]
+                        [Mention(user_id), Text("成功绑定星穹铁道账号:\n")]
                     )
                     for info in sr_games:
                         msg_builder += MessageFactory(
