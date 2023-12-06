@@ -1,49 +1,36 @@
-import asyncio
 import json
 import random
+import asyncio
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple, Type, TypedDict
-
+from typing import Any, Dict, Optional, TypedDict
 
 import httpx
 from nonebot.log import logger
-from nonebot_plugin_datastore import get_plugin_data
 from pydantic import parse_obj_as
+from nonebot_plugin_datastore import get_plugin_data
 
 from .config import plugin_config
-from .model.characters import (
-    CharacterIndex,
-    CharacterType,
-    CharacterRankIndex,
-    CharacterRankType,
-    CharacterSkillIndex,
-    CharacterSkillType,
-    CharacterSkillTreeIndex,
-    CharacterSkillTreeType,
-    CharacterPromotionIndex,
-    CharacterPromotionType,
-)
+from .model.paths import PathIndex
+from .model.elements import ElementIndex
+from .model.properties import PropertyIndex
 from .model.light_cones import (
     LightConeIndex,
-    LightConeType,
     LightConeRankIndex,
-    LightConeRankType,
     LightConePromotionIndex,
-    LightConePromotionType,
 )
 from .model.relics import (
     RelicIndex,
-    RelicType,
     RelicSetIndex,
-    RelicSetType,
-    RelicMainAffixIndex,
-    RelicMainAffixType,
     RelicSubAffixIndex,
-    RelicSubAffixType,
+    RelicMainAffixIndex,
 )
-from .model.paths import PathIndex, PathType
-from .model.elements import ElementIndex, ElementType
-from .model.properties import PropertyIndex, PropertyType
+from .model.characters import (
+    CharacterIndex,
+    CharacterRankIndex,
+    CharacterSkillIndex,
+    CharacterPromotionIndex,
+    CharacterSkillTreeIndex,
+)
 
 plugin_data_dir: Path = get_plugin_data().data_dir
 index_dir = plugin_data_dir / "index"
@@ -353,7 +340,7 @@ class StarRailRes:
 
     def load_index_file(self, name: str, model=True) -> Dict[str, Any]:
         if name in ResFiles and (index_dir / f"{name}.json").exists():
-            with open(index_dir / f"{name}.json", "r", encoding="utf-8") as f:
+            with open(index_dir / f"{name}.json", encoding="utf-8") as f:
                 data = json.load(f)
             if not model:
                 return data
@@ -391,7 +378,7 @@ class StarRailRes:
             # 版本文件不存在，更新索引
             update_index = True
         else:
-            with open(plugin_data_dir / VersionFile, "r", encoding="utf-8") as f:
+            with open(plugin_data_dir / VersionFile, encoding="utf-8") as f:
                 current_version = json.load(f)
             if current_version["version"] != json.loads(data)["version"]:
                 # 版本不一致，更新索引
