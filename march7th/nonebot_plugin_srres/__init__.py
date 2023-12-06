@@ -3,12 +3,14 @@ from nonebot.log import logger
 from nonebot.permission import SUPERUSER
 from nonebot.plugin import PluginMetadata
 
+require("nonebot_plugin_apscheduler")
 require("nonebot_plugin_datastore")
 require("nonebot_plugin_saa")
 
 from nonebot_plugin_saa import MessageFactory, Text
+from nonebot_plugin_apscheduler import scheduler
 
-from .models import StarRailRes
+from .data_source import StarRailRes
 
 __plugin_meta__ = PluginMetadata(
     name="StarRailRes",
@@ -32,9 +34,11 @@ driver = get_driver()
 @driver.on_startup
 async def _():
     if await srres.update():
-        logger.info("『崩坏：星穹铁道』游戏资源列表加载完成")
+        logger.info("游戏资源列表加载完成")
     else:
-        logger.error("『崩坏：星穹铁道』游戏资源列表加载失败，请检查网络连接")
+        logger.error("游戏资源列表加载失败，请检查网络连接")
+    scheduler.add_job(srres.update, "cron", day=1, id="srres_update")
+    logger.info("自动更新任务已添加")
 
 
 sr_update = on_command(
@@ -46,7 +50,7 @@ sr_update = on_command(
 async def _():
     msg_builder = MessageFactory([Text("开始更新『崩坏：星穹铁道』游戏资源列表")])
     await msg_builder.send()
-    status = await srres.update(update_index=True)
+    status = await srres.update()
     if not status:
         msg_builder = MessageFactory([Text("『崩坏：星穹铁道』游戏资源列表更新失败，请查看控制台输出")])
     else:
