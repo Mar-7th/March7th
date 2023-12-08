@@ -13,6 +13,7 @@ from .config import plugin_config
 from .model.paths import PathIndex
 from .model.elements import ElementIndex
 from .model.properties import PropertyIndex
+from .model.achievements import AchievementIndex
 from .model.light_cones import (
     LightConeIndex,
     LightConeRankIndex,
@@ -53,6 +54,7 @@ ResFiles = {
     "paths",
     "elements",
     "properties",
+    "achievements",
     "nickname",
 }
 
@@ -77,6 +79,7 @@ class ResIndexType(TypedDict):
     paths: PathIndex
     elements: ElementIndex
     properties: PropertyIndex
+    achievements: AchievementIndex
 
 
 class StarRailRes:
@@ -96,6 +99,7 @@ class StarRailRes:
         "paths": {},
         "elements": {},
         "properties": {},
+        "achievements": {},
     }
     Nickname: Dict[str, Any] = {}
     NicknameRev: Dict[str, Any] = {}
