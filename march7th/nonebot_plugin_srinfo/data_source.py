@@ -86,7 +86,11 @@ async def get_srinfo_img(
     image_bg.draw_line((50, 150, 1110, 150), fill="gray", width=2)
 
     image_bg.draw_text(
-        (50, 240, 210, 270), "活跃天数", max_fontsize=24, fontname=fontname, fill="white"
+        (50, 240, 210, 270),
+        "活跃天数",
+        max_fontsize=24,
+        fontname=fontname,
+        fill="white",
     )  # 活跃天数
     image_bg.draw_text(
         (50, 180, 210, 230),
@@ -96,7 +100,11 @@ async def get_srinfo_img(
         fill="white",
     )  # 活跃天数
     image_bg.draw_text(
-        (350, 240, 510, 270), "解锁角色", max_fontsize=24, fontname=fontname, fill="white"
+        (350, 240, 510, 270),
+        "解锁角色",
+        max_fontsize=24,
+        fontname=fontname,
+        fill="white",
     )  # 解锁角色
     image_bg.draw_text(
         (350, 180, 510, 230),
@@ -106,7 +114,11 @@ async def get_srinfo_img(
         fill="white",
     )  # 解锁角色
     image_bg.draw_text(
-        (650, 240, 790, 270), "达成成就", max_fontsize=24, fontname=fontname, fill="white"
+        (650, 240, 790, 270),
+        "达成成就",
+        max_fontsize=24,
+        fontname=fontname,
+        fill="white",
     )  # 达成成就
     image_bg.draw_text(
         (650, 180, 790, 230),
@@ -116,7 +128,11 @@ async def get_srinfo_img(
         fill="white",
     )  # 达成成就
     image_bg.draw_text(
-        (930, 240, 1090, 270), "宝箱开启", max_fontsize=24, fontname=fontname, fill="white"
+        (930, 240, 1090, 270),
+        "宝箱开启",
+        max_fontsize=24,
+        fontname=fontname,
+        fill="white",
     )  # 宝箱开启
     image_bg.draw_text(
         (930, 180, 1090, 230),
@@ -129,7 +145,11 @@ async def get_srinfo_img(
     image_bg.draw_line((50, 290, 1110, 290), fill="gray", width=2)
 
     image_bg.draw_text(
-        (50, 310, 210, 340), "忘却之庭", max_fontsize=24, fontname=fontname, fill="white"
+        (50, 310, 210, 340),
+        "忘却之庭",
+        max_fontsize=24,
+        fontname=fontname,
+        fill="white",
     )  # 忘却之庭
     image_bg.draw_text(
         (300, 310, 1060, 340),

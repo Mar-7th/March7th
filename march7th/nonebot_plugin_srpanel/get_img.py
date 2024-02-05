@@ -72,7 +72,9 @@ async def get_srpanel_img(
         image_res.paste(title_image_bg, (700, 40), alpha=True)
         title_image = title_image.resize((300, 150))
         image_res.paste(title_image, (700, 40), alpha=True)
-    image_res.draw_text((100, 180), "角色面板", fontsize=92, fontname=fontname, fill=WHITE)
+    image_res.draw_text(
+        (100, 180), "角色面板", fontsize=92, fontname=fontname, fill=WHITE
+    )
     # uid
     image_res.draw_text(
         (550, 224), f"UID:{uid}", fontsize=48, fontname=fontname, fill=WHITE
@@ -442,9 +444,11 @@ async def get_srpanel_img(
             )
             image_res.draw_text(
                 (x_index + 130, y_index + 80, x_index + 270, y_index + 108),
-                str(relic_info.main_affix.name).replace("属性伤害提高", "增伤")
-                if relic_info.main_affix
-                else "",
+                (
+                    str(relic_info.main_affix.name).replace("属性伤害提高", "增伤")
+                    if relic_info.main_affix
+                    else ""
+                ),
                 fontname=fontname,
                 max_fontsize=24,
                 fill=WHITE,

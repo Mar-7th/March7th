@@ -54,9 +54,11 @@ async def _():
                 if plugin.metadata
                 and plugin.metadata.extra
                 and "srhelp" in plugin.metadata.extra
-                else plugin.metadata.usage
-                if plugin.metadata and plugin.metadata.usage
-                else plugin.module.__getattribute__("__help_plugin_usage__")
+                else (
+                    plugin.metadata.usage
+                    if plugin.metadata and plugin.metadata.usage
+                    else plugin.module.__getattribute__("__help_plugin_usage__")
+                )
             )
     logger.debug(plugin_info)
     img = await get_srhelp_img(plugin_info)

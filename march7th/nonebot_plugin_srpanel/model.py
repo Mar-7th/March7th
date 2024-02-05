@@ -21,7 +21,9 @@ score_file = plugin_data_dir / "score.json"
 
 driver = get_driver()
 if not isinstance(driver, HTTPClientMixin):
-    raise RuntimeError(f"当前驱动配置 {driver} 无法进行 HTTP 请求，请在 DRIVER 配置项末尾添加 +~httpx")
+    raise RuntimeError(
+        f"当前驱动配置 {driver} 无法进行 HTTP 请求，请在 DRIVER 配置项末尾添加 +~httpx"
+    )
 
 
 class LevelInfo(BaseModel):
