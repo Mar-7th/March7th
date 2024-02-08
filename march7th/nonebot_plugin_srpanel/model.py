@@ -134,8 +134,8 @@ class LightConeInfo(BaseModel):
 
 class MemoryInfo(BaseModel):
     level: int = 0
-    chaos_id: int = 0
-    chaos_level: int = 0
+    chaos_id: Optional[int] = None
+    chaos_level: Optional[int] = None
 
 
 class SpaceInfo(BaseModel):
