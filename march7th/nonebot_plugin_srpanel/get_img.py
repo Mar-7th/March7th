@@ -20,6 +20,19 @@ GRAY = (200, 200, 200)
 BLACK = (0, 0, 0)
 
 roman_dict = {5: "V", 4: "IV", 3: "III", 2: "II", 1: "I"}
+relic_type_dict = {
+    "HEAD": "1",
+    "HAND": "2",
+    "BODY": "3",
+    "FOOT": "4",
+    "NECK": "5",
+    "OBJECT": "6",
+}
+
+
+def get_relic_type(relic_id: str) -> str:
+    type_str = srres.ResIndex["relics"][relic_id].type
+    return relic_type_dict[type_str]
 
 
 async def get_image(file: str) -> Optional[Image.Image]:
@@ -411,7 +424,7 @@ async def get_srpanel_img(
             )
         else:
             relic_info = relic[i]
-            relic_type = relic_info.id[-1]
+            relic_type = get_relic_type(relic_info.id)
             relic_icon = relic_info.icon
             relic_image = await get_image(relic_icon)
             if relic_image:
@@ -442,9 +455,11 @@ async def get_srpanel_img(
             )
             image_res.draw_text(
                 (x_index + 130, y_index + 80, x_index + 270, y_index + 108),
-                str(relic_info.main_affix.name).replace("属性伤害提高", "增伤")
-                if relic_info.main_affix
-                else "",
+                (
+                    str(relic_info.main_affix.name).replace("属性伤害提高", "增伤")
+                    if relic_info.main_affix
+                    else ""
+                ),
                 fontname=fontname,
                 max_fontsize=24,
                 fill=WHITE,
