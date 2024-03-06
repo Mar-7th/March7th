@@ -42,15 +42,23 @@
 
 然后参考 [QQ 适配器文档](https://github.com/nonebot/adapter-qq) 进行适配器配置。
 
-#### Shamrock
+#### Lagrange.OneBot
 
-参考 [Shamrock 文档](https://linxinrao.github.io/Shamrock/guide/getting-started.html) 进行协议端安装与配置。
+参考 [Lagrange.OneBot 文档](https://lagrangedev.github.io/Lagrange.Doc/Lagrange.OneBot/) 进行协议端安装与配置。
+
+然后参考 [OneBot V11 适配器文档](https://onebot.adapters.nonebot.dev/docs/guide/setup#onebot-v11) 进行适配器配置。
+
+#### OpenShamrock
+
+参考 [OpenShamrock 文档](https://whitechi73.github.io/OpenShamrock/guide/) 进行协议端安装与配置。
+
+然后参考 [OneBot V11 适配器文档](https://onebot.adapters.nonebot.dev/docs/guide/setup#onebot-v11) 进行适配器配置。
 
 #### Chronocat
 
-参考 [Chronocat 文档](https://chronocat.vercel.app/install/) 进行协议端安装与配置。
+此方式仅供存量用户使用，不推荐新搭建 Bot 使用。
 
-需要在项目根目录运行命令 `nb adapter install nonebot-adapter-red`。
+参考 [Chronocat 文档](https://chronocat.vercel.app/install/) 进行协议端安装与配置。
 
 然后参考 [Red 适配器文档](https://github.com/nonebot/adapter-red) 进行适配器配置。
 
@@ -58,7 +66,7 @@
 
 此方式不推荐新搭建 Bot 使用，请参考 [迁移建议](https://github.com/Mrs4s/go-cqhttp/issues/2471)。
 
-在项目根目录运行命令 `nb plugin install gocqhttp`。
+在项目根目录运行命令 `nb plugin install nonebot-plugin-gocqhttp`。
 
 运行 Bot 程序后根据提示在网页端进行账号配置。
 
