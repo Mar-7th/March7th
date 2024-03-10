@@ -54,9 +54,15 @@
 
 然后参考 [OneBot V11 适配器文档](https://onebot.adapters.nonebot.dev/docs/guide/setup#onebot-v11) 进行适配器配置。
 
+#### LLOneBot
+
+参考 [LLOneBot 文档](https://llonebot.github.io/zh-CN/guide/getting-started) 进行协议端安装与配置。
+
+然后参考 [OneBot V11 适配器文档](https://onebot.adapters.nonebot.dev/docs/guide/setup#onebot-v11) 进行适配器配置。
+
 #### Chronocat
 
-此方式仅供存量用户使用，不推荐新搭建 Bot 使用。
+此方式仅供存量用户使用。
 
 参考 [Chronocat 文档](https://chronocat.vercel.app/install/) 进行协议端安装与配置。
 
