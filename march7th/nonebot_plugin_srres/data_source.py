@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Any, Dict, Optional, TypedDict
 
 import httpx
-from nonebot.log import logger
 from PIL import Image
+from nonebot.log import logger
 from pydantic import parse_obj_as
 from nonebot_plugin_datastore import get_plugin_data
 
@@ -147,10 +147,10 @@ class StarRailRes:
         return status
 
     def _checked_res(self, path: Path) -> Optional[Path | BytesIO]:
-        if plugin_config.sr_wiki_send_protocol == 'base64':
+        if plugin_config.sr_wiki_send_protocol == "base64":
             buf = BytesIO()
             img = Image.open(path)
-            img.save(buf, 'PNG')
+            img.save(buf, "PNG")
             img.close()
             return buf
         else:
