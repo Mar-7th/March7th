@@ -1,11 +1,13 @@
 import json
 import random
 import asyncio
+from io import BytesIO
 from pathlib import Path
 from typing import Any, Dict, Optional, TypedDict
 
 import httpx
 from nonebot.log import logger
+from PIL import Image
 from pydantic import parse_obj_as
 from nonebot_plugin_datastore import get_plugin_data
 
@@ -144,9 +146,19 @@ class StarRailRes:
                     f.write(data)
         return status
 
+    def _checked_res(self, path: Path) -> Optional[Path | BytesIO]:
+        if plugin_config.sr_wiki_send_protocol == 'base64':
+            buf = BytesIO()
+            img = Image.open(path)
+            img.save(buf, 'PNG')
+            img.close()
+            return buf
+        else:
+            return path
+
     async def get_icon(
         self, name: Optional[str] = None, id: Optional[str] = None
-    ) -> Optional[Path]:
+    ) -> Optional[Path | BytesIO]:
         if name:
             chars = "「」！&"
             for char in chars:
@@ -162,51 +174,51 @@ class StarRailRes:
                 return await self.get_icon_relic_set(id)
         return None
 
-    async def get_icon_character(self, id: str) -> Optional[Path]:
+    async def get_icon_character(self, id: str) -> Optional[Path | BytesIO]:
         if id == "8000":
             id = "8002"
         if id in self.ResIndex["characters"]:
             icon_file = self.ResIndex["characters"][id].icon
             if icon_file:
                 if await self.cache(icon_file):
-                    return plugin_data_dir / icon_file
+                    return self._checked_res(plugin_data_dir / icon_file)
         return None
 
-    async def get_icon_light_cone(self, id: str) -> Optional[Path]:
+    async def get_icon_light_cone(self, id: str) -> Optional[Path | BytesIO]:
         if id in self.ResIndex["light_cones"]:
             icon_file = self.ResIndex["light_cones"][id].icon
             if icon_file:
                 if await self.cache(icon_file):
-                    return plugin_data_dir / icon_file
+                    return self._checked_res(plugin_data_dir / icon_file)
         return None
 
-    async def get_icon_relic_set(self, id: str) -> Optional[Path]:
+    async def get_icon_relic_set(self, id: str) -> Optional[Path | BytesIO]:
         if id in self.ResIndex["relic_sets"]:
             icon_file = self.ResIndex["relic_sets"][id].icon
             if icon_file:
                 if await self.cache(icon_file):
-                    return plugin_data_dir / icon_file
+                    return self._checked_res(plugin_data_dir / icon_file)
         return None
 
-    async def get_icon_path(self, id: str) -> Optional[Path]:
+    async def get_icon_path(self, id: str) -> Optional[Path | BytesIO]:
         id = id.capitalize()
         if id in self.ResIndex["paths"]:
             icon_file = self.ResIndex["paths"][id].icon
             if icon_file:
                 if await self.cache(icon_file):
-                    return plugin_data_dir / icon_file
+                    return self._checked_res(plugin_data_dir / icon_file)
         return None
 
-    async def get_icon_element(self, id: str) -> Optional[Path]:
+    async def get_icon_element(self, id: str) -> Optional[Path | BytesIO]:
         id = id.capitalize()
         if id in self.ResIndex["elements"]:
             icon_file = self.ResIndex["elements"][id].icon
             if icon_file:
                 if await self.cache(icon_file):
-                    return plugin_data_dir / icon_file
+                    return self._checked_res(plugin_data_dir / icon_file)
         return None
 
-    async def get_character_preview(self, name: str) -> Optional[Path]:
+    async def get_character_preview(self, name: str) -> Optional[Path | BytesIO]:
         id = self.NicknameRev[name]
         if id == "8000":
             id = "8002"
@@ -214,10 +226,10 @@ class StarRailRes:
             preview = self.ResIndex["characters"][name].preview
             if preview:
                 if await self.cache(preview):
-                    return plugin_data_dir / preview
+                    return self._checked_res(plugin_data_dir / preview)
         return None
 
-    async def get_character_portrait(self, name: str) -> Optional[Path]:
+    async def get_character_portrait(self, name: str) -> Optional[Path | BytesIO]:
         id = self.NicknameRev[name]
         if id == "8000":
             id = "8002"
@@ -225,10 +237,10 @@ class StarRailRes:
             portrait = self.ResIndex["characters"][id].portrait
             if portrait:
                 if await self.cache(portrait):
-                    return plugin_data_dir / portrait
+                    return self._checked_res(plugin_data_dir / portrait)
         return None
 
-    async def get_character_overview(self, name: str) -> Optional[Path]:
+    async def get_character_overview(self, name: str) -> Optional[Path | BytesIO]:
         if name not in self.NicknameRev:
             return None
         id = self.NicknameRev[name]
@@ -240,7 +252,7 @@ class StarRailRes:
                 if isinstance(overview, list):
                     overview = random.choice(overview)
                 if await self.cache(overview):
-                    return plugin_data_dir / overview
+                    return self._checked_res(plugin_data_dir / overview)
         return None
 
     def get_character_overview_url(self, name: str) -> Optional[str]:
@@ -257,7 +269,7 @@ class StarRailRes:
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
         return None
 
-    async def get_character_material(self, name: str) -> Optional[Path]:
+    async def get_character_material(self, name: str) -> Optional[Path | BytesIO]:
         if name not in self.NicknameRev:
             return None
         id = self.NicknameRev[name]
@@ -286,7 +298,7 @@ class StarRailRes:
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{material}")
         return None
 
-    async def get_light_cone_overview(self, name: str) -> Optional[Path]:
+    async def get_light_cone_overview(self, name: str) -> Optional[Path | BytesIO]:
         if name not in self.NicknameRev:
             return None
         id = self.NicknameRev[name]
@@ -311,7 +323,7 @@ class StarRailRes:
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
         return None
 
-    async def get_relic_set_overview(self, name: str) -> Optional[Path]:
+    async def get_relic_set_overview(self, name: str) -> Optional[Path | BytesIO]:
         if name not in self.NicknameRev:
             return None
         id = self.NicknameRev[name]
