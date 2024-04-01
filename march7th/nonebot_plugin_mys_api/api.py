@@ -43,23 +43,31 @@ GET_COOKIE_BY_STOKEN_API = (
     f"{OLD_URL}/auth/api/getCookieAccountInfoBySToken"  # 通过stoken获取cookie
 )
 CREATE_QRCODE_API = f"{HK4_SDK_URL}/hk4e_cn/combo/panda/qrcode/fetch"  # 创建登录qrcode
-CHECK_QRCODE_API = f"{HK4_SDK_URL}/hk4e_cn/combo/panda/qrcode/query"  # 检查qrcode扫描状态
-GET_COOKIE_BY_GAME_TOKEN_API = (
-    f"{TAKUMI_HOST}/auth/api/getCookieAccountInfoByGameToken"  # 通过game_token获取cookie
+CHECK_QRCODE_API = (
+    f"{HK4_SDK_URL}/hk4e_cn/combo/panda/qrcode/query"  # 检查qrcode扫描状态
 )
+GET_COOKIE_BY_GAME_TOKEN_API = f"{TAKUMI_HOST}/auth/api/getCookieAccountInfoByGameToken"  # 通过game_token获取cookie
 GET_STOKEN_BY_GAME_TOKEN_API = f"{PASSPORT_HOST}/account/ma-cn-session/app/getTokenByGameToken"  # 通过game_token获取stoken
 
 # 崩坏：星穹铁道
 STAR_RAIL_ROLE_BASIC_INFO_API = (
     f"{NEW_URL}/game_record/app/hkrpg/api/role/basicInfo"  # 崩坏：星穹铁道角色基础信息
 )
-STAR_RAIL_INDEX_API = f"{NEW_URL}/game_record/app/hkrpg/api/index"  # 崩坏：星穹铁道角色橱窗信息
+STAR_RAIL_INDEX_API = (
+    f"{NEW_URL}/game_record/app/hkrpg/api/index"  # 崩坏：星穹铁道角色橱窗信息
+)
 STAR_RAIL_AVATAR_INFO_API = (
     f"{NEW_URL}/game_record/app/hkrpg/api/avatar/info"  # 崩坏：星穹铁道角色详细信息
 )
-STAR_RAIL_WIDGET_API = f"{NEW_URL}/game_record/app/hkrpg/aapi/widget"  # 崩坏：星穹铁道桌面组件
-STAR_RAIL_NOTE_API = f"{NEW_URL}/game_record/app/hkrpg/api/note"  # 崩坏：星穹铁道实时便笺
-STAR_RAIL_MONTH_INFO_API = f"{OLD_URL}/event/srledger/month_info"  # 崩坏：星穹铁道开拓月历
+STAR_RAIL_WIDGET_API = (
+    f"{NEW_URL}/game_record/app/hkrpg/aapi/widget"  # 崩坏：星穹铁道桌面组件
+)
+STAR_RAIL_NOTE_API = (
+    f"{NEW_URL}/game_record/app/hkrpg/api/note"  # 崩坏：星穹铁道实时便笺
+)
+STAR_RAIL_MONTH_INFO_API = (
+    f"{OLD_URL}/event/srledger/month_info"  # 崩坏：星穹铁道开拓月历
+)
 STAR_RAIL_SIGN_API = f"{OLD_URL}/event/luna/sign"
 
 # Unknown function API
@@ -147,15 +155,19 @@ class MysApi:
         result = {
             "DS": ds,
             "cookie": self.cookie,
-            "Origin": "https://webstatic.mihoyo.com"
-            if not is_ds2
-            else "https://app.mihoyo.com/",
-            "Referer": r
-            if r
-            else (
-                "https://webstatic.mihoyo.com/"
+            "Origin": (
+                "https://webstatic.mihoyo.com"
                 if not is_ds2
                 else "https://app.mihoyo.com/"
+            ),
+            "Referer": (
+                r
+                if r
+                else (
+                    "https://webstatic.mihoyo.com/"
+                    if not is_ds2
+                    else "https://app.mihoyo.com/"
+                )
             ),
             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS "
             "X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.50.1",

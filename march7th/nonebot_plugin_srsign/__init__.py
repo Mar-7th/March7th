@@ -42,7 +42,9 @@ error_code_msg = {
     -100: "请重新使用`srqr`绑定账号",
 }
 
-srsign = on_command("srsign", aliases={"星铁签到", "星铁每日签到"}, priority=2, block=True)
+srsign = on_command(
+    "srsign", aliases={"星铁签到", "星铁每日签到"}, priority=2, block=True
+)
 
 
 @srsign.handle()
@@ -61,7 +63,9 @@ async def _(bot: Bot, event: Event):
             bot.self_id, event.get_user_id(), sr_uid
         )
         if not cookie:
-            msg.append(f"UID{sr_uid}: 未绑定cookie，请使用`srck [cookie]`绑定或`srqr`扫码绑定")
+            msg.append(
+                f"UID{sr_uid}: 未绑定cookie，请使用`srck [cookie]`绑定或`srqr`扫码绑定"
+            )
             continue
         logger.info(f"开始为SRUID『{sr_uid}』签到")
         mys_api = MysApi(cookie, device_id, device_fp)
@@ -69,7 +73,9 @@ async def _(bot: Bot, event: Event):
             device_id, device_fp = await mys_api.init_device()
         sr_sign = await mys_api.call_mihoyo_api("sr_sign", role_uid=sr_uid)
         if not sr_sign:
-            msg.append(f"UID{sr_uid}: 疑似cookie失效，请重新使用`srck [cookie]`绑定或`srqr`扫码绑定")
+            msg.append(
+                f"UID{sr_uid}: 疑似cookie失效，请重新使用`srck [cookie]`绑定或`srqr`扫码绑定"
+            )
             msg_builder = MessageFactory([Text(str(msg))])
             await msg_builder.send(at_sender=True)
             await srsign.finish()

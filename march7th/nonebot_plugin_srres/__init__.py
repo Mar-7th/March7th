@@ -52,7 +52,9 @@ async def _():
     await msg_builder.send()
     status = await srres.update()
     if not status:
-        msg_builder = MessageFactory([Text("『崩坏：星穹铁道』游戏资源列表更新失败，请查看控制台输出")])
+        msg_builder = MessageFactory(
+            [Text("『崩坏：星穹铁道』游戏资源列表更新失败，请查看控制台输出")]
+        )
     else:
         msg_builder = MessageFactory([Text("『崩坏：星穹铁道』游戏资源列表更新完成")])
     await msg_builder.finish()

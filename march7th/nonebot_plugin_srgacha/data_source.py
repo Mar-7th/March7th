@@ -42,7 +42,9 @@ RESIDENT = {
 
 driver = get_driver()
 if not isinstance(driver, HTTPClientMixin):
-    raise RuntimeError(f"当前驱动配置 {driver} 无法进行 HTTP 请求，请在 DRIVER 配置项末尾添加 +~httpx")
+    raise RuntimeError(
+        f"当前驱动配置 {driver} 无法进行 HTTP 请求，请在 DRIVER 配置项末尾添加 +~httpx"
+    )
 
 T = TypeVar("T")
 
@@ -322,7 +324,11 @@ async def get_srgacha(bot_id: str, user_id: str, sr_uid: str) -> Optional[BytesI
     image_overall.draw_line((50, 150, 1110, 150), fill="gray", width=2)
     # 总抽卡数
     image_overall.draw_text(
-        (50, 240, 210, 270), "总抽卡数", max_fontsize=24, fontname=fontname, fill="white"
+        (50, 240, 210, 270),
+        "总抽卡数",
+        max_fontsize=24,
+        fontname=fontname,
+        fill="white",
     )
     image_overall.draw_text(
         (50, 180, 210, 230),
@@ -333,7 +339,11 @@ async def get_srgacha(bot_id: str, user_id: str, sr_uid: str) -> Optional[BytesI
     )
     # 总五星数
     image_overall.draw_text(
-        (350, 240, 510, 270), "总五星数", max_fontsize=24, fontname=fontname, fill="white"
+        (350, 240, 510, 270),
+        "总五星数",
+        max_fontsize=24,
+        fontname=fontname,
+        fill="white",
     )
     image_overall.draw_text(
         (350, 180, 510, 230),
@@ -344,7 +354,11 @@ async def get_srgacha(bot_id: str, user_id: str, sr_uid: str) -> Optional[BytesI
     )
     # 平均五星抽数
     image_overall.draw_text(
-        (650, 240, 790, 270), "平均五星抽数", max_fontsize=24, fontname=fontname, fill="white"
+        (650, 240, 790, 270),
+        "平均五星抽数",
+        max_fontsize=24,
+        fontname=fontname,
+        fill="white",
     )
     image_overall.draw_text(
         (650, 180, 790, 230),
@@ -357,13 +371,13 @@ async def get_srgacha(bot_id: str, user_id: str, sr_uid: str) -> Optional[BytesI
     comment = (
         "未知"
         if avg_star5_cost == 0
-        else "欧"
-        if avg_star5_cost <= 50
-        else "吉"
-        if avg_star5_cost <= 60
-        else "中"
-        if avg_star5_cost <= 70
-        else "非"
+        else (
+            "欧"
+            if avg_star5_cost <= 50
+            else (
+                "吉" if avg_star5_cost <= 60 else "中" if avg_star5_cost <= 70 else "非"
+            )
+        )
     )
     image_overall.draw_text(
         (930, 180, 1090, 270),

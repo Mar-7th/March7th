@@ -125,7 +125,9 @@ srac = on_command("srac", aliases={"查成就"}, block=True)
 async def _(arg: Message = CommandArg()):
     name = arg.extract_plain_text().strip()
     if not name:
-        await srac.finish("请输入要查询的成就的关键字，如需查询隐藏成就，请使用『查隐藏成就』")
+        await srac.finish(
+            "请输入要查询的成就的关键字，如需查询隐藏成就，请使用『查隐藏成就』"
+        )
     if achievement := srres.ResIndex["achievements"].get(name):
         message = f"{achievement.title}\n分类：{series_map[achievement.series_id]}\n描述：{achievement.desc}\n隐藏描述：{achievement.hide_desc}\n是否隐藏：{'是' if achievement.hide else '否'}"
         await srac.finish(message)

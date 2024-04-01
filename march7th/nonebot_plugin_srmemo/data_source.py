@@ -193,16 +193,32 @@ async def get_srmonth_img(sr_uid, sr_basic_info, sr_month) -> Optional[BytesIO]:
     image_bg.draw_line((50, 150, 750, 150), fill="gray", width=2)
 
     image_bg.draw_text(
-        (50, 190, 160, 220), "本日获取", max_fontsize=24, fontname=fontname, fill="white"
+        (50, 190, 160, 220),
+        "本日获取",
+        max_fontsize=24,
+        fontname=fontname,
+        fill="white",
     )
     image_bg.draw_text(
-        (50, 260, 160, 290), "昨日获取", max_fontsize=24, fontname=fontname, fill="white"
+        (50, 260, 160, 290),
+        "昨日获取",
+        max_fontsize=24,
+        fontname=fontname,
+        fill="white",
     )
     image_bg.draw_text(
-        (50, 330, 160, 360), "本月获取", max_fontsize=24, fontname=fontname, fill="white"
+        (50, 330, 160, 360),
+        "本月获取",
+        max_fontsize=24,
+        fontname=fontname,
+        fill="white",
     )
     image_bg.draw_text(
-        (50, 400, 160, 430), "上月获取", max_fontsize=24, fontname=fontname, fill="white"
+        (50, 400, 160, 430),
+        "上月获取",
+        max_fontsize=24,
+        fontname=fontname,
+        fill="white",
     )
 
     y_index = 170

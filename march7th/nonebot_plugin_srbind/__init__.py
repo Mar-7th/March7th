@@ -66,7 +66,9 @@ __plugin_meta__ = PluginMetadata(
 
 qrbind_buffer: Dict[str, Any] = {}
 
-sruid = on_command("sruid", aliases={"星铁uid", "星铁绑定", "星铁账号绑定"}, priority=2, block=True)
+sruid = on_command(
+    "sruid", aliases={"星铁uid", "星铁绑定", "星铁账号绑定"}, priority=2, block=True
+)
 srck = on_command(
     "srck", aliases={"星铁ck", "srcookie", "星铁cookie"}, priority=2, block=True
 )
@@ -79,7 +81,13 @@ srpck = on_command(
 )
 srdel = on_command(
     "srdel",
-    aliases={"星铁解绑", "星铁取消绑定", "星铁解除绑定", "星铁取消账号绑定", "星铁解除账号绑定"},
+    aliases={
+        "星铁解绑",
+        "星铁取消绑定",
+        "星铁解除绑定",
+        "星铁取消账号绑定",
+        "星铁解除账号绑定",
+    },
     priority=2,
     block=True,
 )
@@ -327,7 +335,10 @@ async def check_qrcode():
                 if status_data is None:
                     logger.warning(f"Check of user_id {user_id} failed")
                     msg_builder = MessageFactory(
-                        [Mention(user_id), Text("绑定二维码已失效，请重新发送扫码绑定指令")]
+                        [
+                            Mention(user_id),
+                            Text("绑定二维码已失效，请重新发送扫码绑定指令"),
+                        ]
                     )
                     target = PlatformTarget.deserialize(data["target"])
                     bot = get_bot(self_id=data["bot_id"])
@@ -339,7 +350,10 @@ async def check_qrcode():
                     logger.debug(f"QR code of user_id {user_id} expired")
                     qrbind_buffer.pop(user_id)
                     msg_builder = MessageFactory(
-                        [Mention(user_id), Text("绑定二维码已过期，请重新发送扫码绑定指令")]
+                        [
+                            Mention(user_id),
+                            Text("绑定二维码已过期，请重新发送扫码绑定指令"),
+                        ]
                     )
                     target = PlatformTarget.deserialize(data["target"])
                     bot = get_bot(self_id=data["bot_id"])
@@ -403,7 +417,10 @@ async def check_qrcode():
                     logger.debug(f"Get game record failed of user_id {user_id}")
                 elif not game_info["list"]:
                     msg_builder = MessageFactory(
-                        [Mention(user_id), Text("该账号尚未绑定任何游戏，请确认扫码的账号无误")]
+                        [
+                            Mention(user_id),
+                            Text("该账号尚未绑定任何游戏，请确认扫码的账号无误"),
+                        ]
                     )
                     logger.debug(f"No game record of user_id {user_id}")
                 elif not (
@@ -417,7 +434,10 @@ async def check_qrcode():
                     ]
                 ):
                     msg_builder = MessageFactory(
-                        [Mention(user_id), Text("该账号尚未绑定星穹铁道，请确认扫码的账号无误")]
+                        [
+                            Mention(user_id),
+                            Text("该账号尚未绑定星穹铁道，请确认扫码的账号无误"),
+                        ]
                     )
                     logger.debug(f"No hsr game record of user_id {user_id}")
                 else:
@@ -437,9 +457,11 @@ async def check_qrcode():
                             device_id=device_id,
                             device_fp=device_fp,
                             cookie=f"account_id={mys_id};cookie_token={cookie_token}",
-                            stoken=f"stuid={mys_id};stoken={stoken};mid={mid};"
-                            if stoken
-                            else None,
+                            stoken=(
+                                f"stuid={mys_id};stoken={stoken};mid={mid};"
+                                if stoken
+                                else None
+                            ),
                         )
                         await set_user_srbind(user)
                 # send message to origin target
