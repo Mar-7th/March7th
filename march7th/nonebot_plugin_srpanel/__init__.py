@@ -72,7 +72,9 @@ async def _():
     await msg_builder.send()
     score_file = await update_score_file()
     if not score_file:
-        msg_builder = MessageFactory([Text("『崩坏：星穹铁道』遗器评分标准更新失败，请检查网络连接和插件配置")])
+        msg_builder = MessageFactory(
+            [Text("『崩坏：星穹铁道』遗器评分标准更新失败，请检查网络连接和插件配置")]
+        )
     else:
         score = score_file
         msg_builder = MessageFactory([Text("『崩坏：星穹铁道』遗器评分标准更新完成")])
@@ -81,7 +83,13 @@ async def _():
 
 srpu = on_command(
     "srpu",
-    aliases={"更新角色面板", "更新星铁面板", "更新星铁角色面板", "星铁更新面板", "星铁更新角色面板"},
+    aliases={
+        "更新角色面板",
+        "更新星铁面板",
+        "更新星铁角色面板",
+        "星铁更新面板",
+        "星铁更新角色面板",
+    },
     priority=2,
     block=False,
 )

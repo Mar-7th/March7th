@@ -53,7 +53,14 @@ error_code_msg = {
 
 srmemo = on_command(
     "srmemo",
-    aliases={"srnote", "星铁体力", "星铁每日", "星铁开拓力", "星铁便笺", "星铁实时便笺"},
+    aliases={
+        "srnote",
+        "星铁体力",
+        "星铁每日",
+        "星铁开拓力",
+        "星铁便笺",
+        "星铁实时便笺",
+    },
     priority=2,
     block=True,
 )

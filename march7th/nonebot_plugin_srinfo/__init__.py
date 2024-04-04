@@ -52,7 +52,9 @@ error_code_msg = {
     -10001: "请求出错，请稍后重试",
 }
 
-srinfo = on_command("srinfo", aliases={"星铁信息", "星铁账号信息"}, priority=2, block=True)
+srinfo = on_command(
+    "srinfo", aliases={"星铁信息", "星铁账号信息"}, priority=2, block=True
+)
 
 
 @srinfo.handle()
