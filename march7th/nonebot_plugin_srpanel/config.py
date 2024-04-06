@@ -1,10 +1,10 @@
 from typing import Optional
 
-from nonebot import get_driver
-from pydantic import Extra, BaseModel
+from pydantic import BaseModel
+from nonebot import get_plugin_config
 
 
-class Config(BaseModel, extra=Extra.ignore):
+class Config(BaseModel):
     sr_panel_url: Optional[str] = "https://api.mihomo.me/sr_info_parsed/"
     github_proxy: Optional[str] = "https://mirror.ghproxy.com"
     sr_score_url: Optional[str] = (
@@ -12,4 +12,4 @@ class Config(BaseModel, extra=Extra.ignore):
     )
 
 
-plugin_config = Config(**get_driver().config.dict())
+plugin_config = get_plugin_config(Config)

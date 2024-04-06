@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional
 
 from nonebot import get_driver
 from nonebot.log import logger
+from nonebot.compat import type_validate_python
 from pydantic import BaseModel, ValidationError
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import JSON, String, select, update
@@ -193,7 +194,7 @@ class FormattedApiInfo(BaseModel):
 class ScoreItem(BaseModel):
     weight: Dict[str, float]
     main: Dict[str, Dict[str, float]]
-    max: int
+    max: float
 
 
 ScoreFile = Dict[str, ScoreItem]
@@ -251,7 +252,7 @@ async def get_srpanel_player(
     panel = await get_user_srpanel(bot_id, user_id, sr_uid, "0")
     if panel:
         try:
-            return PlayerInfo.parse_obj(panel.info)
+            return type_validate_python(PlayerInfo, panel.info)
         except Exception:
             return None
     return None
@@ -263,7 +264,7 @@ async def get_srpanel_character(
     panel = await get_user_srpanel(bot_id, user_id, sr_uid, cid)
     if panel:
         try:
-            return CharacterInfo.parse_obj(panel.info)
+            return type_validate_python(CharacterInfo, panel.info)
         except Exception:
             return None
     return None
@@ -301,7 +302,7 @@ async def update_score_file() -> Optional[ScoreFile]:
         logger.warning("Cannot get local score.json")
         with open(score_file, encoding="utf-8") as f:
             sr_score_data = json.load(f)
-    score = {k: ScoreItem.parse_obj(v) for k, v in sr_score_data.items()}
+    score = {k: type_validate_python(ScoreItem, v) for k, v in sr_score_data.items()}
     with open(score_file, "w", encoding="utf-8") as f:
         f.write(json.dumps(sr_score_data))
     return score
@@ -313,7 +314,7 @@ async def update_srpanel(bot_id: str, user_id: str, sr_uid: str) -> Optional[str
     if not data:
         return None
     try:
-        parsed_data = FormattedApiInfo.parse_obj(data)
+        parsed_data = type_validate_python(FormattedApiInfo, data)
     except (ValidationError, KeyError) as e:
         logger.info(f"Can not parse: {data}, error: {e}")
         return None

@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional, TypedDict
 
 import httpx
 from nonebot.log import logger
-from pydantic import parse_obj_as
+from nonebot.compat import type_validate_python
 from nonebot_plugin_datastore import get_plugin_data
 
 from .config import plugin_config
@@ -348,7 +348,7 @@ class StarRailRes:
                 data = json.load(f)
             if not model:
                 return data
-            return parse_obj_as(ResIndexType.__annotations__[name], data)
+            return type_validate_python(ResIndexType.__annotations__[name], data)
         return {}
 
     def reload(self) -> None:

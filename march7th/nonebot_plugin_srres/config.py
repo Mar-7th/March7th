@@ -1,14 +1,14 @@
 from typing import Optional
 
-from nonebot import get_driver
-from pydantic import Extra, BaseModel
+from pydantic import BaseModel
+from nonebot import get_plugin_config
 
 
-class Config(BaseModel, extra=Extra.ignore):
+class Config(BaseModel):
     github_proxy: Optional[str] = "https://mirror.ghproxy.com"
     sr_wiki_url: Optional[str] = (
         "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master"
     )
 
 
-plugin_config = Config(**get_driver().config.dict())
+plugin_config = get_plugin_config(Config)

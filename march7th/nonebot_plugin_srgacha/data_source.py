@@ -9,6 +9,7 @@ from nonebot import get_driver
 from pil_utils import BuildImage
 from pydantic import ValidationError
 from sqlalchemy import select, update
+from nonebot.compat import type_validate_python
 from nonebot_plugin_datastore import create_session
 from nonebot.drivers import Request, HTTPClientMixin
 
@@ -92,7 +93,7 @@ async def fetch_gacha_log(gacha_url: str, gacha_type: str) -> Dict[str, GachaLog
         url = f"{url_base}?{query_string}"
         response = await request(url)
         try:
-            data = GachaLogResponse.parse_obj(response)
+            data = type_validate_python(GachaLogResponse, response)
             if len(data.data.list) == 0:
                 break
             gacha_log = {i.id: i for i in data.data.list}
@@ -144,7 +145,7 @@ async def update_srgacha(bot_id: str, user_id: str, sr_uid: str, url: str) -> st
     user_gacha = await get_gacha(bot_id, user_id, sr_uid)
     if user_gacha:
         try:
-            origin_data = GachaLog.parse_obj(user_gacha.gacha)
+            origin_data = type_validate_python(GachaLog, user_gacha.gacha)
         except ValidationError:
             origin_data = GachaLog()
     else:
@@ -255,7 +256,7 @@ async def get_srgacha(bot_id: str, user_id: str, sr_uid: str) -> Optional[BytesI
         return None
     # Parse to model
     try:
-        gacha = GachaLog.parse_obj(user_gacha.gacha)
+        gacha = type_validate_python(GachaLog, user_gacha.gacha)
     except ValidationError:
         return None
     # Get star5 items
