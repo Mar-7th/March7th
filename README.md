@@ -8,31 +8,59 @@
 
 崩坏：星穹铁道多功能机器人（开发中），目前支持账号绑定、信息查询、Wiki 查询等功能。
 
-本项目基于 Nonebot2，通过 [nonebot-plugin-send-anything-anywhere](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere) 实现对 OneBot v11, OneBot v12, QQ Guild, 开黑啦, Telegram, Feishu, Red 适配器的支持；使用 [nonebot-plugin-datastore](https://github.com/he0119/nonebot-plugin-datastore) 进行插件数据管理。
+本项目基于 Nonebot2，通过 [nonebot-plugin-send-anything-anywhere](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere) 实现对 OneBot v11, OneBot v12, QQ, 开黑啦, Telegram, Feishu, Red 适配器的支持；使用 [nonebot-plugin-datastore](https://github.com/he0119/nonebot-plugin-datastore) 进行插件数据管理。
 
 ## 安装
 
-如果未安装 `poetry`，先参考 [文档](https://python-poetry.org/docs/#installation) 安装。
+### 下载源码
 
 使用 `git clone https://github.com/Mar-7th/March7th.git` 或 [下载压缩包](https://github.com/Mar-7th/March7th/archive/refs/heads/master.zip) 并解压，进入工程目录。
 
-使用 `poetry install` 安装项目依赖。
+### 安装依赖
 
-配置协议实现端。
+#### 使用 Poetry 安装
 
-配置运行环境参数（可复制 `.env` 文件到 `.env.prod` 后填入参数）。
+如果未安装 `poetry`，先参考 [文档](https://python-poetry.org/docs/#installation) 安装。
+
+在项目根目录使用 `poetry install` 安装项目依赖。
+
+运行 `poetry shell` 进入虚拟环境，继续后续操作。
+
+#### 使用 pip 安装
+
+在项目根目录使用 `python -m venv .venv` 创建虚拟环境。
+
+Linux / MacOS 使用命令 `source .venv/bin/activate`，Windows 使用命令 `.venv\Scripts\activate` 激活虚拟环境。
+
+使用 `pip install -r requirements.txt` 安装项目依赖，此方式默认使用 TUNA 镜像源。
+
+### Bot 配置
+
+配置协议端，具体参考 [协议端配置](#协议端配置)。
+
+配置运行环境参数，如超级用户账号、bot 昵称等（可复制 `.env` 文件到 `.env.prod` 后根据注释提示填入参数）。
 
 使用 `nb run` 运行 Bot 程序。
 
-发送命令 `srhelp` 即可查看命令列表。
+给聊天机器人发送命令 `srhelp` 即可查看命令列表，如果配置的命令前缀不包含 `""`，则需要加上命令前缀。
 
 ## 常见问题
+
+### 安装其他商店插件
+
+机器人支持使用 `nb-cli` 安装其他 NoneBot 应用商店中的插件。
+
+机器人本体兼容了 Pydantic v1 与 v2 版本，如安装其他插件后遇到 Pydantic 相关警告或报错，请考虑降级 Pydantic 至 v1 版本：
+
+```bash
+pip install --force-reinstall 'pydantic~=1.10'
+```
 
 ### 添加公共 cookie
 
 添加公共 cookie 后，用户可以无需绑定 cookie 就能使用 `srinfo`。
 
-添加公共 cookie 需要 `SUPERUSER` 权限，发送 `srpck [cookie]`，将 `[cookie]` 替换为实际的 cookie 内容。
+添加公共 cookie 需要超级用户权限（在 `.env.prod` 中配置），发送 `srpck [cookie]`，将 `[cookie]` 替换为实际的 cookie 内容。
 
 ### 协议端配置
 
@@ -62,7 +90,7 @@
 
 #### Chronocat
 
-此方式仅供存量用户使用。
+此方式仅供存量旧版本用户使用。
 
 参考 [Chronocat 文档](https://chronocat.vercel.app/install/) 进行协议端安装与配置。
 
