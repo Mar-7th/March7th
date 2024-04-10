@@ -38,7 +38,7 @@ Linux / MacOS 使用命令 `source .venv/bin/activate`，Windows 使用命令 `.
 
 配置协议端，具体参考 [协议端配置](#协议端配置)。
 
-配置运行环境参数，如超级用户账号、bot 昵称等（可复制 `.env` 文件到 `.env.prod` 后根据注释提示填入参数）。
+配置运行环境参数，如超级用户账号、bot 昵称等（可复制 `.env.dev` 文件到 `.env.prod` 后根据注释提示填入参数）。
 
 使用 `nb run` 运行 Bot 程序。
 
