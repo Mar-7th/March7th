@@ -190,7 +190,7 @@ async def update_srgacha(bot_id: str, user_id: str, sr_uid: str, url: str) -> st
         ret_msg += f" {beginner_add} 条新手池记录，" if common_add else ""
         ret_msg += f" {character_event_add} 条角色池记录，" if common_add else ""
         ret_msg += f" {light_cone_event_add} 条光锥池记录，" if common_add else ""
-        ret_msg.rstrip("，")
+        ret_msg = ret_msg.rstrip("，")
     ret_msg += "\n"
     ret_msg += "当前共有"
     ret_msg += f" {len(new_data.common.keys())} 条常驻池记录，"
