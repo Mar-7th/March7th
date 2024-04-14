@@ -92,16 +92,13 @@ async def fetch_gacha_log(gacha_url: str, gacha_type: str) -> Dict[str, GachaLog
         query_string = urlencode(query_params, doseq=True)
         url = f"{url_base}?{query_string}"
         response = await request(url)
-        try:
-            data = type_validate_python(GachaLogResponse, response)
-            if len(data.data.list) == 0:
-                break
-            gacha_log = {i.id: i for i in data.data.list}
-            full_gacha_log.update(gacha_log)
-            query_params["end_id"] = [data.data.list[-1].id]
-            await asyncio.sleep(0.3)
-        except ValidationError:
-            raise RuntimeError(f"Failed to fetch gacha log, {gacha_type=}")
+        data = type_validate_python(GachaLogResponse, response)
+        if len(data.data.list) == 0:
+            break
+        gacha_log = {i.id: i for i in data.data.list}
+        full_gacha_log.update(gacha_log)
+        query_params["end_id"] = [data.data.list[-1].id]
+        await asyncio.sleep(0.3)
     return full_gacha_log
 
 
@@ -152,13 +149,10 @@ async def update_srgacha(bot_id: str, user_id: str, sr_uid: str, url: str) -> st
         origin_data = GachaLog()
     # Fetch new data
     new_data = GachaLog()
-    try:
-        new_data.common = await fetch_gacha_log(url, "1")
-        new_data.beginner = await fetch_gacha_log(url, "2")
-        new_data.character_event = await fetch_gacha_log(url, "11")
-        new_data.light_cone_event = await fetch_gacha_log(url, "12")
-    except Exception:
-        return "抽卡记录更新失败，请检查链接是否正确"
+    new_data.common = await fetch_gacha_log(url, "1")
+    new_data.beginner = await fetch_gacha_log(url, "2")
+    new_data.character_event = await fetch_gacha_log(url, "11")
+    new_data.light_cone_event = await fetch_gacha_log(url, "12")
     # Merge data
     new_data.common.update(origin_data.common)
     new_data.beginner.update(origin_data.beginner)

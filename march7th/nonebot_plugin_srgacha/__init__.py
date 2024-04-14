@@ -72,7 +72,11 @@ async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
     logger.info(f"开始更新SRUID『{sr_uid}』抽卡记录")
     msg_builder = MessageFactory([Text(f"开始更新SRUID『{sr_uid}』抽卡记录")])
     await msg_builder.send(at_sender=True)
-    message = await update_srgacha(bot.self_id, event.get_user_id(), sr_uid, url)
+    try:
+        message = await update_srgacha(bot.self_id, event.get_user_id(), sr_uid, url)
+    except Exception as e:
+        logger.error(f"导入抽卡记录出错：{e}")
+        message = "抽卡记录更新失败，请检查链接是否正确"
     msg_builder = MessageFactory([Text(message)])
     await msg_builder.finish(at_sender=True)
 
