@@ -54,7 +54,7 @@ async def _(bot: Bot, event: Event):
     if not user_list:
         err = "未绑定SRUID，请使用`srck [cookie]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(err)])
-        await msg_builder.send(at_sender=True)
+        await msg_builder.send(at_sender=not event.is_tome())
         await srsign.finish()
     msg: List[str] = []
     for user in user_list:
@@ -77,7 +77,7 @@ async def _(bot: Bot, event: Event):
                 f"UID{sr_uid}: 疑似cookie失效，请重新使用`srck [cookie]`绑定或`srqr`扫码绑定"
             )
             msg_builder = MessageFactory([Text(str(msg))])
-            await msg_builder.send(at_sender=True)
+            await msg_builder.send(at_sender=not event.is_tome())
             await srsign.finish()
         if isinstance(sr_sign, int):
             if sr_sign in error_code_msg:
@@ -95,4 +95,4 @@ async def _(bot: Bot, event: Event):
                     bot.self_id, event.get_user_id(), sr_uid, device_id, new_fp
                 )
     msg_builder = MessageFactory([Text("\n" + "\n".join(msg))])
-    await msg_builder.finish(at_sender=True)
+    await msg_builder.finish(at_sender=not event.is_tome())

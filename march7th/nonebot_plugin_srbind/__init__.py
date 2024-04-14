@@ -124,7 +124,7 @@ async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
             await set_user_srbind(user)
             msg = f"成功绑定SRUID『{uid.group()}』"
     msg_builder = MessageFactory([Text(str(msg))])
-    await msg_builder.finish(at_sender=True)
+    await msg_builder.finish(at_sender=not event.is_tome())
 
 
 @srck.handle()
@@ -200,11 +200,11 @@ async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
         else:
             msg = "Cookie无效，请确认是否已过期\n获取cookie的教程：\ndocs.qq.com/doc/DQ3JLWk1vQVllZ2Z1"
     msg_builder = MessageFactory([Text(str(msg))])
-    await msg_builder.finish(at_sender=True)
+    await msg_builder.finish(at_sender=not event.is_tome())
 
 
 @srpck.handle()
-async def _(bot: Bot, arg: Message = CommandArg()):
+async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
     cookie: str = arg.extract_plain_text().strip()
     if cookie in {"cookie", "[cookie]", "Cookie", "[COOKIE]", "ck", "CK", ""}:
         msg = "请查看教程获取cookie:\ndocs.qq.com/doc/DQ3JLWk1vQVllZ2Z1"
@@ -254,7 +254,7 @@ async def _(bot: Bot, arg: Message = CommandArg()):
             await set_user_srbind(user)
             msg = "绑定公共cookie成功"
     msg_builder = MessageFactory([Text(str(msg))])
-    await msg_builder.finish(at_sender=True)
+    await msg_builder.finish(at_sender=not event.is_tome())
 
 
 @srdel.handle()
@@ -287,7 +287,7 @@ async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
             else:
                 msg = "未绑定SRUID"
     msg_builder = MessageFactory([Text(str(msg))])
-    await msg_builder.finish(at_sender=True)
+    await msg_builder.finish(at_sender=not event.is_tome())
 
 
 @srqr.handle()
@@ -295,7 +295,7 @@ async def _(bot: Bot, event: Event):
     user_id = str(event.get_user_id())
     if user_id in qrbind_buffer:
         msg_builder = MessageFactory([Text("你已经在绑定中了，请扫描上一次的二维码")])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     mys_api = MysApi()
     login_data = await mys_api.create_login_qr(8)
     if login_data is None:

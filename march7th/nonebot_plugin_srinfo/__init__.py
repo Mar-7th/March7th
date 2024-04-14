@@ -63,7 +63,7 @@ async def _(bot: Bot, event: Event):
     if not user_list:
         msg = "未绑定SRUID，请使用`sruid [uid]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     sr_uid = user_list[0].sr_uid
     cookie, device_id, device_fp = await get_user_cookie_with_fp(
         bot.self_id, event.get_user_id(), sr_uid
@@ -78,7 +78,7 @@ async def _(bot: Bot, event: Event):
     if not cookie:
         msg = "当前无可用cookie"
         msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     if not device_id or not device_fp:
         device_id, device_fp = await mys_api.init_device()
     logger.info(f"正在查询SRUID『{sr_uid}』信息")
@@ -90,7 +90,7 @@ async def _(bot: Bot, event: Event):
         else:
             msg = f"查询失败，错误代码 {sr_basic_info}"
         msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     sr_index = await mys_api.call_mihoyo_api(api="sr_index", role_uid=sr_uid)
     if isinstance(sr_index, int):
         if sr_index in error_code_msg:
@@ -98,7 +98,7 @@ async def _(bot: Bot, event: Event):
         else:
             msg = f"查询失败，请稍后重试（错误代码 {sr_index}）"
         msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     try:
         avatar_id = sr_index["avatar_list"][0]["id"] if sr_index else None
     except (KeyError, IndexError):
@@ -114,7 +114,7 @@ async def _(bot: Bot, event: Event):
             # logger.info(f"已删除SRUID『{sr_uid}』的过期cookie")
             msg = "疑似cookie失效，请重新使用`srck [cookie]`绑定或`srqr`扫码绑定"
             msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     sr_avatar_info = await mys_api.call_mihoyo_api(
         api="sr_avatar_info", role_uid=sr_uid, avatar_id=avatar_id
     )
@@ -123,7 +123,7 @@ async def _(bot: Bot, event: Event):
     if not sr_basic_info or not sr_index:
         msg = "查询失败，请稍后重试"
         msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     if sr_avatar_info and (new_fp := sr_avatar_info.get("new_fp")):
         if not public_cookie_flag:
             await set_user_fp(

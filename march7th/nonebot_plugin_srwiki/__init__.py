@@ -1,5 +1,6 @@
 from typing import List
 
+from nonebot.adapters import Event
 from nonebot.matcher import Matcher
 from nonebot.adapters import Message
 from nonebot.plugin import PluginMetadata
@@ -56,7 +57,7 @@ wiki_search = on_regex(WIKI_RE, priority=9, block=False)
 
 
 @wiki_search.handle()
-async def _(matcher: Matcher, regex_dict: dict = RegexDict()):
+async def _(event: Event, matcher: Matcher, regex_dict: dict = RegexDict()):
     wiki_name: str = regex_dict["name"] or ""
     wiki_type: str = regex_dict.get("type") or ""
     res: str = regex_dict.get("res") or ""
@@ -94,7 +95,7 @@ async def _(matcher: Matcher, regex_dict: dict = RegexDict()):
     if pic_content:
         matcher.stop_propagation()
         msg_builder = MessageFactory([Image(pic_content)])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     await wiki_search.finish()
 
 

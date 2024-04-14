@@ -75,7 +75,7 @@ async def _(bot: Bot, event: Event):
     if not user_list:
         msg = "未绑定SRUID，请使用`sruid [uid]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     sr_uid = user_list[0].sr_uid
     cookie, device_id, device_fp = await get_user_cookie_with_fp(
         bot.self_id, event.get_user_id(), sr_uid
@@ -84,7 +84,7 @@ async def _(bot: Bot, event: Event):
     if not cookie or not stoken:
         msg = "未绑定cookie，请使用`srck [cookie]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     logger.info(f"正在查询SRUID『{sr_uid}』便笺")
     mys_api = MysApi(cookie, device_id, device_fp)
     if not device_id or not device_fp:
@@ -97,18 +97,18 @@ async def _(bot: Bot, event: Event):
         else:
             msg = f"查询失败，请稍后重试（错误代码 {sr_basic_info}）"
         msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     if isinstance(sr_note, int):
         if sr_note in error_code_msg:
             msg = error_code_msg[sr_note]
         else:
             msg = f"查询失败，请稍后重试（错误代码 {sr_note}）"
         msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     if not sr_basic_info or not sr_note:
         msg = "疑似cookie失效，请重新使用`srck [cookie]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     if new_fp := sr_note.get("new_fp"):
         await set_user_fp(bot.self_id, event.get_user_id(), sr_uid, device_id, new_fp)
     logger.info(f"正在绘制SRUID『{sr_uid}』便笺图片")
@@ -126,7 +126,7 @@ async def _(bot: Bot, event: Event):
     if not user_list:
         msg = "未绑定SRUID，请使用`sruid [uid]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     sr_uid = user_list[0].sr_uid
     cookie, device_id, device_fp = await get_user_cookie_with_fp(
         bot.self_id, event.get_user_id(), sr_uid
@@ -134,7 +134,7 @@ async def _(bot: Bot, event: Event):
     if not cookie:
         msg = "未绑定cookie，请使用`srck [cookie]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     logger.info(f"正在查询SRUID『{sr_uid}』月历")
     mys_api = MysApi(cookie, device_id, device_fp)
     if not device_id or not device_fp:
@@ -147,18 +147,18 @@ async def _(bot: Bot, event: Event):
         else:
             msg = f"查询失败，请稍后重试（错误代码 {sr_basic_info}）"
         msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     if isinstance(sr_month, int):
         if sr_month in error_code_msg:
             msg = error_code_msg[sr_month]
         else:
             msg = f"查询失败，请稍后重试（错误代码 {sr_month}）"
         msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     if not sr_basic_info or not sr_month:
         msg = "疑似cookie失效，请重新使用`srck [cookie]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     if new_fp := sr_month.get("new_fp"):
         await set_user_fp(bot.self_id, event.get_user_id(), sr_uid, device_id, new_fp)
     logger.info(f"正在绘制SRUID『{sr_uid}』月历图片")

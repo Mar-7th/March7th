@@ -62,23 +62,23 @@ async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
         or "authkey=" not in url
     ):
         msg_builder = MessageFactory([Text(HELP_MESSAGE)])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     user_list = await get_user_srbind(bot.self_id, event.get_user_id())
     if not user_list:
         msg = "未绑定SRUID，请使用`sruid [uid]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     sr_uid = user_list[0].sr_uid
     logger.info(f"开始更新SRUID『{sr_uid}』抽卡记录")
     msg_builder = MessageFactory([Text(f"开始更新SRUID『{sr_uid}』抽卡记录")])
-    await msg_builder.send(at_sender=True)
+    await msg_builder.send(at_sender=not event.is_tome())
     try:
         message = await update_srgacha(bot.self_id, event.get_user_id(), sr_uid, url)
     except Exception as e:
         logger.error(f"导入抽卡记录出错：{e}")
         message = "抽卡记录更新失败，请检查链接是否正确"
     msg_builder = MessageFactory([Text(message)])
-    await msg_builder.finish(at_sender=True)
+    await msg_builder.finish(at_sender=not event.is_tome())
 
 
 @srgc.handle()
@@ -87,7 +87,7 @@ async def _(bot: Bot, event: Event):
     if not user_list:
         msg = "未绑定SRUID，请使用`sruid [uid]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     sr_uid = user_list[0].sr_uid
     try:
         img = await get_srgacha(bot.self_id, event.get_user_id(), sr_uid)
@@ -97,6 +97,6 @@ async def _(bot: Bot, event: Event):
         logger.exception(e)
     if img is None:
         msg_builder = MessageFactory([Text("请先使用 导入抽卡记录 命令导入抽卡记录")])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     msg_builder = MessageFactory([Image(img)])
     await msg_builder.finish()

@@ -102,18 +102,18 @@ async def _(bot: Bot, event: Event):
     if not user_list:
         msg = "未绑定SRUID，请使用`sruid [uid]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     sr_uid = user_list[0].sr_uid
     logger.info(f"开始更新SRUID『{sr_uid}』角色面板")
     msg_builder = MessageFactory([Text(f"开始更新SRUID『{sr_uid}』角色面板")])
-    await msg_builder.send(at_sender=True)
+    await msg_builder.send(at_sender=not event.is_tome())
     updated = await update_srpanel(bot.self_id, event.get_user_id(), sr_uid)
     if updated:
         msg = f"成功更新以下角色面板\n{updated}"
         msg_builder = MessageFactory([Text(msg)])
     else:
         msg_builder = MessageFactory([Text("角色面板更新失败，请稍后重试")])
-    await msg_builder.finish(at_sender=True)
+    await msg_builder.finish(at_sender=not event.is_tome())
 
 
 @srpanel.handle()
@@ -130,7 +130,7 @@ async def _(bot: Bot, event: Event, regex_dict: dict = RegexDict()):
     if not user_list:
         msg = "未绑定SRUID，请使用`sruid [uid]`绑定或`srqr`扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     sr_uid = user_list[0].sr_uid
     if str(cid).startswith("80"):
         cid = "8000"
@@ -145,7 +145,7 @@ async def _(bot: Bot, event: Event, regex_dict: dict = RegexDict()):
         name = srres.ResIndex["characters"][cid].name if cid != "8000" else "开拓者"
         msg = f"未找到『{name}』的面板，请放置在游戏展柜中五分钟后使用`srpu`更新面板"
         msg_builder = MessageFactory([Text(msg)])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     player_info = await get_srpanel_player(bot.self_id, event.get_user_id(), sr_uid)
     if player_info:
         try:
@@ -159,6 +159,6 @@ async def _(bot: Bot, event: Event, regex_dict: dict = RegexDict()):
         img = None
     if img is None:
         msg_builder = MessageFactory([Text("绘图出错，请尝试使用`srpu`更新面板")])
-        await msg_builder.finish(at_sender=True)
+        await msg_builder.finish(at_sender=not event.is_tome())
     msg_builder = MessageFactory([Image(img)])
     await msg_builder.finish()
