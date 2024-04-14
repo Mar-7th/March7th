@@ -1,5 +1,5 @@
-from nonebot import require, on_command
 from nonebot.adapters import Event
+from nonebot import require, on_command
 from nonebot.plugin import PluginMetadata
 
 from .data_source import get_code_msg
