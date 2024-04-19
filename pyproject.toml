@@ -43,7 +43,7 @@ pytest-asyncio = "^0.21.0"
 
 [tool.black]
 line-length = 88
-target-version = ["py38", "py39", "py310", "py311"]
+target-version = ["py39", "py310", "py311", "py312"]
 include = '\.pyi?$'
 extend-exclude = '''
 '''
@@ -58,12 +58,12 @@ src_paths = ["plugins"]
 extra_standard_library = ["typing_extensions"]
 
 [tool.ruff]
-select = ["E", "W", "F", "UP", "C", "T", "PYI", "PT", "Q"]
-ignore = ["E402", "E501", "C901"]
+lint.select = ["E", "W", "F", "UP", "C", "T", "PYI", "PT", "Q"]
+lint.ignore = ["E402", "E501", "C901"]
 line-length = 88
-target-version = "py38"
+target-version = "py39"
 
-[tool.ruff.flake8-pytest-style]
+[tool.ruff.lint.flake8-pytest-style]
 fixture-parentheses = false
 mark-parentheses = false
 

@@ -22,9 +22,9 @@ except ModuleNotFoundError:
     from nonebot_plugin_mys_api import MysApi
     from nonebot_plugin_srbind import get_user_srbind
     from nonebot_plugin_srbind.cookie import (
-        get_user_cookie_with_fp,
-        get_user_stoken,
         set_user_fp,
+        get_user_stoken,
+        get_user_cookie_with_fp,
     )
 
 from .data_source import get_srmemo_img, get_srmonth_img
@@ -73,23 +73,24 @@ srmonth = on_command(
 async def _(bot: Bot, event: Event):
     user_list = await get_user_srbind(bot.self_id, event.get_user_id())
     if not user_list:
-        msg = "未绑定SRUID，请使用`sruid [uid]`绑定或`srqr`扫码绑定"
+        msg = "未绑定SRUID，请使用`星铁扫码绑定`或`srqr`命令扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.finish(at_sender=not event.is_tome())
     sr_uid = user_list[0].sr_uid
+    mys_id = user_list[0].mys_id
     cookie, device_id, device_fp = await get_user_cookie_with_fp(
         bot.self_id, event.get_user_id(), sr_uid
     )
     stoken = await get_user_stoken(bot.self_id, event.get_user_id(), sr_uid)
-    if not cookie or not stoken:
-        msg = "未绑定cookie，请使用`srck [cookie]`绑定或`srqr`扫码绑定"
+    if not mys_id or not cookie or not stoken:
+        msg = "未绑定cookie，请使用`星铁扫码绑定`或`srqr`命令扫码绑定，或使用`星铁ck`或`srck`命令绑定"
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.finish(at_sender=not event.is_tome())
     logger.info(f"正在查询SRUID『{sr_uid}』便笺")
     mys_api = MysApi(cookie, device_id, device_fp)
     if not device_id or not device_fp:
         device_id, device_fp = await mys_api.init_device()
-    sr_basic_info = await mys_api.call_mihoyo_api(api="sr_basic_info", role_uid=sr_uid)
+    sr_basic_info = await mys_api.get_game_basic_info(role_uid=sr_uid, mys_id=mys_id)
     sr_note = await mys_api.call_mihoyo_api(api="sr_note", role_uid=sr_uid)
     if isinstance(sr_basic_info, int):
         if sr_basic_info in error_code_msg:
@@ -124,22 +125,23 @@ async def _(bot: Bot, event: Event):
 async def _(bot: Bot, event: Event):
     user_list = await get_user_srbind(bot.self_id, event.get_user_id())
     if not user_list:
-        msg = "未绑定SRUID，请使用`sruid [uid]`绑定或`srqr`扫码绑定"
+        msg = "未绑定SRUID，请使用`星铁扫码绑定`或`srqr`命令扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.finish(at_sender=not event.is_tome())
     sr_uid = user_list[0].sr_uid
+    mys_id = user_list[0].mys_id
     cookie, device_id, device_fp = await get_user_cookie_with_fp(
         bot.self_id, event.get_user_id(), sr_uid
     )
-    if not cookie:
-        msg = "未绑定cookie，请使用`srck [cookie]`绑定或`srqr`扫码绑定"
+    if not mys_id or not cookie:
+        msg = "未绑定cookie，请使用`星铁扫码绑定`或`srqr`命令扫码绑定，或使用`星铁ck`或`srck`命令绑定"
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.finish(at_sender=not event.is_tome())
     logger.info(f"正在查询SRUID『{sr_uid}』月历")
     mys_api = MysApi(cookie, device_id, device_fp)
     if not device_id or not device_fp:
         device_id, device_fp = await mys_api.init_device()
-    sr_basic_info = await mys_api.call_mihoyo_api(api="sr_basic_info", role_uid=sr_uid)
+    sr_basic_info = await mys_api.get_game_basic_info(role_uid=sr_uid, mys_id=mys_id)
     sr_month = await mys_api.call_mihoyo_api(api="sr_month_info", role_uid=sr_uid)
     if isinstance(sr_basic_info, int):
         if sr_basic_info in error_code_msg:

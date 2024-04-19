@@ -15,18 +15,14 @@ try:
     from march7th.nonebot_plugin_srbind import get_user_srbind
     from march7th.nonebot_plugin_srbind.cookie import (  # set_cookie_expire,
         set_user_fp,
-        set_public_fp,
         get_user_cookie_with_fp,
-        get_public_cookie_with_fp,
     )
 except ModuleNotFoundError:
     from nonebot_plugin_mys_api import MysApi
     from nonebot_plugin_srbind import get_user_srbind
     from nonebot_plugin_srbind.cookie import (
-        get_public_cookie_with_fp,
-        get_user_cookie_with_fp,
-        set_public_fp,
         set_user_fp,
+        get_user_cookie_with_fp,
     )
 
 from .data_source import get_srinfo_img
@@ -61,29 +57,24 @@ srinfo = on_command(
 async def _(bot: Bot, event: Event):
     user_list = await get_user_srbind(bot.self_id, event.get_user_id())
     if not user_list:
-        msg = "未绑定SRUID，请使用`sruid [uid]`绑定或`srqr`扫码绑定"
+        msg = "未绑定SRUID，请使用`星铁扫码绑定`或`srqr`命令扫码绑定"
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.finish(at_sender=not event.is_tome())
     sr_uid = user_list[0].sr_uid
+    mys_id = user_list[0].mys_id
     cookie, device_id, device_fp = await get_user_cookie_with_fp(
         bot.self_id, event.get_user_id(), sr_uid
     )
-    mys_api = MysApi()
-    public_cookie_flag = False
-    if not device_id or not device_fp:
-        device_id, device_fp = await mys_api.init_device()
-    if not cookie:
-        cookie, device_id, device_fp = await get_public_cookie_with_fp(bot.self_id)
-        public_cookie_flag = True
-    if not cookie:
-        msg = "当前无可用cookie"
+    if not mys_id or not cookie:
+        msg = "未绑定cookie，请使用`星铁扫码绑定`或`srqr`命令扫码绑定，或使用`星铁ck`或`srck`命令绑定"
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.finish(at_sender=not event.is_tome())
+    mys_api = MysApi()
     if not device_id or not device_fp:
         device_id, device_fp = await mys_api.init_device()
     logger.info(f"正在查询SRUID『{sr_uid}』信息")
     mys_api = MysApi(cookie, device_id, device_fp)
-    sr_basic_info = await mys_api.call_mihoyo_api(api="sr_basic_info", role_uid=sr_uid)
+    sr_basic_info = await mys_api.get_game_basic_info(role_uid=sr_uid, mys_id=mys_id)
     if isinstance(sr_basic_info, int):
         if sr_basic_info in error_code_msg:
             msg = error_code_msg[sr_basic_info]
@@ -105,15 +96,10 @@ async def _(bot: Bot, event: Event):
         avatar_id = None
     # cookie expire if avatar_id is None
     if not avatar_id:
-        if public_cookie_flag:
-            logger.warning("公共cookie已失效")
-            msg = "公共cookie已失效，请使用`srqr`扫码绑定账号"
-            msg_builder = MessageFactory([Text(str(msg))])
-        else:
-            # await set_cookie_expire(bot.self_id, event.get_user_id(), sr_uid)
-            # logger.info(f"已删除SRUID『{sr_uid}』的过期cookie")
-            msg = "疑似cookie失效，请重新使用`srck [cookie]`绑定或`srqr`扫码绑定"
-            msg_builder = MessageFactory([Text(str(msg))])
+        # await set_cookie_expire(bot.self_id, event.get_user_id(), sr_uid)
+        # logger.info(f"已删除SRUID『{sr_uid}』的过期cookie")
+        msg = "疑似cookie失效，请重新使用`srck [cookie]`绑定或`srqr`扫码绑定"
+        msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.finish(at_sender=not event.is_tome())
     sr_avatar_info = await mys_api.call_mihoyo_api(
         api="sr_avatar_info", role_uid=sr_uid, avatar_id=avatar_id
@@ -125,12 +111,7 @@ async def _(bot: Bot, event: Event):
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.finish(at_sender=not event.is_tome())
     if sr_avatar_info and (new_fp := sr_avatar_info.get("new_fp")):
-        if not public_cookie_flag:
-            await set_user_fp(
-                bot.self_id, event.get_user_id(), sr_uid, device_id, new_fp
-            )
-        else:
-            await set_public_fp(bot.self_id, cookie, device_id, new_fp)
+        await set_user_fp(bot.self_id, event.get_user_id(), sr_uid, device_id, new_fp)
     logger.info(f"正在绘制SRUID『{sr_uid}』信息图片")
     img = await get_srinfo_img(sr_uid, sr_basic_info, sr_index, sr_avatar_info)
     if img:
