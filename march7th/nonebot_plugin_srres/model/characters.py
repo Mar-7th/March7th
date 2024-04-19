@@ -1,5 +1,3 @@
-from typing import Dict, List
-
 from pydantic import BaseModel
 
 from .common import Property, Quantity, Promotion
@@ -18,22 +16,22 @@ class CharacterType(BaseModel):
     path: str
     element: str
     max_sp: float
-    ranks: List[str]
-    skills: List[str]
-    skill_trees: List[str]
+    ranks: list[str]
+    skills: list[str]
+    skill_trees: list[str]
     icon: str
     preview: str
     portrait: str
-    guide_overview: List[str] = []
-    guide_material: List[str] = []
+    guide_overview: list[str] = []
+    guide_material: list[str] = []
 
 
 class CharacterRankType(BaseModel):
     id: str
     rank: int
     desc: str
-    materials: List[Quantity]
-    level_up_skills: List[Quantity]
+    materials: list[Quantity]
+    level_up_skills: list[Quantity]
     icon: str
 
 
@@ -48,34 +46,34 @@ class CharacterSkillType(BaseModel):
     effect_text: str
     simple_desc: str
     desc: str
-    params: List[List[float]]
+    params: list[list[float]]
     icon: str
 
 
 class SkillTreeLevelType(BaseModel):
     promotion: int
-    properties: List[Property]
-    materials: List[Quantity]
+    properties: list[Property]
+    materials: list[Quantity]
 
 
 class CharacterSkillTreeType(BaseModel):
     id: str
     max_level: int
     anchor: str
-    pre_points: List[str]
-    level_up_skills: List[Quantity]
-    levels: List[SkillTreeLevelType]
+    pre_points: list[str]
+    level_up_skills: list[Quantity]
+    levels: list[SkillTreeLevelType]
     icon: str
 
 
 class CharacterPromotionType(BaseModel):
     id: str
-    values: List[Dict[str, Promotion]]
-    materials: List[List[Quantity]]
+    values: list[dict[str, Promotion]]
+    materials: list[list[Quantity]]
 
 
-CharacterIndex = Dict[str, CharacterType]
-CharacterRankIndex = Dict[str, CharacterRankType]
-CharacterSkillIndex = Dict[str, CharacterSkillType]
-CharacterSkillTreeIndex = Dict[str, CharacterSkillTreeType]
-CharacterPromotionIndex = Dict[str, CharacterPromotionType]
+CharacterIndex = dict[str, CharacterType]
+CharacterRankIndex = dict[str, CharacterRankType]
+CharacterSkillIndex = dict[str, CharacterSkillType]
+CharacterSkillTreeIndex = dict[str, CharacterSkillTreeType]
+CharacterPromotionIndex = dict[str, CharacterPromotionType]

@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -85,7 +85,7 @@ class RelicBasicInfo(BaseModel):
     id: str
     level: int = 1
     main_affix_id: Optional[str] = None
-    sub_affix_info: List[SubAffixBasicInfo] = []
+    sub_affix_info: list[SubAffixBasicInfo] = []
 
 
 class LightConeBasicInfo(BaseModel):
@@ -100,9 +100,9 @@ class CharacterBasicInfo(BaseModel):
     rank: int = 0
     level: int = 1
     promotion: int = 0
-    skill_tree_levels: List[LevelInfo] = []
+    skill_tree_levels: list[LevelInfo] = []
     light_cone: Optional[LightConeBasicInfo] = None
-    relics: Optional[List[RelicBasicInfo]] = None
+    relics: Optional[list[RelicBasicInfo]] = None
 
 
 class RelicInfo(BaseModel):
@@ -114,7 +114,7 @@ class RelicInfo(BaseModel):
     level: int
     icon: str
     main_affix: Optional[PropertyInfo] = None
-    sub_affix: List[SubAffixInfo] = []
+    sub_affix: list[SubAffixInfo] = []
 
 
 class RelicSetInfo(BaseModel):
@@ -123,7 +123,7 @@ class RelicSetInfo(BaseModel):
     icon: str
     num: int
     desc: str = ""
-    properties: List[PropertyInfo] = []
+    properties: list[PropertyInfo] = []
 
 
 class LightConeInfo(BaseModel):
@@ -137,8 +137,8 @@ class LightConeInfo(BaseModel):
     preview: str
     portrait: str
     path: Optional[PathInfo] = None
-    attributes: List[AttributeInfo] = []
-    properties: List[PropertyInfo] = []
+    attributes: list[AttributeInfo] = []
+    properties: list[PropertyInfo] = []
 
 
 class CharacterInfo(BaseModel):
@@ -151,14 +151,14 @@ class CharacterInfo(BaseModel):
     icon: str
     preview: str
     portrait: str
-    rank_icons: List[str] = []
+    rank_icons: list[str] = []
     path: Optional[PathInfo] = None
     element: Optional[ElementInfo] = None
-    skills: List[SkillInfo] = []
-    skill_trees: List[SkillTreeInfo] = []
+    skills: list[SkillInfo] = []
+    skill_trees: list[SkillTreeInfo] = []
     light_cone: Optional[LightConeInfo] = None
-    relics: List[RelicInfo] = []
-    relic_sets: List[RelicSetInfo] = []
-    attributes: List[AttributeInfo] = []
-    additions: List[AttributeInfo] = []
-    properties: List[PropertyInfo] = []
+    relics: list[RelicInfo] = []
+    relic_sets: list[RelicSetInfo] = []
+    attributes: list[AttributeInfo] = []
+    additions: list[AttributeInfo] = []
+    properties: list[PropertyInfo] = []

@@ -1,5 +1,6 @@
 from io import BytesIO
-from typing import Dict, List, TypeVar, Optional, Generator
+from typing import TypeVar, Optional
+from collections.abc import Generator
 
 from PIL import Image
 from pil_utils import BuildImage
@@ -17,7 +18,7 @@ fontname = srres.get_font()
 T = TypeVar("T")
 
 
-def wrap_list(lst: List[T], n: int) -> Generator[List[T], None, None]:
+def wrap_list(lst: list[T], n: int) -> Generator[list[T], None, None]:
     for i in range(0, len(lst), n):
         yield lst[i : i + n]
 
@@ -54,7 +55,7 @@ async def get_srinfo_img(
     abyss_process = stats["abyss_process"]  # 深渊进度
 
     avatars = sr_index["avatar_list"]  # 角色信息 list
-    equips: Dict[int, Dict[str, str]] = {}  # 装备信息 dict
+    equips: dict[int, dict[str, str]] = {}  # 装备信息 dict
 
     details = sr_avatar_info["avatar_list"] if sr_avatar_info else []
     for detail in details:

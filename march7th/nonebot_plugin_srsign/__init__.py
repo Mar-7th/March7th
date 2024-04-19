@@ -1,5 +1,3 @@
-from typing import List
-
 from nonebot.log import logger
 from nonebot import require, on_command
 from nonebot.adapters import Bot, Event
@@ -56,7 +54,7 @@ async def _(bot: Bot, event: Event):
         msg_builder = MessageFactory([Text(err)])
         await msg_builder.send(at_sender=not event.is_tome())
         await srsign.finish()
-    msg: List[str] = []
+    msg: list[str] = []
     for user in user_list:
         sr_uid = user.sr_uid
         cookie, device_id, device_fp = await get_user_cookie_with_fp(

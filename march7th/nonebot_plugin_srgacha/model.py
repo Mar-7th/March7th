@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any
 
 from sqlalchemy import JSON, String
 from pydantic import Field, BaseModel
@@ -23,7 +23,7 @@ class GachaLogItem(BaseModel):
 
 class GachaLogData(BaseModel):
     size: str
-    list: List[GachaLogItem] = Field(default_factory=list)
+    list_: list[GachaLogItem] = Field(alias="list", default_factory=list)
 
 
 class GachaLogResponse(BaseModel):
@@ -33,19 +33,19 @@ class GachaLogResponse(BaseModel):
 
 
 class GachaLog(BaseModel):
-    common: Dict[str, GachaLogItem] = {}
+    common: dict[str, GachaLogItem] = {}
     """
     Stellar Warp
     """
-    beginner: Dict[str, GachaLogItem] = {}
+    beginner: dict[str, GachaLogItem] = {}
     """
     Departure Warp
     """
-    character_event: Dict[str, GachaLogItem] = {}
+    character_event: dict[str, GachaLogItem] = {}
     """
     Character Event Warp
     """
-    light_cone_event: Dict[str, GachaLogItem] = {}
+    light_cone_event: dict[str, GachaLogItem] = {}
     """
     Light Cone Event Warp
     """
@@ -58,7 +58,7 @@ class UserGachaLog(Model):
     bot_id: Mapped[str] = mapped_column(String(64))
     user_id: Mapped[str] = mapped_column(String(64))
     sr_uid: Mapped[str] = mapped_column(String(64))
-    gacha: Mapped[Dict[str, Any]] = mapped_column(JSON)
+    gacha: Mapped[dict[str, Any]] = mapped_column(JSON)
     """
     JSON of GachaLog
     """

@@ -1,5 +1,3 @@
-from typing import Dict
-
 from pydantic import BaseModel
 
 
@@ -11,4 +9,4 @@ class PathType(BaseModel):
     icon: str  # path icon path
 
 
-PathIndex = Dict[str, PathType]
+PathIndex = dict[str, PathType]

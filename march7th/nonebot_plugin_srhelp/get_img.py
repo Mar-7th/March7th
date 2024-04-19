@@ -1,5 +1,5 @@
 from io import BytesIO
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from pil_utils import BuildImage, text2image
 
@@ -19,14 +19,14 @@ font_args = {
 }
 
 
-async def get_srhelp_img(plugin_info: Dict[str, Dict[str, str]]) -> Optional[BytesIO]:
+async def get_srhelp_img(plugin_info: dict[str, dict[str, str]]) -> Optional[BytesIO]:
     if not plugin_info:
         return None
     title = "March7th Help Menu"
     tip = "* [] 表示需要填入的参数，补充参数后无需带 []"
     git_repo = "github.com/Mar-7th/March7th"
-    cols_height: List[int] = [0, 0]
-    item_image_dict: Dict[str, Dict[str, Any]] = {}
+    cols_height: list[int] = [0, 0]
+    item_image_dict: dict[str, dict[str, Any]] = {}
     for k, v in plugin_info.items():
         description = v.get("description", "")
         usage = v.get("srhelp", "暂无帮助信息")

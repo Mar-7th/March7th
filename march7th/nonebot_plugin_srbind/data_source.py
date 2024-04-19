@@ -1,5 +1,4 @@
 from io import BytesIO
-from typing import List
 
 import qrcode
 from sqlalchemy import select, update
@@ -70,7 +69,7 @@ async def del_user_srbind(bot_id: str, user_id: str, sr_uid: str) -> None:
             await session.commit()
 
 
-async def get_user_srbind(bot_id: str, user_id: str) -> List[UserBind]:
+async def get_user_srbind(bot_id: str, user_id: str) -> list[UserBind]:
     statement = (
         select(UserBind)
         .where(UserBind.bot_id == bot_id)

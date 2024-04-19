@@ -2,7 +2,7 @@ import json
 import random
 import asyncio
 from pathlib import Path
-from typing import Any, Dict, Optional, TypedDict
+from typing import Any, Optional, TypedDict
 
 import httpx
 from nonebot.log import logger
@@ -101,8 +101,8 @@ class StarRailRes:
         "properties": {},
         "achievements": {},
     }
-    Nickname: Dict[str, Any] = {}
-    NicknameRev: Dict[str, Any] = {}
+    Nickname: dict[str, Any] = {}
+    NicknameRev: dict[str, Any] = {}
 
     def proxy_url(self, url: str) -> str:
         if plugin_config.github_proxy:
@@ -342,7 +342,7 @@ class StarRailRes:
     def get_data_folder(self) -> Path:
         return plugin_data_dir
 
-    def load_index_file(self, name: str, model=True) -> Dict[str, Any]:
+    def load_index_file(self, name: str, model=True) -> dict[str, Any]:
         if name in ResFiles and (index_dir / f"{name}.json").exists():
             with open(index_dir / f"{name}.json", encoding="utf-8") as f:
                 data = json.load(f)

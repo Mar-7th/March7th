@@ -3,7 +3,7 @@ import json
 import asyncio
 import contextlib
 from io import BytesIO
-from typing import Any, Dict
+from typing import Any
 
 from nonebot.log import logger
 from nonebot.params import CommandArg
@@ -64,7 +64,7 @@ __plugin_meta__ = PluginMetadata(
     },
 )
 
-qrbind_buffer: Dict[str, Any] = {}
+qrbind_buffer: dict[str, Any] = {}
 
 sruid = on_command(
     "sruid", aliases={"星铁uid", "星铁绑定", "星铁账号绑定"}, priority=2, block=True

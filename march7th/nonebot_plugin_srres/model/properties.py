@@ -1,5 +1,3 @@
-from typing import Dict
-
 from pydantic import BaseModel
 
 
@@ -14,4 +12,4 @@ class PropertyType(BaseModel):
     icon: str  # property icon path
 
 
-PropertyIndex = Dict[str, PropertyType]
+PropertyIndex = dict[str, PropertyType]

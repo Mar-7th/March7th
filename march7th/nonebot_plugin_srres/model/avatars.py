@@ -1,5 +1,3 @@
-from typing import Dict
-
 from pydantic import BaseModel
 
 
@@ -9,4 +7,4 @@ class AvatarType(BaseModel):
     icon: str  # avartar icon
 
 
-AvatarIndex = Dict[str, AvatarType]
+AvatarIndex = dict[str, AvatarType]

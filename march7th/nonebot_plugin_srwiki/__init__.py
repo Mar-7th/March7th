@@ -1,5 +1,3 @@
-from typing import List
-
 from nonebot.matcher import Matcher
 from nonebot.plugin import PluginMetadata
 from nonebot.adapters import Event, Message
@@ -131,7 +129,7 @@ async def _(arg: Message = CommandArg()):
     if achievement := srres.ResIndex["achievements"].get(name):
         message = f"{achievement.title}\n分类：{series_map[achievement.series_id]}\n描述：{achievement.desc}\n隐藏描述：{achievement.hide_desc}\n是否隐藏：{'是' if achievement.hide else '否'}"
         await srac.finish(message)
-    results: List[AchievementType] = []
+    results: list[AchievementType] = []
     for achievement in srres.ResIndex["achievements"].values():
         if name in remove_symbol(achievement.title):
             results.append(achievement)
@@ -170,7 +168,7 @@ async def _(matcher: Matcher, arg: Message = CommandArg()):
 async def _(key: str = ArgPlainText()):
     if key not in series_map:
         await srah.reject("序号错误，请重新输入")
-    result: List[str] = []
+    result: list[str] = []
     for achievement in srres.ResIndex["achievements"].values():
         if achievement.series_id == key and achievement.hide:
             result.append(achievement.title)

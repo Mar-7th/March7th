@@ -1,5 +1,3 @@
-from typing import Set, Dict
-
 from nonebot.log import logger
 from nonebot import require, on_command
 from nonebot.plugin import Plugin, PluginMetadata, get_loaded_plugins
@@ -31,8 +29,8 @@ srhelp = on_command("srhelp", aliases={"星铁帮助", "星铁功能"}, priority
 
 @srhelp.handle()
 async def _():
-    plugin_set: Set[Plugin] = get_loaded_plugins()
-    plugin_info: Dict[str, Dict[str, str]] = {}
+    plugin_set: set[Plugin] = get_loaded_plugins()
+    plugin_info: dict[str, dict[str, str]] = {}
     for plugin in plugin_set:
         try:
             name = (

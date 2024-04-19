@@ -1,8 +1,9 @@
 import json
 import asyncio
 from io import BytesIO
+from collections.abc import Generator
+from typing import Any, TypeVar, Optional
 from urllib.parse import parse_qs, urlparse, urlencode
-from typing import Any, Dict, List, TypeVar, Optional, Generator
 
 from PIL import Image
 from nonebot import get_driver
@@ -50,7 +51,7 @@ if not isinstance(driver, HTTPClientMixin):
 T = TypeVar("T")
 
 
-def wrap_list(lst: List[T], n: int) -> Generator[List[T], None, None]:
+def wrap_list(lst: list[T], n: int) -> Generator[list[T], None, None]:
     for i in range(0, len(lst), n):
         yield lst[i : i + n]
 
@@ -62,7 +63,7 @@ async def get_icon(id: str) -> Optional[Image.Image]:
     return None
 
 
-async def request(url: str) -> Optional[Dict]:
+async def request(url: str) -> Optional[dict]:
     request = Request(
         "GET",
         url,
@@ -76,7 +77,7 @@ async def request(url: str) -> Optional[Dict]:
         return None
 
 
-async def fetch_gacha_log(gacha_url: str, gacha_type: str) -> Dict[str, GachaLogItem]:
+async def fetch_gacha_log(gacha_url: str, gacha_type: str) -> dict[str, GachaLogItem]:
     parsed_url = urlparse(gacha_url)
     query_params = parse_qs(parsed_url.query)
     query_params["authkey_ver"] = ["1"]
@@ -87,17 +88,17 @@ async def fetch_gacha_log(gacha_url: str, gacha_type: str) -> Dict[str, GachaLog
     query_params["gacha_type"] = [gacha_type]
     url_base = f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}"
     query_string = urlencode(query_params, doseq=True)
-    full_gacha_log: Dict[str, GachaLogItem] = {}
+    full_gacha_log: dict[str, GachaLogItem] = {}
     while True:
         query_string = urlencode(query_params, doseq=True)
         url = f"{url_base}?{query_string}"
         response = await request(url)
         data = type_validate_python(GachaLogResponse, response)
-        if len(data.data.list) == 0:
+        if len(data.data.list_) == 0:
             break
-        gacha_log = {i.id: i for i in data.data.list}
+        gacha_log = {i.id: i for i in data.data.list_}
         full_gacha_log.update(gacha_log)
-        query_params["end_id"] = [data.data.list[-1].id]
+        query_params["end_id"] = [data.data.list_[-1].id]
         await asyncio.sleep(0.3)
     return full_gacha_log
 
@@ -196,7 +197,7 @@ async def update_srgacha(bot_id: str, user_id: str, sr_uid: str, url: str) -> st
     return ret_msg
 
 
-def analyze_gacha(gacha: Dict[str, GachaLogItem]) -> Dict[str, Any]:
+def analyze_gacha(gacha: dict[str, GachaLogItem]) -> dict[str, Any]:
     result = {}
     gacha_list = list(gacha.values())
     gacha_sorted = sorted(gacha_list, key=lambda x: x.id)

@@ -1,4 +1,4 @@
-from typing import Dict, List, Literal
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -20,10 +20,10 @@ class RelicType(BaseModel):
 class RelicSetType(BaseModel):
     id: str
     name: str
-    properties: List[List[Property]]
-    desc: List[str]
+    properties: list[list[Property]]
+    desc: list[str]
     icon: str
-    guide_overview: List[str]
+    guide_overview: list[str]
 
 
 class AffixType(BaseModel):
@@ -36,15 +36,15 @@ class AffixType(BaseModel):
 
 class RelicMainAffixType(BaseModel):
     id: str
-    affixes: Dict[str, AffixType]
+    affixes: dict[str, AffixType]
 
 
 class RelicSubAffixType(BaseModel):
     id: str
-    affixes: Dict[str, AffixType]
+    affixes: dict[str, AffixType]
 
 
-RelicIndex = Dict[str, RelicType]
-RelicSetIndex = Dict[str, RelicSetType]
-RelicMainAffixIndex = Dict[str, RelicMainAffixType]
-RelicSubAffixIndex = Dict[str, RelicSubAffixType]
+RelicIndex = dict[str, RelicType]
+RelicSetIndex = dict[str, RelicSetType]
+RelicMainAffixIndex = dict[str, RelicMainAffixType]
+RelicSubAffixIndex = dict[str, RelicSubAffixType]

@@ -1,5 +1,5 @@
 from io import BytesIO
-from typing import Set, Dict, List, Optional
+from typing import Optional
 
 from pil_utils import BuildImage
 from PIL import Image, ImageEnhance
@@ -62,7 +62,7 @@ async def get_srpanel_img(
     relic = character_info.relics
     relic_set = character_info.relic_sets
     rank_icons = list(character_info.rank_icons)
-    rank_images: List[Image.Image] = []
+    rank_images: list[Image.Image] = []
     for i in range(len(rank_icons)):
         rank_icon = await get_image(rank_icons[i])
         if rank_icon:
@@ -142,7 +142,7 @@ async def get_srpanel_img(
     # attributes
     x_index = 600
     y_index = 305
-    attr_set: Set[str] = set()
+    attr_set: set[str] = set()
     for attr in attributes:
         image_res.draw_rounded_rectangle(
             (x_index, y_index, x_index + 400, y_index + 50),
@@ -270,7 +270,7 @@ async def get_srpanel_img(
     x_index = 380
     y_index = 850
     y_step = 100
-    point_groups: List[Set] = []
+    point_groups: list[set] = []
     image_res.draw_rounded_rectangle(
         (x_index, y_index, x_index + 350, y_index + y_step * 4 - 10),
         radius=15,
@@ -404,7 +404,7 @@ async def get_srpanel_img(
             fill=WHITE,
         )
     # relic score cal
-    relic_score: Dict[str, float] = {}
+    relic_score: dict[str, float] = {}
     cid = character_info.id
     # relic
     for i in range(0, 6):

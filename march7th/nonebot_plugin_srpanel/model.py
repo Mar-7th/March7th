@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from nonebot import get_driver
 from nonebot.log import logger
@@ -108,7 +108,7 @@ class RelicInfo(BaseModel):
     level: int
     icon: str
     main_affix: Optional[PropertyInfo] = None
-    sub_affix: List[SubAffixInfo] = []
+    sub_affix: list[SubAffixInfo] = []
 
 
 class RelicSetInfo(BaseModel):
@@ -117,7 +117,7 @@ class RelicSetInfo(BaseModel):
     num: int
     icon: str
     desc: str = ""
-    properties: List[PropertyInfo] = []
+    properties: list[PropertyInfo] = []
 
 
 class LightConeInfo(BaseModel):
@@ -131,8 +131,8 @@ class LightConeInfo(BaseModel):
     preview: str
     portrait: str
     path: Optional[PathInfo] = None
-    attributes: List[AttributeInfo] = []
-    properties: List[PropertyInfo] = []
+    attributes: list[AttributeInfo] = []
+    properties: list[PropertyInfo] = []
 
 
 class MemoryInfo(BaseModel):
@@ -171,33 +171,33 @@ class CharacterInfo(BaseModel):
     icon: str
     preview: str
     portrait: str
-    rank_icons: List[str] = []
+    rank_icons: list[str] = []
     path: Optional[PathInfo] = None
     element: Optional[ElementInfo] = None
-    skills: List[SkillInfo] = []
-    skill_trees: List[SkillTreeInfo] = []
+    skills: list[SkillInfo] = []
+    skill_trees: list[SkillTreeInfo] = []
     light_cone: Optional[LightConeInfo] = None
-    relics: List[RelicInfo] = []
-    relic_sets: List[RelicSetInfo] = []
-    attributes: List[AttributeInfo] = []
-    additions: List[AttributeInfo] = []
-    properties: List[PropertyInfo] = []
+    relics: list[RelicInfo] = []
+    relic_sets: list[RelicSetInfo] = []
+    attributes: list[AttributeInfo] = []
+    additions: list[AttributeInfo] = []
+    properties: list[PropertyInfo] = []
     # extra
     time: Optional[str] = None
 
 
 class FormattedApiInfo(BaseModel):
     player: PlayerInfo
-    characters: List[CharacterInfo] = []
+    characters: list[CharacterInfo] = []
 
 
 class ScoreItem(BaseModel):
-    weight: Dict[str, float]
-    main: Dict[str, Dict[str, float]]
+    weight: dict[str, float]
+    main: dict[str, dict[str, float]]
     max: float
 
 
-ScoreFile = Dict[str, ScoreItem]
+ScoreFile = dict[str, ScoreItem]
 
 
 class UserPanel(Model):
@@ -208,7 +208,7 @@ class UserPanel(Model):
     user_id: Mapped[str] = mapped_column(String(64))
     sr_uid: Mapped[str] = mapped_column(String(64))
     cid: Mapped[str] = mapped_column(String(64))
-    info: Mapped[Dict[str, Any]] = mapped_column(JSON)
+    info: Mapped[dict[str, Any]] = mapped_column(JSON)
 
 
 async def set_user_srpanel(panel: UserPanel) -> None:
@@ -270,7 +270,7 @@ async def get_srpanel_character(
     return None
 
 
-async def request(url: str) -> Optional[Dict]:
+async def request(url: str) -> Optional[dict]:
     request = Request(
         "GET",
         url,

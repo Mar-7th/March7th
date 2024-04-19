@@ -1,7 +1,7 @@
 import json
 from time import time
+from typing import Union
 from re import sub, compile, findall
-from typing import Dict, List, Union
 from datetime import datetime, timezone, timedelta
 
 from httpx import AsyncClient
@@ -10,7 +10,7 @@ from nonebot.log import logger
 TZ = timezone(timedelta(hours=8))
 
 
-async def get_data(type, data: Dict = {}) -> Dict:
+async def get_data(type, data: dict = {}) -> dict:
     """米哈游接口请求"""
 
     url = {
@@ -69,7 +69,7 @@ async def get_act_id() -> str:
     return act_id
 
 
-async def get_live_data(act_id: str) -> Dict:
+async def get_live_data(act_id: str) -> dict:
     """获取直播数据，尤其是 ``code_ver``"""
 
     ret = await get_data("index", {"actId": act_id})
@@ -97,7 +97,7 @@ async def get_live_data(act_id: str) -> Dict:
     return live_data
 
 
-async def get_code(version: str, act_id: str) -> Union[Dict, List[Dict]]:
+async def get_code(version: str, act_id: str) -> Union[dict, list[dict]]:
     """获取兑换码"""
 
     ret = await get_data("code", {"version": version, "actId": act_id})
@@ -127,7 +127,7 @@ async def get_code_msg() -> str:
         return live_data["error"]
 
     code_data = await get_code(live_data["code_ver"], act_id)
-    if isinstance(code_data, Dict):
+    if isinstance(code_data, dict):
         return code_data["error"]
 
     code_msg = (

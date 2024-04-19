@@ -1,5 +1,3 @@
-from typing import Dict
-
 from pydantic import BaseModel
 
 
@@ -11,4 +9,4 @@ class ElementType(BaseModel):
     icon: str  # element icon path
 
 
-ElementIndex = Dict[str, ElementType]
+ElementIndex = dict[str, ElementType]

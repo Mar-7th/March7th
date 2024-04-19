@@ -1,5 +1,3 @@
-from typing import Dict, List
-
 from pydantic import BaseModel
 
 
@@ -10,7 +8,7 @@ class ItemType(BaseModel):
     sub_type: str  # item sub type
     rarity: int  # item rarity
     icon: str  # item icon path
-    come_from: List[str]  # item come from
+    come_from: list[str]  # item come from
 
 
-ItemIndex = Dict[str, ItemType]
+ItemIndex = dict[str, ItemType]

@@ -1,5 +1,3 @@
-from typing import Dict
-
 from pydantic import BaseModel
 
 
@@ -12,4 +10,4 @@ class AchievementType(BaseModel):
     hide: bool  # achievement hide
 
 
-AchievementIndex = Dict[str, AchievementType]
+AchievementIndex = dict[str, AchievementType]

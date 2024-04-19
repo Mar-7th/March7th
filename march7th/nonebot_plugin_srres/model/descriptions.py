@@ -1,5 +1,3 @@
-from typing import Dict
-
 from pydantic import BaseModel
 
 
@@ -9,4 +7,4 @@ class DescriptionType(BaseModel):
     desc: str  # description desc
 
 
-DescriptionIndex = Dict[str, DescriptionType]
+DescriptionIndex = dict[str, DescriptionType]

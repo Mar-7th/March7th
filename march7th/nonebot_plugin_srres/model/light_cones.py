@@ -1,5 +1,3 @@
-from typing import Dict, List
-
 from pydantic import BaseModel
 
 from .common import Property, Quantity, Promotion
@@ -13,23 +11,23 @@ class LightConeType(BaseModel):
     icon: str
     preview: str
     portrait: str
-    guide_overview: List[str] = []
+    guide_overview: list[str] = []
 
 
 class LightConeRankType(BaseModel):
     id: str
     skill: str
     desc: str
-    params: List[List[float]]
-    properties: List[List[Property]]
+    params: list[list[float]]
+    properties: list[list[Property]]
 
 
 class LightConePromotionType(BaseModel):
     id: str
-    values: List[Dict[str, Promotion]]
-    materials: List[List[Quantity]]
+    values: list[dict[str, Promotion]]
+    materials: list[list[Quantity]]
 
 
-LightConeIndex = Dict[str, LightConeType]
-LightConeRankIndex = Dict[str, LightConeRankType]
-LightConePromotionIndex = Dict[str, LightConePromotionType]
+LightConeIndex = dict[str, LightConeType]
+LightConeRankIndex = dict[str, LightConeRankType]
+LightConePromotionIndex = dict[str, LightConePromotionType]
