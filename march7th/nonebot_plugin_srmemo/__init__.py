@@ -87,11 +87,12 @@ async def _(bot: Bot, event: Event):
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.finish(at_sender=not event.is_tome())
     logger.info(f"正在查询SRUID『{sr_uid}』便笺")
-    mys_api = MysApi(cookie, device_id, device_fp)
+    cookie_with_token = f"{cookie};{stoken}"
+    mys_api = MysApi(cookie_with_token, device_id, device_fp)
     if not device_id or not device_fp:
         device_id, device_fp = await mys_api.init_device()
     sr_basic_info = await mys_api.get_game_basic_info(role_uid=sr_uid, mys_id=mys_id)
-    sr_note = await mys_api.call_mihoyo_api(api="sr_note", role_uid=sr_uid)
+    sr_note = await mys_api.call_mihoyo_api(api="sr_widget", role_uid=sr_uid)
     if isinstance(sr_basic_info, int):
         if sr_basic_info in error_code_msg:
             msg = error_code_msg[sr_basic_info]

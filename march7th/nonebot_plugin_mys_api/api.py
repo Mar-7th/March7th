@@ -569,7 +569,6 @@ class MysApi:
             refer = f"{WEBSTATIC_URL}/app/community-game-records/rpg/?bbs_presentation_style=fullscreen"
         elif api == "sr_widget":
             url = STAR_RAIL_WIDGET_API
-            # page = f"{TOOL_VERSION}_#/rpg"
             params = {}
             params_str = ""
             is_ds2 = True
