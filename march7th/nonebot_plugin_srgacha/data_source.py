@@ -5,14 +5,15 @@ from collections.abc import Generator
 from typing import Any, TypeVar, Optional
 from urllib.parse import parse_qs, urlparse, urlencode
 
+from yarl import URL
 from PIL import Image
 from nonebot import get_driver
 from pil_utils import BuildImage
 from pydantic import ValidationError
 from sqlalchemy import select, update
-from nonebot.compat import type_validate_python
 from nonebot_plugin_datastore import create_session
 from nonebot.drivers import Request, HTTPClientMixin
+from nonebot.compat import model_dump, type_validate_python
 
 try:
     from march7th.nonebot_plugin_srres import srres
@@ -64,9 +65,10 @@ async def get_icon(id: str) -> Optional[Image.Image]:
 
 
 async def request(url: str) -> Optional[dict]:
+    # This URL does not comply with the RFC 3986 standard
     request = Request(
         "GET",
-        url,
+        URL(url, encoded=True),
         timeout=10,
     )
     response = await driver.request(request)
@@ -209,7 +211,7 @@ def analyze_gacha(gacha: dict[str, GachaLogItem]) -> dict[str, Any]:
     items = {}
     for item in gacha_sorted:
         if item.rank_type == "5":
-            items[item.id] = item.dict()
+            items[item.id] = model_dump(item)
             items[item.id]["cost"] = counter_5
             items[item.id]["is_up"] = False if item.item_id in RESIDENT else True
             if item.item_id in RESIDENT:

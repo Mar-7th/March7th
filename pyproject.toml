@@ -31,15 +31,11 @@ pydantic = ">=1.10.0,<3.0.0,!=2.5.0,!=2.5.1"
 pillow = "^10.3.0"
 pil-utils = "^0.1.10"
 qrcode = "^7.4.2"
+yarl = "^1.9.4"
 
 [tool.poetry.group.dev.dependencies]
-black = "^23.3.0"
 nonemoji = "^0.1.4"
 pre-commit = "^3.2.2"
-
-[tool.poetry.group.test.dependencies]
-nonebug = "^0.3.3"
-pytest-asyncio = "^0.21.0"
 
 [tool.black]
 line-length = 88
