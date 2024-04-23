@@ -301,7 +301,7 @@ async def _(bot: Bot, event: Event):
     if login_data is None:
         msg_builder = MessageFactory(
             [
-                Mention(user_id),
+                Mention(user_id) if not event.is_tome() else "",
                 Text("生成二维码失败，请稍后重试"),
             ]
         )
@@ -310,12 +310,13 @@ async def _(bot: Bot, event: Event):
     qrbind_buffer[user_id] = login_data
     qrbind_buffer[user_id]["bot_id"] = bot.self_id
     qrbind_buffer[user_id]["qr_img"] = qr_img
-    qrbind_buffer[user_id]["target"] = extract_target(event).json()
+    qrbind_buffer[user_id]["target"] = extract_target(event)
+    qrbind_buffer[user_id]["tome"] = event.is_tome()
     msg_builder = MessageFactory(
         [
             Image(qr_img),
             Text("\n"),
-            Mention(user_id),
+            Mention(user_id) if not event.is_tome() else "",
             Text(
                 "\n请在3分钟内使用米游社扫码并确认进行绑定。\n注意：1.扫码即代表你同意将cookie信息授权给Bot使用\n2.扫码时会提示登录游戏，但不会挤掉账号\n3.其他人请不要乱扫，否则会将你的账号绑到TA身上！"
             ),
@@ -329,6 +330,7 @@ async def check_qrcode():
     with contextlib.suppress(RuntimeError):
         for user_id, data in qrbind_buffer.items():
             logger.debug(f"Check qr result of {user_id}")
+            tome: bool = data["tome"]
             try:
                 mys_api = MysApi()
                 status_data = await mys_api.check_login_qr(data)
@@ -336,11 +338,11 @@ async def check_qrcode():
                     logger.warning(f"Check of user_id {user_id} failed")
                     msg_builder = MessageFactory(
                         [
-                            Mention(user_id),
+                            Mention(user_id) if not tome else "",
                             Text("绑定二维码已失效，请重新发送扫码绑定指令"),
                         ]
                     )
-                    target = PlatformTarget.deserialize(data["target"])
+                    target: PlatformTarget = data["target"]
                     bot = get_bot(self_id=data["bot_id"])
                     await msg_builder.send_to(target=target, bot=bot)
                     qrbind_buffer.pop(user_id)
@@ -351,11 +353,11 @@ async def check_qrcode():
                     qrbind_buffer.pop(user_id)
                     msg_builder = MessageFactory(
                         [
-                            Mention(user_id),
+                            Mention(user_id) if not tome else "",
                             Text("绑定二维码已过期，请重新发送扫码绑定指令"),
                         ]
                     )
-                    target = PlatformTarget.deserialize(data["target"])
+                    target = data["target"]
                     bot = get_bot(self_id=data["bot_id"])
                     await msg_builder.send_to(target=target, bot=bot)
                     qrbind_buffer.pop(user_id)
@@ -374,11 +376,11 @@ async def check_qrcode():
                     logger.debug(f"Get cookie and stoken failed of user_id {user_id}")
                     msg_builder = MessageFactory(
                         [
-                            Mention(user_id),
+                            Mention(user_id) if not tome else "",
                             Text("获取cookie失败，请稍后重试"),
                         ]
                     )
-                    target = PlatformTarget.deserialize(data["target"])
+                    target: PlatformTarget = data["target"]
                     bot = get_bot(self_id=data["bot_id"])
                     await msg_builder.send_to(target=target, bot=bot)
                     qrbind_buffer.pop(user_id)
@@ -402,7 +404,7 @@ async def check_qrcode():
                 if game_info is None:
                     msg_builder = MessageFactory(
                         [
-                            Mention(user_id),
+                            Mention(user_id) if not tome else "",
                             Text("获取游戏信息失败，请稍后重试"),
                         ]
                     )
@@ -410,7 +412,7 @@ async def check_qrcode():
                 elif isinstance(game_info, int):
                     msg_builder = MessageFactory(
                         [
-                            Mention(user_id),
+                            Mention(user_id) if not tome else "",
                             Text(f"绑定失败，请稍后重试（错误代码 {game_info}）"),
                         ]
                     )
@@ -418,7 +420,7 @@ async def check_qrcode():
                 elif not game_info["list"]:
                     msg_builder = MessageFactory(
                         [
-                            Mention(user_id),
+                            Mention(user_id) if not tome else "",
                             Text("该账号尚未绑定任何游戏，请确认扫码的账号无误"),
                         ]
                     )
@@ -435,7 +437,7 @@ async def check_qrcode():
                 ):
                     msg_builder = MessageFactory(
                         [
-                            Mention(user_id),
+                            Mention(user_id) if not tome else "",
                             Text("该账号尚未绑定星穹铁道，请确认扫码的账号无误"),
                         ]
                     )
@@ -443,7 +445,10 @@ async def check_qrcode():
                 else:
                     logger.debug(f"Found game record of user_id {user_id}: {sr_games}")
                     msg_builder = MessageFactory(
-                        [Mention(user_id), Text("成功绑定星穹铁道账号:\n")]
+                        [
+                            Mention(user_id) if not tome else "",
+                            Text("成功绑定星穹铁道账号:\n"),
+                        ]
                     )
                     for info in sr_games:
                         msg_builder += MessageFactory(
@@ -465,7 +470,7 @@ async def check_qrcode():
                         )
                         await set_user_srbind(user)
                 # send message to origin target
-                target = PlatformTarget.deserialize(data["target"])
+                target: PlatformTarget = data["target"]
                 bot = get_bot(self_id=data["bot_id"])
                 await msg_builder.send_to(target=target, bot=bot)
                 qrbind_buffer.pop(user_id)
