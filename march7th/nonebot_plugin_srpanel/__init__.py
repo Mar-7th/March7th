@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from nonebot.log import logger
 from nonebot.params import RegexDict
 from nonebot.adapters import Bot, Event
@@ -72,16 +74,16 @@ srsupdate = on_command(
 @srsupdate.handle()
 async def _():
     global score
-    msg_builder = MessageFactory([Text("开始更新『崩坏：星穹铁道』遗器评分标准")])
+    msg_builder = MessageFactory([Text("开始更新遗器评分标准")])
     await msg_builder.send()
     score_file = await update_score_file()
     if not score_file:
         msg_builder = MessageFactory(
-            [Text("『崩坏：星穹铁道』遗器评分标准更新失败，请检查网络连接和插件配置")]
+            [Text("遗器评分标准更新失败，请检查网络连接和插件配置")]
         )
     else:
         score = score_file
-        msg_builder = MessageFactory([Text("『崩坏：星穹铁道』遗器评分标准更新完成")])
+        msg_builder = MessageFactory([Text("遗器评分标准更新完成")])
     await msg_builder.finish()
 
 
@@ -139,19 +141,24 @@ async def _(bot: Bot, event: Event, regex_dict: dict = RegexDict()):
     if str(cid).startswith("80"):
         cid = "8000"
     info = await get_srpanel_character(bot.self_id, event.get_user_id(), sr_uid, cid)
-    if not info:
-        # 自动更新一次
+    if info is None or (
+        info.time is not None
+        and datetime.strptime(info.time, "%Y-%m-%d %H:%M:%S")
+        < datetime.now() - timedelta(days=10)
+    ):
+        # 无角色信息或距离上次更新超过十天时自动更新一次
         await update_srpanel(bot.self_id, event.get_user_id(), sr_uid)
         info = await get_srpanel_character(
             bot.self_id, event.get_user_id(), sr_uid, cid
         )
-    if not info:
+
+    if info is None:
         name = srres.ResIndex["characters"][cid].name if cid != "8000" else "开拓者"
         msg = f"未找到『{name}』的面板，请放置在游戏展柜中五分钟后使用`srpu`更新面板"
         msg_builder = MessageFactory([Text(msg)])
         await msg_builder.finish(at_sender=not event.is_tome())
     player_info = await get_srpanel_player(bot.self_id, event.get_user_id(), sr_uid)
-    if player_info:
+    if player_info is not None:
         try:
             global score
             img = await get_srpanel_img(player_info, info, score)
