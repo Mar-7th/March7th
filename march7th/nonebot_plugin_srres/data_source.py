@@ -384,7 +384,7 @@ class StarRailRes:
         else:
             with open(plugin_data_dir / VersionFile, encoding="utf-8") as f:
                 current_version = json.load(f)
-            if current_version["version"] != json.loads(data)["version"]:
+            if current_version["timestamp"] != json.loads(data)["timestamp"]:
                 # 版本不一致，更新索引
                 update_index = True
         # 更新版本文件
