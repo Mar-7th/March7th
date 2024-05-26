@@ -9,7 +9,9 @@ require("nonebot_plugin_saa")
 require("nonebot_plugin_srres")
 require("nonebot_plugin_srbind")
 require("nonebot_plugin_datastore")
+require("nonebot_plugin_apscheduler")
 
+from nonebot_plugin_apscheduler import scheduler
 from nonebot_plugin_saa import Text, Image, MessageFactory
 
 try:
@@ -55,9 +57,11 @@ async def _():
     score_file = await update_score_file()
     if score_file:
         score = score_file
-        logger.info("『崩坏：星穹铁道』遗器评分标准加载完成")
+        logger.info("遗器评分标准加载完成")
     else:
-        logger.error("『崩坏：星穹铁道』遗器评分标准加载失败，请检查网络连接和插件配置")
+        logger.error("遗器评分标准加载失败，请检查网络连接和插件配置")
+    scheduler.add_job(update_score_file, "cron", day=1, id="srscore_update")
+    logger.info("遗器评分标准自动更新任务已添加")
 
 
 srsupdate = on_command(

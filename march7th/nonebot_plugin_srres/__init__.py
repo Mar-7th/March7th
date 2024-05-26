@@ -38,7 +38,7 @@ async def _():
     else:
         logger.error("游戏资源列表加载失败，请检查网络连接")
     scheduler.add_job(srres.update, "cron", day=1, id="srres_update")
-    logger.info("自动更新任务已添加")
+    logger.info("游戏资源列表自动更新任务已添加")
 
 
 sr_update = on_command(
