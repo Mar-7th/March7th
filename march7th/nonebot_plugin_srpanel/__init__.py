@@ -152,11 +152,18 @@ async def _(bot: Bot, event: Event, regex_dict: dict = RegexDict()):
             bot.self_id, event.get_user_id(), sr_uid, cid
         )
 
+    name = srres.ResIndex["characters"][cid].name if cid != "8000" else "开拓者"
+
     if info is None:
-        name = srres.ResIndex["characters"][cid].name if cid != "8000" else "开拓者"
         msg = f"未找到『{name}』的面板，请放置在游戏展柜中五分钟后使用`srpu`更新面板"
         msg_builder = MessageFactory([Text(msg)])
         await msg_builder.finish(at_sender=not event.is_tome())
+
+    # 绘图操作前提示信息
+    msg = f"正在绘制『{name}』的面板，请耐心等待"
+    msg_builder = MessageFactory([Text(msg)])
+    await msg_builder.send(at_sender=not event.is_tome())
+
     player_info = await get_srpanel_player(bot.self_id, event.get_user_id(), sr_uid)
     if player_info is not None:
         try:
