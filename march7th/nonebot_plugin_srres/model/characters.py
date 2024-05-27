@@ -23,7 +23,6 @@ class CharacterType(BaseModel):
     preview: str
     portrait: str
     guide_overview: list[str] = []
-    guide_material: list[str] = []
 
 
 class CharacterRankType(BaseModel):

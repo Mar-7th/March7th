@@ -128,9 +128,9 @@ class StarRailRes:
             logger.error(f"Error downloading {url}, all attempts failed.")
             return None
 
-    async def cache(self, file: str):
+    async def cache(self, file: str, refresh: bool = False):
         status = True
-        if not (plugin_data_dir / file).exists():
+        if not (plugin_data_dir / file).exists() or refresh:
             (plugin_data_dir / file).parent.mkdir(parents=True, exist_ok=True)
             logger.debug(f"Downloading {file}...")
             data = await self.download(
@@ -236,6 +236,11 @@ class StarRailRes:
             id = "8002"
         if id in self.ResIndex["characters"]:
             overview = self.ResIndex["characters"][id].guide_overview
+            overview = [
+                n
+                for n in overview
+                if any(p in n for p in plugin_config.sr_wiki_providers)
+            ]
             if overview:
                 if isinstance(overview, list):
                     overview = random.choice(overview)
@@ -257,41 +262,17 @@ class StarRailRes:
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
         return None
 
-    async def get_character_material(self, name: str) -> Optional[Path]:
-        if name not in self.NicknameRev:
-            return None
-        id = self.NicknameRev[name]
-        if id == "8000":
-            id = "8002"
-        if id in self.ResIndex["characters"]:
-            material = self.ResIndex["characters"][id].guide_material
-            if material:
-                if isinstance(material, list):
-                    material = random.choice(material)
-                if await self.cache(material):
-                    return plugin_data_dir / material
-        return None
-
-    def get_character_material_url(self, name: str) -> Optional[str]:
-        if name not in self.NicknameRev:
-            return None
-        id = self.NicknameRev[name]
-        if id == "8000":
-            id = "8002"
-        if id in self.ResIndex["characters"]:
-            material = self.ResIndex["characters"][id].guide_material
-            if material:
-                if isinstance(material, list):
-                    material = random.choice(material)
-                return self.proxy_url(f"{plugin_config.sr_wiki_url}/{material}")
-        return None
-
     async def get_light_cone_overview(self, name: str) -> Optional[Path]:
         if name not in self.NicknameRev:
             return None
         id = self.NicknameRev[name]
         if id in self.ResIndex["light_cones"]:
             overview = self.ResIndex["light_cones"][id].guide_overview
+            overview = [
+                n
+                for n in overview
+                if any(p in n for p in plugin_config.sr_wiki_providers)
+            ]
             if overview:
                 if isinstance(overview, list):
                     overview = random.choice(overview)
@@ -430,4 +411,29 @@ class StarRailRes:
                 with open(font_dir / filename, "wb") as f:
                     f.write(data)
         logger.info("字体文件检查完毕")
+        return status
+
+    async def download_guide(self, force: bool = False) -> bool:
+        """
+        预下载或更新攻略文件
+
+        Args:
+            force: 是否强制更新本地文件
+        """
+        status = True
+        guide_files: list[str] = []
+        for id in self.ResIndex["characters"]:
+            guide_files += self.ResIndex["characters"][id].guide_overview
+        for id in self.ResIndex["light_cones"]:
+            guide_files += self.ResIndex["light_cones"][id].guide_overview
+        for id in self.ResIndex["relic_sets"]:
+            guide_files += self.ResIndex["relic_sets"][id].guide_overview
+        guide_files = [
+            n
+            for n in guide_files
+            if any(p in n for p in plugin_config.sr_wiki_providers)
+        ]
+        for file in guide_files:
+            if not await self.cache(file, force):
+                status = False
         return status

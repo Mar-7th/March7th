@@ -20,7 +20,7 @@ __plugin_meta__ = PluginMetadata(
     name="StarRailWiki",
     description="崩坏：星穹铁道百科",
     usage="""\
-查询攻略图片: xxx(角色|光锥|遗器)(攻略|材料|测评)
+查询攻略图片: xxx(角色|光锥|遗器)攻略
 查询成就详情: 查成就 xxx
 隐藏成就列表: 查隐藏成就
 """,
@@ -28,7 +28,7 @@ __plugin_meta__ = PluginMetadata(
         "version": "1.0",
         "srhelp": """\
 查攻略: [u]xxx[/u]角色攻略
-（支持 角色攻略/材料 光锥/遗器图鉴）
+（支持 角色/光锥/遗器）
 查成就: 查成就 [u]xxx[/u]
 查隐藏成就列表: 查隐藏成就
 """,
@@ -43,7 +43,7 @@ BASE_TYPE = [
     "遗器",
 ]
 BASE_TYPE_RE = "(" + "|".join(BASE_TYPE) + ")"
-WIKI_TYPE = ["图鉴", "攻略", "材料", "测评", "评测"]
+WIKI_TYPE = ["图鉴", "攻略", "测评", "评测"]
 WIKI_TYPE_RE = "(" + "|".join(WIKI_TYPE) + ")"
 
 WIKI_RE = (
@@ -65,29 +65,19 @@ async def _(event: Event, matcher: Matcher, regex_dict: dict = RegexDict()):
     if not wiki_name and res:
         wiki_name = res
     if "角色" in wiki_type:
-        wiki_type_1 = "character"
+        wiki_type = "character"
     elif "光锥" in wiki_type or "武器" in wiki_type or "装备" in wiki_type:
-        wiki_type_1 = "light_cone"
+        wiki_type = "light_cone"
     elif "遗器" in wiki_type:
-        wiki_type_1 = "relic_set"
+        wiki_type = "relic_set"
     else:
-        wiki_type_1 = "all"
-    if "材料" in wiki_type:
-        wiki_type_2 = "material"
-    else:
-        wiki_type_2 = "overview"
+        wiki_type = "all"
     pic_content = None
-    if wiki_type_1 in {"all", "character"} and wiki_type_2 == "overview":
+    if wiki_type in {"all", "character"}:
         pic_content = await srres.get_character_overview(wiki_name)
-    if (
-        not pic_content
-        and wiki_type_1 in {"all", "character"}
-        and wiki_type_2 == "material"
-    ):
-        pic_content = await srres.get_character_material(wiki_name)
-    if not pic_content and wiki_type_1 in {"all", "light_cone"}:
+    if not pic_content and wiki_type in {"all", "light_cone"}:
         pic_content = await srres.get_light_cone_overview(wiki_name)
-    if not pic_content and wiki_type_1 in {"all", "relic_set"}:
+    if not pic_content and wiki_type in {"all", "relic_set"}:
         pic_content = await srres.get_relic_set_overview(wiki_name)
     if pic_content:
         matcher.stop_propagation()
