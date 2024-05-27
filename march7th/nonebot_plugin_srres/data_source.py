@@ -228,7 +228,7 @@ class StarRailRes:
                     return plugin_data_dir / portrait
         return None
 
-    async def get_character_overview(self, name: str) -> Optional[Path]:
+    async def get_character_overview(self, name: str) -> Optional[bytes]:
         if name not in self.NicknameRev:
             return None
         id = self.NicknameRev[name]
@@ -245,7 +245,7 @@ class StarRailRes:
                 if isinstance(overview, list):
                     overview = random.choice(overview)
                 if await self.cache(overview):
-                    return plugin_data_dir / overview
+                    return (plugin_data_dir / overview).read_bytes()
         return None
 
     def get_character_overview_url(self, name: str) -> Optional[str]:
@@ -262,7 +262,7 @@ class StarRailRes:
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
         return None
 
-    async def get_light_cone_overview(self, name: str) -> Optional[Path]:
+    async def get_light_cone_overview(self, name: str) -> Optional[bytes]:
         if name not in self.NicknameRev:
             return None
         id = self.NicknameRev[name]
@@ -277,7 +277,7 @@ class StarRailRes:
                 if isinstance(overview, list):
                     overview = random.choice(overview)
                 if await self.cache(overview):
-                    return plugin_data_dir / overview
+                    return (plugin_data_dir / overview).read_bytes()
         return None
 
     def get_light_cone_overview_url(self, name: str) -> Optional[str]:
@@ -292,7 +292,7 @@ class StarRailRes:
                 return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
         return None
 
-    async def get_relic_set_overview(self, name: str) -> Optional[Path]:
+    async def get_relic_set_overview(self, name: str) -> Optional[bytes]:
         if name not in self.NicknameRev:
             return None
         id = self.NicknameRev[name]
@@ -302,7 +302,7 @@ class StarRailRes:
                 if isinstance(overview, list):
                     overview = random.choice(overview)
                 if await self.cache(overview):
-                    return plugin_data_dir / overview
+                    return (plugin_data_dir / overview).read_bytes()
         return None
 
     def get_relic_set_overview_url(self, name: str) -> Optional[str]:
