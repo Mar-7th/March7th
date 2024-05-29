@@ -186,9 +186,13 @@ async def update_srgacha(bot_id: str, user_id: str, sr_uid: str, url: str) -> st
         await save_gacha(new_user_gacha)
         ret_msg = "抽卡记录已更新，增加了"
         ret_msg += f" {common_add} 条常驻池记录，" if common_add else ""
-        ret_msg += f" {beginner_add} 条新手池记录，" if common_add else ""
-        ret_msg += f" {character_event_add} 条角色池记录，" if common_add else ""
-        ret_msg += f" {light_cone_event_add} 条光锥池记录，" if common_add else ""
+        ret_msg += f" {beginner_add} 条新手池记录，" if beginner_add else ""
+        ret_msg += (
+            f" {character_event_add} 条角色池记录，" if character_event_add else ""
+        )
+        ret_msg += (
+            f" {light_cone_event_add} 条光锥池记录，" if light_cone_event_add else ""
+        )
         ret_msg = ret_msg.rstrip("，")
     ret_msg += "\n"
     ret_msg += "当前共有"
