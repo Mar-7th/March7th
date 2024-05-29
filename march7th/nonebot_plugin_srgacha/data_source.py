@@ -167,7 +167,9 @@ async def update_srgacha(bot_id: str, user_id: str, sr_uid: str, url: str) -> st
     character_event_add = len(new_data.character_event.keys()) - len(
         origin_data.character_event.keys()
     )
-    light_cone_event_add = len(new_data.common.keys()) - len(origin_data.common.keys())
+    light_cone_event_add = len(new_data.light_cone_event.keys()) - len(
+        origin_data.light_cone_event.keys()
+    )
     # Save and return message
     if (
         common_add == 0
