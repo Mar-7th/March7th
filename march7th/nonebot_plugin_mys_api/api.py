@@ -284,9 +284,8 @@ class MysApi:
             validate, challenge = await self._pass(gt, challenge, headers)
             if validate and challenge:
                 await self._validate(headers, challenge, validate)
-                if challenge:
-                    logger.info(f"Challenge upass: {challenge}")
-                    return challenge
+                logger.info(f"Challenge upass: {challenge}")
+                return challenge
             logger.warning("Get upass validate failed")
             return ""
         except (json.JSONDecodeError, KeyError):
@@ -644,7 +643,28 @@ class MysApi:
             retcode = None
             try:
                 retcode = int(data["retcode"])
-                if retcode == 1034 and plugin_config.magic_api is not None:
+                risk_code = data["data"].get("risk_code") if data.get("data") else None
+                if risk_code == 5001 and plugin_config.magic_api is not None:
+                    logger.warning(f"Mys API {api} risk 5001: {data}")
+                    logger.warning(f"with headers: {headers}")
+                    times_try += 1
+                    gt = data["data"].get("gt")
+                    challenge = data["data"].get("challenge")
+                    validate, challenge = await self._pass(gt, challenge, headers)
+                    if validate is None or challenge is None:
+                        break
+                    await self._validate(headers, challenge, validate)
+                    logger.info(f"Challenge upass: {challenge}")
+                    headers["x-rpc-challenge_game"] = "6"
+                    headers["x-rpc-challenge"] = challenge
+                    data = await self.request(
+                        "POST" if is_post else "GET",
+                        url=url,
+                        headers=headers,
+                        params=params,
+                        body=body,
+                    )
+                elif retcode == 1034 and plugin_config.magic_api is not None:
                     logger.warning(f"Mys API {api} 1034: {data}")
                     logger.warning(f"with headers: {headers}")
                     times_try += 1
