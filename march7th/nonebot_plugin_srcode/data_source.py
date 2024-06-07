@@ -142,4 +142,4 @@ async def get_code_msg() -> str:
             # 该兑换码未开放
             code_msg += f"第 {index} 个兑换码暂未发放\n"
 
-    return code_msg
+    return code_msg.strip()
