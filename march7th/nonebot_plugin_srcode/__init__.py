@@ -1,6 +1,6 @@
 from nonebot.adapters import Event
-from nonebot import require, on_command
 from nonebot.plugin import PluginMetadata
+from nonebot import logger, require, on_command
 
 from .data_source import get_code_msg
 
@@ -29,7 +29,8 @@ srcode = on_command("srcode", aliases={"星铁兑换码"})
 async def _(event: Event):
     try:
         codes = await get_code_msg()
-    except Exception:
+    except Exception as e:
+        logger.opt(exception=e).error("获取前瞻兑换码失败")
         codes = "获取前瞻兑换码失败"
     msg_builder = MessageFactory([Text(str(codes))])
     await msg_builder.finish(at_sender=not event.is_tome())

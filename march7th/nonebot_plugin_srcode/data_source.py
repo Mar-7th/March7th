@@ -1,6 +1,6 @@
 import json
 from time import time
-from typing import Union
+from typing import Union, Literal
 from re import sub, compile, findall
 from datetime import datetime, timezone, timedelta
 
@@ -10,16 +10,17 @@ from nonebot.log import logger
 TZ = timezone(timedelta(hours=8))
 
 
-async def get_data(type, data: dict = {}) -> dict:
+async def get_data(type: Literal["activity", "index", "code"], data: dict = {}) -> dict:
     """米哈游接口请求"""
 
     url = {
-        "actId": "https://bbs-api.mihoyo.com/painter/api/user_instant/list?offset=0&size=20&uid=288909600",
+        "activity": "https://bbs-api.miyoushe.com/apihub/api/home/new?gids=6&parts=1%2C3%2C4&device=OnePlus%20IN2025&cpu=placeholder&version=3",
         "index": "https://api-takumi.mihoyo.com/event/miyolive/index",
         "code": "https://api-takumi-static.mihoyo.com/event/miyolive/refreshCode",
     }
     async with AsyncClient() as client:
         try:
+            logger.debug(f"Getting data of type {type}")
             if type == "index":
                 res = await client.get(
                     url[type], headers={"x-rpc-act_id": data.get("actId", "")}
@@ -35,6 +36,7 @@ async def get_data(type, data: dict = {}) -> dict:
                 )
             else:
                 res = await client.get(url[type])
+            logger.debug(f"Response: {res.json()}")
             return res.json()
         except Exception as e:
             logger.opt(exception=e).error(f"{type} 接口请求错误")
@@ -44,25 +46,22 @@ async def get_data(type, data: dict = {}) -> dict:
 async def get_act_id() -> str:
     """获取 ``act_id``"""
 
-    ret = await get_data("actId")
+    ret = await get_data("activity")
     if ret.get("error") or ret.get("retcode") != 0:
         return ""
 
     act_id = ""
-    keywords = ["版本前瞻特别节目"]
-    for p in ret["data"]["list"]:
-        post = p.get("post", {}).get("post", {})
-        if not post:
+    keywords = ["前瞻节目"]
+    for nav in ret["data"]["navigator"]:
+        name = nav.get("name")
+        if not name:
             continue
-        if not all(word in post["subject"] for word in keywords):
+        if not all(word in name for word in keywords):
             continue
-        shit = json.loads(post["structured_content"])
-        for segment in shit:
-            link = segment.get("attributes", {}).get("link", "")
-            if "直播" in segment.get("insert", "") and link:
-                matched = findall(r"act_id=(.*?)\&", link)
-                if matched:
-                    act_id = matched[0]
+        app_path = nav.get("app_path")
+        matched = findall(r"act_id=(.*?)\&", app_path)
+        if matched:
+            act_id = matched[0]
         if act_id:
             break
 
@@ -116,7 +115,7 @@ async def get_code(version: str, act_id: str) -> Union[dict, list[dict]]:
 
 
 async def get_code_msg() -> str:
-    """生成最新前瞻直播兑换码合并转发消息"""
+    """生成最新前瞻直播兑换码消息"""
 
     act_id = await get_act_id()
     if not act_id:
@@ -130,9 +129,17 @@ async def get_code_msg() -> str:
     if isinstance(code_data, dict):
         return code_data["error"]
 
-    code_msg = (
-        str(live_data["title"])
-        + "\n"
-        + "\n".join(f'{code["items"]}:\n{code["code"]}' for code in code_data)
-    )
+    code_msg = f'{live_data["title"]}\n'
+
+    # 三个兑换码
+    index = 0
+    for code in code_data:
+        index = index + 1
+        if code.get("code"):
+            # 该兑换码已开放
+            code_msg += f'{code["items"]}:\n{code["code"]}\n'
+        else:
+            # 该兑换码未开放
+            code_msg += f"第 {index} 个兑换码暂未发放\n"
+
     return code_msg
