@@ -3,9 +3,9 @@ from nonebot.permission import SUPERUSER
 from nonebot.plugin import PluginMetadata
 from nonebot import require, get_driver, on_command
 
-require("nonebot_plugin_apscheduler")
-require("nonebot_plugin_datastore")
 require("nonebot_plugin_saa")
+require("nonebot_plugin_localstore")
+require("nonebot_plugin_apscheduler")
 
 from nonebot_plugin_apscheduler import scheduler
 from nonebot_plugin_saa import Text, MessageFactory

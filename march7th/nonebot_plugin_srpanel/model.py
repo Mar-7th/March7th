@@ -4,20 +4,17 @@ from typing import Any, Optional
 
 from nonebot import get_driver
 from nonebot.log import logger
-from nonebot.compat import type_validate_python
 from pydantic import BaseModel, ValidationError
 from sqlalchemy.orm import Mapped, mapped_column
+from nonebot_plugin_orm import Model, get_session
+from nonebot_plugin_localstore import get_data_dir
 from sqlalchemy import JSON, String, select, update
 from nonebot.drivers import Request, HTTPClientMixin
-from nonebot_plugin_datastore import create_session, get_plugin_data
+from nonebot.compat import model_dump, type_validate_python
 
 from .config import plugin_config
 
-plugin_data = get_plugin_data()
-Model = plugin_data.Model
-
-plugin_data_dir = plugin_data.data_dir
-score_file = plugin_data_dir / "score.json"
+score_file = get_data_dir("nonebot_plugin_srpanel") / "score.json"
 
 
 driver = get_driver()
@@ -221,11 +218,11 @@ async def set_user_srpanel(panel: UserPanel) -> None:
             .where(UserPanel.id == select_panel.id)
             .values(info=panel.info)
         )
-        async with create_session() as session:
+        async with get_session() as session:
             await session.execute(statement)
             await session.commit()
     else:
-        async with create_session() as session:
+        async with get_session() as session:
             session.add(panel)
             await session.commit()
 
@@ -239,7 +236,7 @@ async def get_user_srpanel(
         UserPanel.sr_uid == sr_uid,
         UserPanel.cid == cid,
     )
-    async with create_session() as session:
+    async with get_session() as session:
         records = (await session.scalars(statement)).all()
     if records:
         return records[0]
@@ -277,7 +274,7 @@ async def request(url: str) -> Optional[dict]:
         headers={"User-Agent": "Mar-7th/March7th"},
         timeout=10,
     )
-    response = await driver.request(request)
+    response = await driver.request(request)  # type: ignore
     try:
         data = json.loads(response.content or "{}")
         return data
@@ -324,7 +321,7 @@ async def update_srpanel(bot_id: str, user_id: str, sr_uid: str) -> Optional[str
         user_id=user_id,
         sr_uid=sr_uid,
         cid="0",
-        info=player.dict(),
+        info=model_dump(player),
     )
     await set_user_srpanel(panel)
     characters = parsed_data.characters

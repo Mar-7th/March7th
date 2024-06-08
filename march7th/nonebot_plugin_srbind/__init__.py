@@ -12,10 +12,10 @@ from nonebot.plugin import PluginMetadata
 from nonebot import get_bot, require, on_command
 from nonebot.adapters import Bot, Event, Message
 
-require("nonebot_plugin_apscheduler")
-require("nonebot_plugin_datastore")
 require("nonebot_plugin_saa")
+require("nonebot_plugin_orm")
 require("nonebot_plugin_mys_api")
+require("nonebot_plugin_apscheduler")
 
 from nonebot_plugin_apscheduler import scheduler
 from nonebot_plugin_saa import (
@@ -30,8 +30,9 @@ from nonebot_plugin_saa import (
 try:
     from march7th.nonebot_plugin_mys_api import MysApi
 except ModuleNotFoundError:
-    from nonebot_plugin_mys_api import MysApi
+    from nonebot_plugin_mys_api import MysApi  # type: ignore
 
+from . import migrations
 from .model import UserBind
 from .data_source import (
     del_user_srbind,
@@ -52,6 +53,7 @@ __plugin_meta__ = PluginMetadata(
 扫码绑定: srqr
 """,
     extra={
+        "orm_version_location": migrations,
         "version": "1.0",
         "srhelp": """\
 查看绑定: sruid

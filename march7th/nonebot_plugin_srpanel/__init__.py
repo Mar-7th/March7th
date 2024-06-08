@@ -8,9 +8,10 @@ from nonebot.plugin import PluginMetadata
 from nonebot import require, on_regex, get_driver, on_command
 
 require("nonebot_plugin_saa")
+require("nonebot_plugin_orm")
 require("nonebot_plugin_srres")
 require("nonebot_plugin_srbind")
-require("nonebot_plugin_datastore")
+require("nonebot_plugin_localstore")
 require("nonebot_plugin_apscheduler")
 
 from nonebot_plugin_apscheduler import scheduler
@@ -20,9 +21,10 @@ try:
     from march7th.nonebot_plugin_srres import srres
     from march7th.nonebot_plugin_srbind import get_user_srbind
 except ModuleNotFoundError:
-    from nonebot_plugin_srbind import get_user_srbind
-    from nonebot_plugin_srres import srres
+    from nonebot_plugin_srres import srres  # type: ignore
+    from nonebot_plugin_srbind import get_user_srbind  # type: ignore
 
+from . import migrations
 from .get_img import get_srpanel_img
 from .model import (
     ScoreFile,
@@ -40,6 +42,7 @@ __plugin_meta__ = PluginMetadata(
 查看面板: xxxx面板
 """,
     extra={
+        "orm_version_location": migrations,
         "version": "1.0",
         "srhelp": """\
 更新面板: srpu / 更新角色面板

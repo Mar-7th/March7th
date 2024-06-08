@@ -11,14 +11,14 @@ from nonebot import get_driver
 from pil_utils import BuildImage
 from pydantic import ValidationError
 from sqlalchemy import select, update
-from nonebot_plugin_datastore import create_session
+from nonebot_plugin_orm import get_session
 from nonebot.drivers import Request, HTTPClientMixin
 from nonebot.compat import model_dump, type_validate_python
 
 try:
     from march7th.nonebot_plugin_srres import srres
 except ModuleNotFoundError:
-    from nonebot_plugin_srres import srres
+    from nonebot_plugin_srres import srres  # type: ignore
 
 from .model import GachaLog, GachaLogItem, UserGachaLog, GachaLogResponse
 
@@ -71,7 +71,7 @@ async def request(url: str) -> Optional[dict]:
         URL(url, encoded=True),
         timeout=10,
     )
-    response = await driver.request(request)
+    response = await driver.request(request)  # type: ignore
     try:
         data = json.loads(response.content or "{}")
         return data
@@ -114,7 +114,7 @@ async def get_gacha(bot_id: str, user_id: str, sr_uid: str) -> Optional[UserGach
         UserGachaLog.user_id == user_id,
         UserGachaLog.sr_uid == sr_uid,
     )
-    async with create_session() as session:
+    async with get_session() as session:
         record = (await session.scalars(statement)).one_or_none()
     return record
 
@@ -124,7 +124,7 @@ async def save_gacha(gacha: UserGachaLog):
     Save gacha to database
     """
     select_gacha = await get_gacha(gacha.bot_id, gacha.user_id, gacha.sr_uid)
-    async with create_session() as session:
+    async with get_session() as session:
         if select_gacha:
             statement = (
                 update(UserGachaLog)

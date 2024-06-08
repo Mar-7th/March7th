@@ -7,7 +7,7 @@ from typing import Any, Optional, TypedDict
 import httpx
 from nonebot.log import logger
 from nonebot.compat import type_validate_python
-from nonebot_plugin_datastore import get_plugin_data
+from nonebot_plugin_localstore import get_data_dir
 
 from .config import plugin_config
 from .model.paths import PathIndex
@@ -33,7 +33,7 @@ from .model.characters import (
     CharacterSkillTreeIndex,
 )
 
-plugin_data_dir: Path = get_plugin_data().data_dir
+plugin_data_dir: Path = get_data_dir("nonebot_plugin_srres")
 index_dir = plugin_data_dir / "index"
 font_dir = plugin_data_dir / "font"
 

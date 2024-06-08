@@ -5,16 +5,18 @@ from nonebot.plugin import PluginMetadata
 from nonebot.adapters import Bot, Event, Message
 
 require("nonebot_plugin_saa")
-require("nonebot_plugin_srbind")
+require("nonebot_plugin_orm")
 require("nonebot_plugin_srres")
+require("nonebot_plugin_srbind")
 
 from nonebot_plugin_saa import Text, Image, MessageFactory
 
 try:
     from march7th.nonebot_plugin_srbind import get_user_srbind
 except ModuleNotFoundError:
-    from nonebot_plugin_srbind import get_user_srbind
+    from nonebot_plugin_srbind import get_user_srbind  # type: ignore
 
+from . import migrations
 from .data_source import get_srgacha, update_srgacha
 
 __plugin_meta__ = PluginMetadata(
@@ -25,6 +27,7 @@ __plugin_meta__ = PluginMetadata(
 查看: 查看抽卡记录
 """,
     extra={
+        "orm_version_location": migrations,
         "version": "1.0",
         "srhelp": """\
 导入: 导入抽卡记录 [u]抽卡记录URL[/u]

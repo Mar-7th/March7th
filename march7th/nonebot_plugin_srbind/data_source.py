@@ -2,7 +2,7 @@ from io import BytesIO
 
 import qrcode
 from sqlalchemy import select, update
-from nonebot_plugin_datastore import create_session
+from nonebot_plugin_orm import get_session
 
 from .model import UserBind
 
@@ -15,7 +15,7 @@ async def set_user_srbind(user: UserBind) -> None:
             # not public user
             if user.sr_uid != old_user.sr_uid:
                 # delete origin user
-                async with create_session() as session:
+                async with get_session() as session:
                     await session.delete(old_user)
                     await session.commit()
             else:
@@ -31,7 +31,7 @@ async def set_user_srbind(user: UserBind) -> None:
                     .values(cookie=user.cookie)
                     .values(stoken=user.stoken)
                 )
-                async with create_session() as session:
+                async with get_session() as session:
                     await session.execute(statement)
                     await session.commit()
                 update_flag = True
@@ -49,12 +49,12 @@ async def set_user_srbind(user: UserBind) -> None:
                     .values(cookie=user.cookie)
                     .values(stoken=user.stoken)
                 )
-                async with create_session() as session:
+                async with get_session() as session:
                     await session.execute(statement)
                     await session.commit()
                 update_flag = True
     if not update_flag:
-        async with create_session() as session:
+        async with get_session() as session:
             session.add(user)
             await session.commit()
 
@@ -64,7 +64,7 @@ async def del_user_srbind(bot_id: str, user_id: str, sr_uid: str) -> None:
     select_uid = [user.sr_uid for user in select_user]
     if sr_uid in select_uid:
         user = select_user[select_uid.index(sr_uid)]
-        async with create_session() as session:
+        async with get_session() as session:
             await session.delete(user)
             await session.commit()
 
@@ -75,7 +75,7 @@ async def get_user_srbind(bot_id: str, user_id: str) -> list[UserBind]:
         .where(UserBind.bot_id == bot_id)
         .where(UserBind.user_id == user_id)
     )
-    async with create_session() as session:
+    async with get_session() as session:
         records = (await session.scalars(statement)).all()
     return list(records)
 

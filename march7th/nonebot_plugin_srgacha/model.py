@@ -1,12 +1,9 @@
 from typing import Any
 
 from sqlalchemy import JSON, String
+from nonebot_plugin_orm import Model
 from pydantic import Field, BaseModel
 from sqlalchemy.orm import Mapped, mapped_column
-from nonebot_plugin_datastore import get_plugin_data
-
-plugin_data = get_plugin_data()
-Model = plugin_data.Model
 
 
 class GachaLogItem(BaseModel):
