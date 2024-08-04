@@ -57,13 +57,7 @@ docs.qq.com/doc/p/9c830f3e9398aaaf68d1eba225eead983947d2db"""
 @srgu.handle()
 async def _(bot: Bot, event: Event, arg: Message = CommandArg()):
     url = arg.extract_plain_text()
-    if (
-        not url
-        or not url.startswith(
-            "https://api-takumi.mihoyo.com/common/gacha_record/api/getGachaLog"
-        )
-        or "authkey=" not in url
-    ):
+    if not url or "getGachaLog" not in url or "authkey=" not in url:
         msg_builder = MessageFactory([Text(HELP_MESSAGE)])
         await msg_builder.finish(at_sender=not event.is_tome())
     user_list = await get_user_srbind(bot.self_id, event.get_user_id())
