@@ -102,7 +102,7 @@ srpu = on_command(
     priority=2,
     block=False,
 )
-srpanel = on_regex(r"(?P<name>\w{1,10})面板$", priority=9, block=False)
+srpanel = on_regex(r"^(?P<name>\w{1,10})面板$", priority=9, block=False)
 
 
 @srpu.handle()

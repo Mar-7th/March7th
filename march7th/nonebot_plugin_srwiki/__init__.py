@@ -47,7 +47,7 @@ WIKI_TYPE = ["图鉴", "攻略", "测评", "评测"]
 WIKI_TYPE_RE = "(" + "|".join(WIKI_TYPE) + ")"
 
 WIKI_RE = (
-    rf"(?P<name>\w{{0,10}}?)(?P<type>{BASE_TYPE_RE}?{WIKI_TYPE_RE})(?P<res>\w{{0,10}})"
+    rf"^(?P<name>\w{{0,10}}?)(?P<type>{BASE_TYPE_RE}?{WIKI_TYPE_RE})(?P<res>\w{{0,10}})"
 )
 
 wiki_search = on_regex(WIKI_RE, priority=9, block=False)
@@ -83,7 +83,8 @@ async def _(event: Event, matcher: Matcher, regex_dict: dict = RegexDict()):
         matcher.stop_propagation()
         msg_builder = MessageFactory([Image(pic_content)])
         await msg_builder.finish(at_sender=not event.is_tome())
-    await wiki_search.finish()
+    msg_builder = MessageFactory("暂无数据")
+    await msg_builder.finish(at_sender=not event.is_tome())
 
 
 series_map = {
