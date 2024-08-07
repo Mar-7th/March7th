@@ -362,7 +362,6 @@ async def check_qrcode():
                     target = data["target"]
                     bot = get_bot(self_id=data["bot_id"])
                     await msg_builder.send_to(target=target, bot=bot)
-                    qrbind_buffer.pop(user_id)
                     continue
                 if status_data["data"]["stat"] != "Confirmed":
                     continue
