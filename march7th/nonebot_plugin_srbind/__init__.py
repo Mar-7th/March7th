@@ -299,7 +299,7 @@ async def _(bot: Bot, event: Event):
         msg_builder = MessageFactory([Text("你已经在绑定中了，请扫描上一次的二维码")])
         await msg_builder.finish(at_sender=not event.is_tome())
     mys_api = MysApi()
-    login_data = await mys_api.create_login_qr(8)
+    login_data = await mys_api.create_login_qr(2)
     if login_data is None:
         msg_builder = MessageFactory(
             [
