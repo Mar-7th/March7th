@@ -646,7 +646,7 @@ class MysApi:
                 risk_code = data["data"].get("risk_code") if data.get("data") else None
                 if risk_code == 5001 and plugin_config.magic_api is not None:
                     logger.warning(f"Mys API {api} risk 5001: {data}")
-                    logger.warning(f"with headers: {headers}")
+                    logger.debug(f"with headers: {headers}")
                     times_try += 1
                     gt = data["data"].get("gt")
                     challenge = data["data"].get("challenge")
@@ -664,9 +664,12 @@ class MysApi:
                         params=params,
                         body=body,
                     )
-                elif retcode == 1034 and plugin_config.magic_api is not None:
-                    logger.warning(f"Mys API {api} 1034: {data}")
-                    logger.warning(f"with headers: {headers}")
+                elif (
+                    retcode in {1034, 5003, 10035, 10041}
+                    and plugin_config.magic_api is not None
+                ):
+                    logger.warning(f"Mys API {api} code {retcode}: {data}")
+                    logger.debug(f"with headers: {headers}")
                     times_try += 1
                     _, new_fp = await self.init_device(self.device_id)
                     headers["x-rpc-device_fp"] = new_fp
@@ -683,8 +686,8 @@ class MysApi:
                     )
                 elif retcode != 0:
                     logger.warning(f"Mys API {api} failed: {data}")
-                    logger.warning(f"with headers: {headers}")
-                    logger.warning(f"with params: {params}")
+                    logger.debug(f"with headers: {headers}")
+                    logger.debug(f"with params: {params}")
                     data = retcode
                     break
                 else:
