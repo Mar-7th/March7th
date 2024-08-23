@@ -89,8 +89,9 @@ async def _(bot: Bot, event: Event):
         else:
             msg.append(f"UID{sr_uid}: 签到成功")
             if new_fp := sr_sign.get("new_fp"):
+                new_id = sr_sign.get("new_id") or device_id
                 await set_user_fp(
-                    bot.self_id, event.get_user_id(), sr_uid, device_id, new_fp
+                    bot.self_id, event.get_user_id(), sr_uid, new_id, new_fp
                 )
     msg_builder = MessageFactory([Text("\n" + "\n".join(msg))])
     await msg_builder.finish(at_sender=not event.is_tome())

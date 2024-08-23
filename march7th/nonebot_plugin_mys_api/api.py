@@ -240,15 +240,15 @@ class MysApi:
                 "GET",
                 url,
                 headers=headers,
-                timeout=10,
+                timeout=60,
             )
-            response = await self.driver.request(request)
             try:
+                response = await self.driver.request(request)
                 data = json.loads(response.content or "{}")
                 logger.debug(f"Pass data: {data}")
                 validate = data["data"]["validate"]
                 challenge = data["data"]["challenge"]
-            except (json.JSONDecodeError, KeyError) as e:
+            except Exception as e:
                 logger.warning(f"Pass API failed: {e}")
                 validate = None
         else:
@@ -638,6 +638,7 @@ class MysApi:
         # debug log
         # parse data
         times_try = 0
+        new_id = None
         new_fp = None
         while data is not None:
             retcode = None
@@ -671,7 +672,7 @@ class MysApi:
                     logger.warning(f"Mys API {api} code {retcode}: {data}")
                     logger.debug(f"with headers: {headers}")
                     times_try += 1
-                    _, new_fp = await self.init_device(self.device_id)
+                    new_id, new_fp = await self.init_device()
                     headers["x-rpc-device_fp"] = new_fp
                     headers["x-rpc-challenge_game"] = "6"
                     headers["x-rpc-page"] = f"{TOOL_VERSION}_#/rpg"
@@ -695,6 +696,8 @@ class MysApi:
                     data = dict(data["data"])
                     if new_fp:
                         data["new_fp"] = new_fp
+                    if new_id:
+                        data["new_id"] = new_id
                     break
             except (json.JSONDecodeError, KeyError):
                 data = None

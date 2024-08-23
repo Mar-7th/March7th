@@ -112,7 +112,8 @@ async def _(bot: Bot, event: Event):
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.finish(at_sender=not event.is_tome())
     if new_fp := sr_note.get("new_fp"):
-        await set_user_fp(bot.self_id, event.get_user_id(), sr_uid, device_id, new_fp)
+        new_id = sr_note.get("new_id") or device_id
+        await set_user_fp(bot.self_id, event.get_user_id(), sr_uid, new_id, new_fp)
     logger.info(f"正在绘制SRUID『{sr_uid}』便笺图片")
     img = await get_srmemo_img(sr_uid, sr_basic_info, sr_note)
     if img:
@@ -163,7 +164,8 @@ async def _(bot: Bot, event: Event):
         msg_builder = MessageFactory([Text(str(msg))])
         await msg_builder.finish(at_sender=not event.is_tome())
     if new_fp := sr_month.get("new_fp"):
-        await set_user_fp(bot.self_id, event.get_user_id(), sr_uid, device_id, new_fp)
+        new_id = sr_month.get("new_id") or device_id
+        await set_user_fp(bot.self_id, event.get_user_id(), sr_uid, new_id, new_fp)
     logger.info(f"正在绘制SRUID『{sr_uid}』月历图片")
     img = await get_srmonth_img(sr_uid, sr_basic_info, sr_month)
     if img:
