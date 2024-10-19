@@ -113,13 +113,10 @@ class StarRailRes:
         return url
 
     async def download(self, url: str) -> Optional[bytes]:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(follow_redirects=True) as client:
             for i in range(3):
                 try:
                     resp = await client.get(url, timeout=10)
-                    if resp.status_code == 302:
-                        url = resp.headers["location"]
-                        continue
                     resp.raise_for_status()
                     return resp.content
                 except Exception as e:
