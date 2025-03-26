@@ -196,6 +196,7 @@ class StarRailRes:
 
     async def get_icon_element(self, id: str) -> Optional[Path]:
         id = id.capitalize()
+        id = "Thunder" if id == "Lightning" else id
         if id in self.ResIndex["elements"]:
             icon_file = self.ResIndex["elements"][id].icon
             if icon_file:
