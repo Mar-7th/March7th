@@ -1,5 +1,4 @@
 import json
-import random
 import asyncio
 from pathlib import Path
 from typing import Any, Optional, TypedDict
@@ -32,6 +31,9 @@ from .model.characters import (
     CharacterPromotionIndex,
     CharacterSkillTreeIndex,
 )
+
+# import random
+
 
 plugin_data_dir: Path = get_data_dir("nonebot_plugin_srres")
 index_dir = plugin_data_dir / "index"
