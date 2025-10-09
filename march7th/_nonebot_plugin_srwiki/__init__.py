@@ -1,7 +1,7 @@
 from nonebot.matcher import Matcher
-from nonebot.plugin import PluginMetadata
 from nonebot.adapters import Message
 from nonebot import require, on_command
+from nonebot.plugin import PluginMetadata
 from nonebot.params import CommandArg, ArgPlainText
 
 # from nonebot import on_regex
