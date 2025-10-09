@@ -226,94 +226,94 @@ class StarRailRes:
                     return plugin_data_dir / portrait
         return None
 
-    async def get_character_overview(self, name: str) -> Optional[bytes]:
-        if name not in self.NicknameRev:
-            return None
-        id = self.NicknameRev[name]
-        if id == "8000":
-            id = "8002"
-        if id in self.ResIndex["characters"]:
-            overview = self.ResIndex["characters"][id].guide_overview
-            overview = [
-                n
-                for n in overview
-                if any(p in n for p in plugin_config.sr_wiki_providers)
-            ]
-            if overview:
-                if isinstance(overview, list):
-                    overview = random.choice(overview)
-                if await self.cache(overview):
-                    return (plugin_data_dir / overview).read_bytes()
-        return None
+    # async def get_character_overview(self, name: str) -> Optional[bytes]:
+    #     if name not in self.NicknameRev:
+    #         return None
+    #     id = self.NicknameRev[name]
+    #     if id == "8000":
+    #         id = "8002"
+    #     if id in self.ResIndex["characters"]:
+    #         overview = self.ResIndex["characters"][id].guide_overview
+    #         overview = [
+    #             n
+    #             for n in overview
+    #             if any(p in n for p in plugin_config.sr_wiki_providers)
+    #         ]
+    #         if overview:
+    #             if isinstance(overview, list):
+    #                 overview = random.choice(overview)
+    #             if await self.cache(overview):
+    #                 return (plugin_data_dir / overview).read_bytes()
+    #     return None
 
-    def get_character_overview_url(self, name: str) -> Optional[str]:
-        if name not in self.NicknameRev:
-            return None
-        id = self.NicknameRev[name]
-        if id == "8000":
-            id = "8002"
-        if id in self.ResIndex["characters"]:
-            overview = self.ResIndex["characters"][id].guide_overview
-            if overview:
-                if isinstance(overview, list):
-                    overview = random.choice(overview)
-                return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
-        return None
+    # def get_character_overview_url(self, name: str) -> Optional[str]:
+    #     if name not in self.NicknameRev:
+    #         return None
+    #     id = self.NicknameRev[name]
+    #     if id == "8000":
+    #         id = "8002"
+    #     if id in self.ResIndex["characters"]:
+    #         overview = self.ResIndex["characters"][id].guide_overview
+    #         if overview:
+    #             if isinstance(overview, list):
+    #                 overview = random.choice(overview)
+    #             return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
+    #     return None
 
-    async def get_light_cone_overview(self, name: str) -> Optional[bytes]:
-        if name not in self.NicknameRev:
-            return None
-        id = self.NicknameRev[name]
-        if id in self.ResIndex["light_cones"]:
-            overview = self.ResIndex["light_cones"][id].guide_overview
-            overview = [
-                n
-                for n in overview
-                if any(p in n for p in plugin_config.sr_wiki_providers)
-            ]
-            if overview:
-                if isinstance(overview, list):
-                    overview = random.choice(overview)
-                if await self.cache(overview):
-                    return (plugin_data_dir / overview).read_bytes()
-        return None
+    # async def get_light_cone_overview(self, name: str) -> Optional[bytes]:
+    #     if name not in self.NicknameRev:
+    #         return None
+    #     id = self.NicknameRev[name]
+    #     if id in self.ResIndex["light_cones"]:
+    #         overview = self.ResIndex["light_cones"][id].guide_overview
+    #         overview = [
+    #             n
+    #             for n in overview
+    #             if any(p in n for p in plugin_config.sr_wiki_providers)
+    #         ]
+    #         if overview:
+    #             if isinstance(overview, list):
+    #                 overview = random.choice(overview)
+    #             if await self.cache(overview):
+    #                 return (plugin_data_dir / overview).read_bytes()
+    #     return None
 
-    def get_light_cone_overview_url(self, name: str) -> Optional[str]:
-        if name not in self.NicknameRev:
-            return None
-        id = self.NicknameRev[name]
-        if id in self.ResIndex["light_cones"]:
-            overview = self.ResIndex["light_cones"][id].guide_overview
-            if overview:
-                if isinstance(overview, list):
-                    overview = random.choice(overview)
-                return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
-        return None
+    # def get_light_cone_overview_url(self, name: str) -> Optional[str]:
+    #     if name not in self.NicknameRev:
+    #         return None
+    #     id = self.NicknameRev[name]
+    #     if id in self.ResIndex["light_cones"]:
+    #         overview = self.ResIndex["light_cones"][id].guide_overview
+    #         if overview:
+    #             if isinstance(overview, list):
+    #                 overview = random.choice(overview)
+    #             return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
+    #     return None
 
-    async def get_relic_set_overview(self, name: str) -> Optional[bytes]:
-        if name not in self.NicknameRev:
-            return None
-        id = self.NicknameRev[name]
-        if id in self.ResIndex["relic_sets"]:
-            overview = self.ResIndex["relic_sets"][id].guide_overview
-            if overview:
-                if isinstance(overview, list):
-                    overview = random.choice(overview)
-                if await self.cache(overview):
-                    return (plugin_data_dir / overview).read_bytes()
-        return None
+    # async def get_relic_set_overview(self, name: str) -> Optional[bytes]:
+    #     if name not in self.NicknameRev:
+    #         return None
+    #     id = self.NicknameRev[name]
+    #     if id in self.ResIndex["relic_sets"]:
+    #         overview = self.ResIndex["relic_sets"][id].guide_overview
+    #         if overview:
+    #             if isinstance(overview, list):
+    #                 overview = random.choice(overview)
+    #             if await self.cache(overview):
+    #                 return (plugin_data_dir / overview).read_bytes()
+    #     return None
 
-    def get_relic_set_overview_url(self, name: str) -> Optional[str]:
-        if name not in self.NicknameRev:
-            return None
-        id = self.NicknameRev[name]
-        if id in self.ResIndex["relic_sets"]:
-            overview = self.ResIndex["relic_sets"][id].guide_overview
-            if overview:
-                if isinstance(overview, list):
-                    overview = random.choice(overview)
-                return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
-        return None
+    # def get_relic_set_overview_url(self, name: str) -> Optional[str]:
+    #     if name not in self.NicknameRev:
+    #         return None
+    #     id = self.NicknameRev[name]
+    #     if id in self.ResIndex["relic_sets"]:
+    #         overview = self.ResIndex["relic_sets"][id].guide_overview
+    #         if overview:
+    #             if isinstance(overview, list):
+    #                 overview = random.choice(overview)
+    #             return self.proxy_url(f"{plugin_config.sr_wiki_url}/{overview}")
+    #     return None
 
     def get_font(self) -> str:
         return str(plugin_data_dir / "font" / FontFile)
@@ -411,27 +411,27 @@ class StarRailRes:
         logger.info("字体文件检查完毕")
         return status
 
-    async def download_guide(self, force: bool = False) -> bool:
-        """
-        预下载或更新攻略文件
+    # async def download_guide(self, force: bool = False) -> bool:
+    #     """
+    #     预下载或更新攻略文件
 
-        Args:
-            force: 是否强制更新本地文件
-        """
-        status = True
-        guide_files: list[str] = []
-        for id in self.ResIndex["characters"]:
-            guide_files += self.ResIndex["characters"][id].guide_overview
-        for id in self.ResIndex["light_cones"]:
-            guide_files += self.ResIndex["light_cones"][id].guide_overview
-        for id in self.ResIndex["relic_sets"]:
-            guide_files += self.ResIndex["relic_sets"][id].guide_overview
-        guide_files = [
-            n
-            for n in guide_files
-            if any(p in n for p in plugin_config.sr_wiki_providers)
-        ]
-        for file in guide_files:
-            if not await self.cache(file, force):
-                status = False
-        return status
+    #     Args:
+    #         force: 是否强制更新本地文件
+    #     """
+    #     status = True
+    #     guide_files: list[str] = []
+    #     for id in self.ResIndex["characters"]:
+    #         guide_files += self.ResIndex["characters"][id].guide_overview
+    #     for id in self.ResIndex["light_cones"]:
+    #         guide_files += self.ResIndex["light_cones"][id].guide_overview
+    #     for id in self.ResIndex["relic_sets"]:
+    #         guide_files += self.ResIndex["relic_sets"][id].guide_overview
+    #     guide_files = [
+    #         n
+    #         for n in guide_files
+    #         if any(p in n for p in plugin_config.sr_wiki_providers)
+    #     ]
+    #     for file in guide_files:
+    #         if not await self.cache(file, force):
+    #             status = False
+    #     return status

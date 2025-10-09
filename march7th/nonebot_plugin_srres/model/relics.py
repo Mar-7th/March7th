@@ -23,7 +23,6 @@ class RelicSetType(BaseModel):
     properties: list[list[Property]]
     desc: list[str]
     icon: str
-    guide_overview: list[str]
 
 
 class AffixType(BaseModel):

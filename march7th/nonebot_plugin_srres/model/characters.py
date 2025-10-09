@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel
 
 from .common import Property, Quantity, Promotion
@@ -15,14 +16,13 @@ class CharacterType(BaseModel):
     rarity: int
     path: str
     element: str
-    max_sp: float
+    max_sp: Optional[float]
     ranks: list[str]
     skills: list[str]
     skill_trees: list[str]
     icon: str
     preview: str
     portrait: str
-    guide_overview: list[str] = []
 
 
 class CharacterRankType(BaseModel):

@@ -11,7 +11,6 @@ class LightConeType(BaseModel):
     icon: str
     preview: str
     portrait: str
-    guide_overview: list[str] = []
 
 
 class LightConeRankType(BaseModel):

@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel
 
 
@@ -9,7 +10,7 @@ class PropertyType(BaseModel):
     ratio: bool  # is added ratio
     percent: bool  # is percent
     order: int  # property order
-    icon: str  # property icon path
+    icon: Optional[str]  # property icon path
 
 
 PropertyIndex = dict[str, PropertyType]
