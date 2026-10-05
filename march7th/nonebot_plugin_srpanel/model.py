@@ -7,8 +7,8 @@ from nonebot.log import logger
 from pydantic import BaseModel, ValidationError
 from sqlalchemy.orm import Mapped, mapped_column
 from nonebot_plugin_orm import Model, get_session
-from nonebot_plugin_localstore import get_data_dir
 from sqlalchemy import JSON, String, select, update
+from nonebot_plugin_localstore import get_data_dir
 from nonebot.drivers import Request, HTTPClientMixin
 from nonebot.compat import model_dump, type_validate_python
 
