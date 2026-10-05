@@ -13,8 +13,8 @@ from collections.abc import Sequence
 
 from alembic import op
 from alembic.op import run_async
-from sqlalchemy.orm import Session
 from nonebot import logger, require
+from sqlalchemy.orm import Session
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy import Connection, select, inspect
 from sqlalchemy.ext.asyncio import AsyncConnection
